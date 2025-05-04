@@ -94,23 +94,27 @@
     </div>
   </section>
   
-    <!-- Receive Money -->
-    <section id="receive" class="dashboard-section hidden">
-      <h2 class="text-2xl font-bold mb-4">Receive Money</h2>
-      <div class="bg-white p-6 rounded shadow space-y-2">
-        <p><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
-        <p><strong>User ID:</strong> <span id="userId">UX9234</span></p>
-        <p><strong>Wallet ID:</strong> WLT-XYZ8239</p>
-      </div>
-      <div class="bg-white p-6 rounded shadow space-y-2 mt-6">
-        <p><strong>Your Shareable Payment Link:</strong></p>
-        <div class="flex items-center space-x-2">
-          <input type="text" readonly id="paymentLink" class="w-full border px-3 py-2 rounded text-gray-700" />
-          <button onclick="copyPaymentLink()" class="bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700">Copy</button>
-        </div>
-      </div>
-      
-    </section>
+<!-- Receive Money -->
+<div class="bg-white p-6 rounded shadow space-y-2">
+  <p><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
+  <p><strong>User ID:</strong> <span id="userId">UX9234</span></p>
+  <button onclick="openRequestPage()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+    Request Money
+  </button>
+  
+</div>
+
+
+<script>
+function openRequestPage() {
+  const name = document.getElementById('userName').textContent.trim();
+  const username = encodeURIComponent(name.replace(/\s+/g, '')); // e.g. "John Doe" → "JohnDoe"
+  window.location.href = `../request?user=${username}`;
+}
+
+</script>
+
+
 
     <!-- Withdraw -->
     <section id="withdraw" class="dashboard-section hidden">
@@ -160,8 +164,8 @@ async function fetchUserData() {
 
     const data = await res.json();
     const user = data.user;
-    document.getElementById('paymentLink').value = `https://pay-y3bt.onrender.com/pay.html?id=${user.id}`;
 
+    // Set user info
     document.getElementById('userName').textContent = user.name;
     document.getElementById('userEmail').textContent = user.email;
     document.getElementById('settingName').textContent = user.name;
@@ -170,16 +174,15 @@ async function fetchUserData() {
     document.getElementById('balanceAmount').textContent = `$${(user.balance || 0).toFixed(2)}`;
     document.getElementById('weeklyTx').textContent = `${user.transactions.length} Transactions`;
 
-    // ✅ Calculate today's spend (send + withdraw)
+    // Calculate today's spend
     const today = new Date().toISOString().split('T')[0];
     const spendToday = user.transactions
       .filter(tx => ['send', 'withdraw'].includes(tx.type))
       .filter(tx => new Date(tx.date).toISOString().split('T')[0] === today)
       .reduce((sum, tx) => sum + tx.amount, 0);
-
     document.getElementById('todaysSpend').textContent = `-$${spendToday.toFixed(2)}`;
 
-    // ✅ Fill recent 10 transactions in overview
+    // Show latest 10 transactions in overview
     const latestTx = user.transactions.slice(-10).reverse();
     const existingTxList = document.getElementById('latestTxList');
     if (existingTxList) existingTxList.remove();
@@ -190,7 +193,7 @@ async function fetchUserData() {
     txList.innerHTML = `<h3 class="font-semibold text-lg mb-3">Latest Transactions</h3>`;
 
     latestTx.forEach(tx => {
-      const isPositive = ['receive', 'deposit'].includes(tx.type);
+      const isPositive = ['receive', 'deposit', 'requested'].includes(tx.type);
       const div = document.createElement('div');
       div.className = `flex justify-between text-sm py-2 border-b last:border-none`;
       div.innerHTML = `
@@ -205,21 +208,25 @@ async function fetchUserData() {
 
     document.getElementById('overview').appendChild(txList);
 
-    // ✅ Fill full transactions table
+    // Fill full transactions table
     const txBody = document.getElementById('transactionTableBody');
     txBody.innerHTML = '';
-    user.transactions.reverse().forEach(tx => {
-      const isPositive = ['receive', 'deposit'].includes(tx.type);
+
+    user.transactions.slice().reverse().forEach(tx => {
+      const isPositive = ['receive', 'deposit', 'requested'].includes(tx.type);
+      const typeLabel = tx.type === 'requested' ? 'Request Payment' : tx.type.charAt(0).toUpperCase() + tx.type.slice(1);
+      const direction = tx.to || tx.from || tx.customerEmail || '-';
+
       const row = document.createElement('tr');
       row.className = 'border-t hover:bg-gray-50';
       row.innerHTML = `
         <td class="px-4 py-2">${new Date(tx.date).toLocaleDateString()}</td>
-        <td class="px-4 py-2 capitalize">${tx.type}</td>
+        <td class="px-4 py-2">${typeLabel}</td>
         <td class="px-4 py-2 font-semibold ${isPositive ? 'text-green-600' : 'text-red-500'}">
           ${isPositive ? '+' : '-'}$${tx.amount.toFixed(2)}
         </td>
-        <td class="px-4 py-2">${tx.to || tx.from || '-'}</td>
-        <td class="px-4 py-2">${tx.status}</td>
+        <td class="px-4 py-2">${direction}</td>
+        <td class="px-4 py-2">${tx.status || 'Completed'}</td>
       `;
       txBody.appendChild(row);
     });
@@ -315,7 +322,7 @@ async function fetchUserData() {
   
     function logout() {
       localStorage.clear();
-      window.location.href = 'signup.html';
+      window.location.href = '../signup';
     }
   
     function showSection(id, btn) {
@@ -326,14 +333,6 @@ async function fetchUserData() {
     }
   
     document.addEventListener('DOMContentLoaded', fetchUserData);
-    function copyPaymentLink() {
-  const linkInput = document.getElementById('paymentLink');
-  linkInput.select();
-  linkInput.setSelectionRange(0, 99999);
-  document.execCommand('copy');
-  alert('✅ Payment link copied!');
-}
-
   </script>
   
 

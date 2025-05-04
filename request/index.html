@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pay Request | IyonicPay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  <div class="max-w-md w-full bg-white p-6 rounded shadow text-center">
+    <h2 class="text-2xl font-bold mb-4">Pay <span id="requestName">...</span></h2>
+    <p class="text-gray-600 mb-4">Send a direct payment to this IyonicPay user.</p>
+
+    <input type="email" id="payerEmail" placeholder="Your Email" class="w-full border p-3 rounded mb-4" required>
+    <input type="number" id="amount" placeholder="Amount in USD" class="w-full border p-3 rounded mb-4">
+    <button onclick="payUser()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full">Pay Now</button>
+
+    <hr class="my-6">
+    <p class="text-sm text-gray-500">Share this page with customers to receive payments.</p>
+    <input readonly id="shareLink" class="w-full mt-2 p-2 border rounded bg-gray-100 text-center text-sm">
+  </div>
+
+  <script>
+    let user = null;
+
+    async function loadUser() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const nameSlug = urlParams.get('user');
+      if (!nameSlug) {
+        document.body.innerHTML = '<p class="text-red-500 text-center mt-10">Invalid request link.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://pay-y3bt.onrender.com/api/public/user-by-name?user=${nameSlug}`);
+        const data = await res.json();
+        if (!res.ok || !data.email || !data.id) throw new Error();
+
+        user = data;
+        document.getElementById('requestName').textContent = user.name;
+        document.getElementById('shareLink').value = window.location.href;
+
+      } catch {
+        document.body.innerHTML = '<p class="text-red-500 text-center mt-10">Unable to load user data. Check your link.</p>';
+      }
+    }
+
+    function payUser() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const payerEmail = document.getElementById('payerEmail').value.trim();
+
+      if (!user || !amount || amount < 1 || !payerEmail) {
+        return alert('Please enter valid amount and your email.');
+      }
+
+      const ref = 'REQPAY_' + Math.floor(Math.random() * 1e9);
+      const handler = PaystackPop.setup({
+        key: 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2', // 🔐 Replace with your real key
+        email: payerEmail,
+        amount: amount * 100,
+        currency: 'USD',
+        ref,
+        callback: function(response) {
+          handlePaymentSuccess(amount, ref, payerEmail);
+        },
+        onClose: function () {
+          alert('Payment was cancelled.');
+        }
+      });
+
+      handler.openIframe();
+    }
+
+    async function handlePaymentSuccess(amount, reference, payerEmail) {
+      try {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/public/request-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            amount,
+            reference,
+            payerEmail
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert('✅ Payment completed successfully!');
+        } else {
+          alert(data.msg || 'Error recording payment');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to record the payment.');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUser);
+  </script>
+</body>
+</html>

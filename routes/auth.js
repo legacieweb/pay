@@ -80,26 +80,26 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/dashboard', authMiddleware, async (req, res) => {
-    try {
-      const user = await User.findById(req.user.id).select('-password');
-      if (!user) return res.status(404).json({ msg: 'User not found' });
-  
-      res.json({
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          balance: user.balance || 0,
-          transactions: user.transactions || [], // ✅ must include this
-          spendToday: 0,                         // optional
-          weeklyTransactions: (user.transactions || []).length
-        }
-      });
-    } catch (err) {
-      res.status(500).json({ msg: 'Server error' });
-    }
-  });
-  
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        balance: user.balance || 0,
+        transactions: user.transactions || [], // ✅ must include this
+        spendToday: 0,                         // optional
+        weeklyTransactions: (user.transactions || []).length
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
   
 
 // @route POST /api/auth/request-reset
@@ -153,4 +153,5 @@ router.post('/confirm-reset', async (req, res) => {
   });
   
 
+  
 module.exports = router;
