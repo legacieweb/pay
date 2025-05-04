@@ -30,7 +30,7 @@
 
     async function loadRecipient() {
       try {
-        const res = await fetch(`http://localhost:5000/api/user/${userId}`);
+        const res = await fetch(`https://pay-y3bt.onrender.com/api/user/${userId}`);
         const data = await res.json();
         if (res.ok) {
           document.getElementById('recipientName').textContent = data.user.name;
@@ -60,7 +60,7 @@
         currency: 'USD',
         callback: async function (response) {
           try {
-            const res = await fetch('http://localhost:5000/api/paylink/complete', {
+            const res = await fetch('https://pay-y3bt.onrender.com/api/paylink/complete', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'

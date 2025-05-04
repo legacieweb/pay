@@ -155,7 +155,7 @@ async function fetchUserData() {
   if (!token) return logout();
 
   try {
-    const res = await fetch('http://localhost:5000/api/auth/dashboard', {
+    const res = await fetch('https://pay-y3bt.onrender.com/api/auth/dashboard', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -266,7 +266,7 @@ document.getElementById('paymentLink').value = `https://pay.iyonicpay.com/pay/${
   
     async function handleDepositSuccess(response, amount, token) {
       try {
-        const res = await fetch('http://localhost:5000/api/wallet/deposit', {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/deposit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -298,7 +298,7 @@ document.getElementById('paymentLink').value = `https://pay.iyonicpay.com/pay/${
       }
   
       try {
-        const res = await fetch('http://localhost:5000/api/wallet/send', {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/send', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

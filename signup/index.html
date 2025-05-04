@@ -18,7 +18,7 @@
       <button type="submit" class="w-full bg-yellow-400 text-black py-3 rounded hover:bg-yellow-300">Sign Up</button>
     </form>
     <p class="text-center text-sm text-gray-600 mt-4">
-      Already have an account? <a href="login.html" class="text-indigo-600">Login</a>
+      Already have an account? <a href="../login" class="text-indigo-600">Login</a>
     </p>
   </div>
 
@@ -40,7 +40,7 @@
       }
 
       try {
-        const res = await fetch('http://localhost:5000/api/auth/signup', {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, password })
