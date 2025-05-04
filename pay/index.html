@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pay via IyonicPay</title>
+  <title>Pay | IyonicPay</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
@@ -25,20 +25,21 @@
   </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = window.location.pathname.split('/').pop(); // handles /pay/:userId
+    // ✅ Extract user ID from URL: https://pay.iyonicorp.com/pay/<userId>
+    const userId = window.location.pathname.split('/').pop();
 
     async function loadRecipient() {
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/user/${userId}`);
+        const res = await fetch(`https://pay-y3bt.onrender.com//api/user/${userId}`);
         const data = await res.json();
-        if (res.ok) {
+        if (res.ok && data.user) {
           document.getElementById('recipientName').textContent = data.user.name;
         } else {
-          alert('User not found');
+          alert('User not found or invalid link');
         }
       } catch (err) {
         alert('Error loading recipient info');
+        console.error(err);
       }
     }
 
@@ -50,7 +51,7 @@
       const amount = parseFloat(document.getElementById('amount').value);
 
       if (!email || !amount || amount <= 0) {
-        return alert('Enter valid email and amount');
+        return alert('Please enter valid email and amount');
       }
 
       const handler = PaystackPop.setup({
@@ -60,11 +61,9 @@
         currency: 'USD',
         callback: async function (response) {
           try {
-            const res = await fetch('https://pay-y3bt.onrender.com/api/paylink/complete', {
+            const res = await fetch('https://pay-y3bt.onrender.com//api/paylink/complete', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 userId,
                 senderEmail: email,
@@ -73,19 +72,19 @@
               })
             });
 
-            const data = await res.json();
+            const result = await res.json();
             if (res.ok) {
-              alert('✅ Payment successful!');
-              window.location.reload();
+              alert('✅ Payment sent successfully!');
+              location.reload();
             } else {
-              alert(data.msg || 'Error saving payment');
+              alert(result.msg || 'Payment error');
             }
           } catch (err) {
-            alert('Error sending payment to server');
+            alert('Error saving payment');
           }
         },
         onClose: function () {
-          alert('Payment window closed');
+          alert('❌ Payment window closed');
         }
       });
 
