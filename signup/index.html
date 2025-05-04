@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up | IyonicPay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+  <div class="w-full max-w-md bg-white p-8 rounded shadow">
+    <h2 class="text-2xl font-bold text-center mb-6">Create an Account</h2>
+    <form id="signupForm">
+      <input id="name" type="text" placeholder="Full Name" class="w-full p-3 mb-4 border rounded" required>
+      <input id="email" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded" required>
+      <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded" required>
+      <input id="confirm" type="password" placeholder="Confirm Password" class="w-full p-3 mb-4 border rounded" required>
+      <button type="submit" class="w-full bg-yellow-400 text-black py-3 rounded hover:bg-yellow-300">Sign Up</button>
+    </form>
+    <p class="text-center text-sm text-gray-600 mt-4">
+      Already have an account? <a href="login.html" class="text-indigo-600">Login</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+
+      if (!name || !email || !password || !confirm) {
+        return alert('Please fill in all fields.');
+      }
+
+      if (password !== confirm) {
+        return alert('Passwords do not match.');
+      }
+
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await res.json();
+        console.log('Signup Response:', data); // ✅ Debugging response
+
+        if (res.ok && data.user && data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user)); // ✅ Save user to localStorage
+          window.location.href = '../dashboard';
+        } else {
+          alert(data.msg || 'Signup failed. Please try again.');
+        }
+
+      } catch (err) {
+        console.error('Signup error:', err);
+        alert('⚠️ Could not connect to server. Please try again.');
+      }
+    });
+  </script>
+
+</body>
+</html>

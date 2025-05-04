@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | IyonicPay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-sm bg-white p-8 rounded shadow">
+    <h2 class="text-2xl font-bold text-center mb-6">Login to IyonicPay</h2>
+
+    <form id="loginForm">
+      <input id="email" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded" required>
+      <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded" required>
+      <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">Login</button>
+    </form>
+
+    <p class="text-center text-sm text-indigo-600 mt-4 cursor-pointer" onclick="document.getElementById('resetSection').classList.remove('hidden')">Forgot Password?</p>
+
+    <!-- Reset Password Section -->
+    <div id="resetSection" class="hidden mt-6 border-t pt-4">
+      <h3 class="text-center font-semibold mb-2">Reset Password</h3>
+      <input id="resetEmail" type="email" placeholder="Your Email" class="w-full p-2 mb-2 border rounded">
+      <button onclick="requestReset()" class="w-full bg-yellow-400 py-2 rounded hover:bg-yellow-300">Send Code</button>
+
+      <input id="resetCode" type="text" placeholder="Enter Code" class="w-full p-2 mt-4 border rounded">
+      <input id="newPassword" type="password" placeholder="New Password" class="w-full p-2 mt-2 border rounded">
+      <button onclick="confirmReset()" class="w-full bg-green-500 text-white py-2 mt-2 rounded hover:bg-green-400">Reset Password</button>
+    </div>
+
+    <p class="text-center text-sm text-gray-600 mt-4">
+      Don't have an account? <a href="../signup" class="text-indigo-600">Sign Up</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('token', data.token);
+          window.location.href = '../dashboard';
+        } else {
+          alert(data.msg || 'Login failed');
+        }
+      } catch (err) {
+        alert('Error connecting to server');
+      }
+    });
+
+    async function requestReset() {
+      const email = document.getElementById('resetEmail').value;
+      if (!email) return alert('Enter your email');
+
+      const res = await fetch('http://localhost:5000/api/auth/request-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+      alert(data.msg || 'Check your email for reset code');
+    }
+
+    async function confirmReset() {
+      const email = document.getElementById('resetEmail').value;
+      const code = document.getElementById('resetCode').value;
+      const newPassword = document.getElementById('newPassword').value;
+
+      if (!email || !code || !newPassword) return alert('All fields are required');
+
+      const res = await fetch('http://localhost:5000/api/auth/confirm-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code, newPassword })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('Password reset. Please login.');
+        location.reload();
+      } else {
+        alert(data.msg || 'Reset failed');
+      }
+    }
+  </script>
+</body>
+</html>

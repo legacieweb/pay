@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IyonicPay Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .active-tab {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 0.25rem;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-indigo-700 text-white p-6 hidden md:block">
+    <h1 class="text-2xl font-bold mb-6">IyonicPay</h1>
+    <nav class="space-y-3">
+      <button onclick="showSection('overview', this)" class="block w-full text-left nav-btn">Overview</button>
+      <button onclick="showSection('transactions', this)" class="block w-full text-left nav-btn">Transactions</button>
+      <button onclick="showSection('receive', this)" class="block w-full text-left nav-btn">Receive Money</button>
+      <button onclick="showSection('withdraw', this)" class="block w-full text-left nav-btn">Withdraw</button>
+      <button onclick="showSection('settings', this)" class="block w-full text-left nav-btn">Settings</button>
+      <button onclick="logout()" class="mt-10 text-red-300 hover:text-red-500">Logout</button>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 space-y-10 overflow-y-auto">
+
+<!-- Overview Section -->
+<section id="overview" class="dashboard-section">
+    <h2 class="text-2xl font-bold mb-6">Welcome, <span id="userName">User</span> 👋</h2>
+  
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white p-6 rounded shadow transition-all duration-300 hover:scale-[1.02]">
+        <h3 class="text-gray-600 mb-1">Account Balance</h3>
+        <p class="text-2xl font-bold text-indigo-600" id="balanceAmount">$0.00</p>
+      </div>
+      <div class="bg-white p-6 rounded shadow transition-all duration-300 hover:scale-[1.02]">
+        <h3 class="text-gray-600 mb-1">Today's Spend</h3>
+        <p class="text-2xl font-bold text-red-500" id="todaysSpend">-$0.00</p>
+      </div>
+      <div class="bg-white p-6 rounded shadow transition-all duration-300 hover:scale-[1.02]">
+        <h3 class="text-gray-600 mb-1">Weekly Activity</h3>
+        <p class="text-2xl font-bold text-green-600" id="weeklyTx">0 Transactions</p>
+      </div>
+    </div>
+  
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Deposit -->
+      <div class="bg-white p-4 rounded shadow space-y-3">
+        <h3 class="font-semibold text-lg">Deposit Money</h3>
+        <input type="number" id="depositAmount" class="w-full border p-2 rounded" placeholder="Enter amount (USD)">
+        <button onclick="startDeposit()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+          Deposit with Paystack
+        </button>
+      </div>
+  
+      <!-- Send -->
+      <div class="bg-white p-4 rounded shadow space-y-3">
+        <h3 class="font-semibold text-lg">Send Money</h3>
+        <input type="email" id="recipientEmail" class="w-full border p-2 rounded" placeholder="Recipient's Email">
+        <input type="number" id="sendAmount" class="w-full border p-2 rounded" placeholder="Amount (USD)">
+        <button onclick="sendMoney()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          Send
+        </button>
+      </div>
+    </div>
+  </section>
+  
+<!-- Transactions -->
+<section id="transactions" class="dashboard-section hidden">
+    <h2 class="text-2xl font-bold mb-4">Recent Transactions</h2>
+    <div class="bg-white shadow rounded overflow-x-auto">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-gray-200 text-gray-600 uppercase font-semibold text-xs">
+          <tr>
+            <th class="px-4 py-2">Date</th>
+            <th class="px-4 py-2">Type</th>
+            <th class="px-4 py-2">Amount</th>
+            <th class="px-4 py-2">To / From</th>
+            <th class="px-4 py-2">Status</th>
+          </tr>
+        </thead>
+        <tbody id="transactionTableBody" class="text-gray-700">
+          <!-- Transactions will be injected here -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+  
+<!-- Receive Money -->
+<section id="receive" class="dashboard-section hidden">
+    <h2 class="text-2xl font-bold mb-4">Receive Money</h2>
+    <div class="bg-white p-6 rounded shadow space-y-4 max-w-xl">
+      <div>
+        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+        <p><strong>User ID:</strong> <span id="userId">Loading...</span></p>
+        <p><strong>Wallet ID:</strong> <span id="walletId">WLT-XYZ8239</span></p>
+      </div>
+  
+      <div class="pt-4 border-t">
+        <p class="font-semibold mb-2">Your Personal Payment Link:</p>
+        <div class="flex items-center space-x-2">
+          <input id="paymentLink" readonly class="w-full border rounded p-2 text-sm" value="https://pay.iyonicpay.com/pay/">
+          <button onclick="copyPaymentLink()" class="bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700 text-sm">
+            Copy Link
+          </button>
+        </div>
+        <p class="text-gray-500 text-xs mt-1">Share this link to get paid directly to your IyonicPay wallet.</p>
+      </div>
+    </div>
+  </section>
+  
+
+    <!-- Withdraw -->
+    <section id="withdraw" class="dashboard-section hidden">
+      <h2 class="text-2xl font-bold mb-4">Withdraw Funds</h2>
+      <form class="bg-white p-6 rounded shadow max-w-md space-y-4">
+        <div>
+          <label class="block mb-1">Amount (USD)</label>
+          <input type="number" class="w-full border p-2 rounded" placeholder="Enter amount">
+        </div>
+        <div>
+          <label class="block mb-1">Method</label>
+          <select class="w-full border p-2 rounded">
+            <option>Bank Transfer</option>
+            <option>Mobile Money</option>
+            <option>Crypto</option>
+          </select>
+        </div>
+        <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Withdraw</button>
+      </form>
+    </section>
+
+    <!-- Settings -->
+    <section id="settings" class="dashboard-section hidden">
+      <h2 class="text-2xl font-bold mb-4">Settings</h2>
+      <div class="bg-white p-6 rounded shadow max-w-md">
+        <p><strong>Name:</strong> <span id="settingName">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="settingEmail">Loading...</span></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script>
+async function fetchUserData() {
+  const token = localStorage.getItem('token');
+  if (!token) return logout();
+
+  try {
+    const res = await fetch('http://localhost:5000/api/auth/dashboard', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) throw new Error('Invalid session');
+
+    const data = await res.json();
+    const user = data.user;
+    document.getElementById('walletId').textContent = user.walletId || 'WLT-' + user.id.slice(-6).toUpperCase();
+document.getElementById('paymentLink').value = `https://pay.iyonicpay.com/pay/${user.id}`;
+
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('settingName').textContent = user.name;
+    document.getElementById('settingEmail').textContent = user.email;
+    document.getElementById('userId').textContent = user.id || 'UX-' + Math.floor(Math.random() * 10000);
+    document.getElementById('balanceAmount').textContent = `$${(user.balance || 0).toFixed(2)}`;
+    document.getElementById('weeklyTx').textContent = `${user.transactions.length} Transactions`;
+
+    // ✅ Calculate today's spend (send + withdraw)
+    const today = new Date().toISOString().split('T')[0];
+    const spendToday = user.transactions
+      .filter(tx => ['send', 'withdraw'].includes(tx.type))
+      .filter(tx => new Date(tx.date).toISOString().split('T')[0] === today)
+      .reduce((sum, tx) => sum + tx.amount, 0);
+
+    document.getElementById('todaysSpend').textContent = `-$${spendToday.toFixed(2)}`;
+
+    // ✅ Fill recent 10 transactions in overview
+    const latestTx = user.transactions.slice(-10).reverse();
+    const existingTxList = document.getElementById('latestTxList');
+    if (existingTxList) existingTxList.remove();
+
+    const txList = document.createElement('div');
+    txList.id = 'latestTxList';
+    txList.className = 'bg-white p-4 rounded shadow mt-6';
+    txList.innerHTML = `<h3 class="font-semibold text-lg mb-3">Latest Transactions</h3>`;
+
+    latestTx.forEach(tx => {
+      const isPositive = ['receive', 'deposit'].includes(tx.type);
+      const div = document.createElement('div');
+      div.className = `flex justify-between text-sm py-2 border-b last:border-none`;
+      div.innerHTML = `
+        <span>${tx.type.toUpperCase()}</span>
+        <span class="${isPositive ? 'text-green-600' : 'text-red-500'}">
+          ${isPositive ? '+' : '-'}$${tx.amount.toFixed(2)}
+        </span>
+        <span>${new Date(tx.date).toLocaleDateString()}</span>
+      `;
+      txList.appendChild(div);
+    });
+
+    document.getElementById('overview').appendChild(txList);
+
+    // ✅ Fill full transactions table
+    const txBody = document.getElementById('transactionTableBody');
+    txBody.innerHTML = '';
+    user.transactions.reverse().forEach(tx => {
+      const isPositive = ['receive', 'deposit'].includes(tx.type);
+      const row = document.createElement('tr');
+      row.className = 'border-t hover:bg-gray-50';
+      row.innerHTML = `
+        <td class="px-4 py-2">${new Date(tx.date).toLocaleDateString()}</td>
+        <td class="px-4 py-2 capitalize">${tx.type}</td>
+        <td class="px-4 py-2 font-semibold ${isPositive ? 'text-green-600' : 'text-red-500'}">
+          ${isPositive ? '+' : '-'}$${tx.amount.toFixed(2)}
+        </td>
+        <td class="px-4 py-2">${tx.to || tx.from || '-'}</td>
+        <td class="px-4 py-2">${tx.status}</td>
+      `;
+      txBody.appendChild(row);
+    });
+
+    showSection('overview', document.querySelector('.nav-btn'));
+  } catch (err) {
+    console.error('Dashboard load error:', err);
+    alert('Session expired or invalid. Please log in again.');
+    logout();
+  }
+}
+
+    function startDeposit() {
+      const amount = parseFloat(document.getElementById('depositAmount').value);
+      if (!amount || amount < 1) return alert('Enter a valid amount');
+  
+      const token = localStorage.getItem('token');
+      const userEmail = document.getElementById('userEmail').textContent;
+      const reference = 'IYPAY_' + Math.floor(Math.random() * 1000000000);
+  
+      const handler = PaystackPop.setup({
+        key: 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2',
+        email: userEmail,
+        amount: amount * 100,
+        currency: 'USD',
+        ref: reference,
+        callback: function (response) {
+          handleDepositSuccess(response, amount, token);
+        },
+        onClose: function () {
+          alert('💡 Deposit cancelled.');
+        }
+      });
+  
+      handler.openIframe();
+    }
+  
+    async function handleDepositSuccess(response, amount, token) {
+      try {
+        const res = await fetch('http://localhost:5000/api/wallet/deposit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ amount, reference: response.reference })
+        });
+  
+        const data = await res.json();
+        if (res.ok) {
+          alert('✅ Deposit successful!');
+          fetchUserData(); // Refresh UI
+        } else {
+          alert(data.msg || 'Deposit failed');
+        }
+      } catch (err) {
+        console.error('Deposit record error:', err);
+        alert('Error updating your wallet after payment');
+      }
+    }
+  
+    async function sendMoney() {
+      const recipient = document.getElementById('recipientEmail').value;
+      const amount = parseFloat(document.getElementById('sendAmount').value);
+      const token = localStorage.getItem('token');
+  
+      if (!recipient || !amount || amount < 1) {
+        return alert('Fill in recipient and amount');
+      }
+  
+      try {
+        const res = await fetch('http://localhost:5000/api/wallet/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ toEmail: recipient, amount })
+        });
+  
+        const data = await res.json();
+        if (res.ok) {
+          alert('💸 Transfer completed!');
+          fetchUserData(); // Refresh balance & tx
+        } else {
+          alert(data.msg || 'Transfer failed');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error during transaction');
+      }
+    }
+  
+    function logout() {
+      localStorage.clear();
+      window.location.href = '../signup';
+    }
+  
+    function showSection(id, btn) {
+      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
+      if (btn) btn.classList.add('active-tab');
+    }
+  
+    document.addEventListener('DOMContentLoaded', fetchUserData);
+    function copyPaymentLink() {
+  const input = document.getElementById('paymentLink');
+  input.select();
+  input.setSelectionRange(0, 99999); // For mobile devices
+
+  document.execCommand('copy');
+  alert('📋 Link copied to clipboard!');
+}
+
+  </script>
+  
+
+</body>
+</html>
