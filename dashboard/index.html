@@ -14,18 +14,28 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex">
 
-  <!-- Sidebar -->
-  <aside class="w-64 bg-indigo-700 text-white p-6 hidden md:block">
-    <h1 class="text-2xl font-bold mb-6">IyonicPay</h1>
-    <nav class="space-y-3">
-      <button onclick="showSection('overview', this)" class="block w-full text-left nav-btn">Overview</button>
-      <button onclick="showSection('transactions', this)" class="block w-full text-left nav-btn">Transactions</button>
-      <button onclick="showSection('receive', this)" class="block w-full text-left nav-btn">Receive Money</button>
-      <button onclick="showSection('withdraw', this)" class="block w-full text-left nav-btn">Withdraw</button>
-      <button onclick="showSection('settings', this)" class="block w-full text-left nav-btn">Settings</button>
-      <button onclick="logout()" class="mt-10 text-red-300 hover:text-red-500">Logout</button>
-    </nav>
-  </aside>
+  <!-- Hamburger Menu (Visible on Mobile) -->
+<button id="menuToggle" class="md:hidden fixed top-4 left-4 z-50 bg-indigo-600 text-white p-2 rounded focus:outline-none">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-indigo-700 text-white p-6 z-40 transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-200 ease-in-out">
+  <h1 class="text-2xl font-bold mb-6">IyonicPay</h1>
+  <nav class="space-y-3">
+    <button onclick="showSection('overview', this)" class="block w-full text-left nav-btn">Overview</button>
+    <button onclick="showSection('transactions', this)" class="block w-full text-left nav-btn">Transactions</button>
+    <button onclick="showSection('receive', this)" class="block w-full text-left nav-btn">Receive Money</button>
+    <button onclick="showSection('withdraw', this)" class="block w-full text-left nav-btn">Withdraw</button>
+    <button onclick="showSection('settings', this)" class="block w-full text-left nav-btn">Settings</button>
+    <button onclick="logout()" class="mt-10 text-red-300 hover:text-red-500">Logout</button>
+  </nav>
+</aside>
+
 
   <!-- Main Content -->
   <main class="flex-1 p-6 space-y-10 overflow-y-auto">
@@ -95,14 +105,17 @@
   </section>
   
 <!-- Receive Money -->
-<div class="bg-white p-6 rounded shadow space-y-2">
-  <p><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
-  <p><strong>User ID:</strong> <span id="userId">UX9234</span></p>
-  <button onclick="openRequestPage()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-    Request Money
-  </button>
-  
-</div>
+<section id="receive" class="dashboard-section hidden">
+  <h2 class="text-2xl font-bold mb-4">Receive Money</h2>
+  <div class="bg-white p-6 rounded shadow space-y-2">
+    <p><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
+    <p><strong>User ID:</strong> <span id="userId">UX9234</span></p>
+    <button onclick="openRequestPage()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      Request Money
+    </button>
+  </div>
+</section>
+
 
 
 <script>
@@ -335,6 +348,24 @@ async function fetchUserData() {
     document.addEventListener('DOMContentLoaded', fetchUserData);
   </script>
   
-
+  <script>
+    const menuBtn = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+  
+    menuBtn.addEventListener('click', () => {
+      const isOpen = sidebar.classList.contains('-translate-x-full');
+      sidebar.classList.toggle('-translate-x-full', !isOpen);
+      sidebar.classList.toggle('translate-x-0', isOpen);
+    });
+  
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+      if (!sidebar.contains(e.target) && !menuBtn.contains(e.target) && window.innerWidth < 768) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+      }
+    });
+  </script>
+  
 </body>
 </html>
