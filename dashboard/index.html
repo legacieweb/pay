@@ -107,7 +107,7 @@
       <div class="pt-4 border-t">
         <p class="font-semibold mb-2">Your Personal Payment Link:</p>
         <div class="flex items-center space-x-2">
-          <input id="paymentLink" readonly class="w-full border rounded p-2 text-sm" value="https://pay.iyonicpay.com/pay/">
+          <input id="paymentLink" readonly class="w-full border rounded p-2 text-sm" value="https://pay.iyonicorp.com/pay/">
           <button onclick="copyPaymentLink()" class="bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700 text-sm">
             Copy Link
           </button>
@@ -167,7 +167,7 @@ async function fetchUserData() {
     const data = await res.json();
     const user = data.user;
     document.getElementById('walletId').textContent = user.walletId || 'WLT-' + user.id.slice(-6).toUpperCase();
-document.getElementById('paymentLink').value = `https://pay.iyonicpay.com/pay/${user.id}`;
+document.getElementById('paymentLink').value = `https://pay.iyonicorp.com/pay/${user.id}`;
 
     document.getElementById('userName').textContent = user.name;
     document.getElementById('userEmail').textContent = user.email;
