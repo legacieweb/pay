@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Send Payment | IyonicPay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white max-w-md w-full p-6 rounded shadow">
+    <h2 class="text-2xl font-bold mb-4 text-center text-indigo-600">Send Payment to IyonicPay User</h2>
+
+    <form id="paymentForm" class="space-y-4">
+      <input type="email" id="senderEmail" placeholder="Your Email" required class="w-full p-3 border rounded" />
+      <input type="number" id="amount" placeholder="Amount in USD" required class="w-full p-3 border rounded" />
+      <button type="submit" class="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700">Pay with Paystack</button>
+    </form>
+
+    <p id="status" class="text-center text-sm text-gray-600 mt-4"></p>
+  </div>
+
+  <script>
+    const userId = new URLSearchParams(window.location.search).get('id');
+    const backendUrl = 'https://pay-y3bt.onrender.com/api/public/pay'; // 🔁 Update to your domain in production
+
+    document.getElementById('paymentForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('senderEmail').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const reference = 'IYPAYLINK_' + Math.floor(Math.random() * 1000000000);
+
+      if (!email || !amount || amount <= 0) {
+        return alert('Please enter valid email and amount');
+      }
+
+      // ✅ Use closure to preserve variables for callback
+      const paystackHandler = PaystackPop.setup({
+        key: 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2', // ⛔ Replace with your live key in production
+        email: email,
+        amount: amount * 100,
+        currency: 'USD',
+        ref: reference,
+        callback: function(response) {
+          // ✅ Use a separate async handler inside the callback
+          (async () => {
+            try {
+              const res = await fetch(`${backendUrl}/${userId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  amount,
+                  senderEmail: email,
+                  reference: response.reference
+                })
+              });
+
+              const data = await res.json();
+              if (res.ok) {
+                document.getElementById('status').textContent = '✅ Payment successful! Thank you.';
+              } else {
+                document.getElementById('status').textContent = data.msg || '❌ Payment failed to record.';
+              }
+            } catch (err) {
+              console.error(err);
+              document.getElementById('status').textContent = '❌ Server error. Please try again.';
+            }
+          })();
+        },
+        onClose: function () {
+          alert('Payment cancelled.');
+        }
+      });
+
+      paystackHandler.openIframe();
+    });
+  </script>
+</body>
+</html>

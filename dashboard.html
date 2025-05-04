@@ -94,29 +94,23 @@
     </div>
   </section>
   
-<!-- Receive Money -->
-<section id="receive" class="dashboard-section hidden">
-    <h2 class="text-2xl font-bold mb-4">Receive Money</h2>
-    <div class="bg-white p-6 rounded shadow space-y-4 max-w-xl">
-      <div>
-        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-        <p><strong>User ID:</strong> <span id="userId">Loading...</span></p>
-        <p><strong>Wallet ID:</strong> <span id="walletId">WLT-XYZ8239</span></p>
+    <!-- Receive Money -->
+    <section id="receive" class="dashboard-section hidden">
+      <h2 class="text-2xl font-bold mb-4">Receive Money</h2>
+      <div class="bg-white p-6 rounded shadow space-y-2">
+        <p><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
+        <p><strong>User ID:</strong> <span id="userId">UX9234</span></p>
+        <p><strong>Wallet ID:</strong> WLT-XYZ8239</p>
       </div>
-  
-      <div class="pt-4 border-t">
-        <p class="font-semibold mb-2">Your Personal Payment Link:</p>
+      <div class="bg-white p-6 rounded shadow space-y-2 mt-6">
+        <p><strong>Your Shareable Payment Link:</strong></p>
         <div class="flex items-center space-x-2">
-          <input id="paymentLink" readonly class="w-full border rounded p-2 text-sm" value="https://pay.iyonicorp.com/pay/">
-          <button onclick="copyPaymentLink()" class="bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700 text-sm">
-            Copy Link
-          </button>
+          <input type="text" readonly id="paymentLink" class="w-full border px-3 py-2 rounded text-gray-700" />
+          <button onclick="copyPaymentLink()" class="bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700">Copy</button>
         </div>
-        <p class="text-gray-500 text-xs mt-1">Share this link to get paid directly to your IyonicPay wallet.</p>
       </div>
-    </div>
-  </section>
-  
+      
+    </section>
 
     <!-- Withdraw -->
     <section id="withdraw" class="dashboard-section hidden">
@@ -166,8 +160,7 @@ async function fetchUserData() {
 
     const data = await res.json();
     const user = data.user;
-    document.getElementById('walletId').textContent = user.walletId || 'WLT-' + user.id.slice(-6).toUpperCase();
-document.getElementById('paymentLink').value = `https://pay.iyonicorp.com/pay/${user.id}`;
+    document.getElementById('paymentLink').value = `https://pay-y3bt.onrender.com/pay.html?id=${user.id}`;
 
     document.getElementById('userName').textContent = user.name;
     document.getElementById('userEmail').textContent = user.email;
@@ -322,7 +315,7 @@ document.getElementById('paymentLink').value = `https://pay.iyonicorp.com/pay/${
   
     function logout() {
       localStorage.clear();
-      window.location.href = '../signup';
+      window.location.href = 'signup.html';
     }
   
     function showSection(id, btn) {
@@ -334,12 +327,11 @@ document.getElementById('paymentLink').value = `https://pay.iyonicorp.com/pay/${
   
     document.addEventListener('DOMContentLoaded', fetchUserData);
     function copyPaymentLink() {
-  const input = document.getElementById('paymentLink');
-  input.select();
-  input.setSelectionRange(0, 99999); // For mobile devices
-
+  const linkInput = document.getElementById('paymentLink');
+  linkInput.select();
+  linkInput.setSelectionRange(0, 99999);
   document.execCommand('copy');
-  alert('📋 Link copied to clipboard!');
+  alert('✅ Payment link copied!');
 }
 
   </script>

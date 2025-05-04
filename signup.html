@@ -18,7 +18,7 @@
       <button type="submit" class="w-full bg-yellow-400 text-black py-3 rounded hover:bg-yellow-300">Sign Up</button>
     </form>
     <p class="text-center text-sm text-gray-600 mt-4">
-      Already have an account? <a href="../login" class="text-indigo-600">Login</a>
+      Already have an account? <a href="login.html" class="text-indigo-600">Login</a>
     </p>
   </div>
 
@@ -52,7 +52,7 @@
         if (res.ok && data.user && data.token) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.user)); // ✅ Save user to localStorage
-          window.location.href = '../dashboard';
+          window.location.href = 'dashboard.html';
         } else {
           alert(data.msg || 'Signup failed. Please try again.');
         }

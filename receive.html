@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Send Payment | IyonicPay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow max-w-md w-full text-center">
+    <h2 class="text-2xl font-bold mb-4">Send Payment</h2>
+    <p class="text-gray-600 mb-4">You're sending a payment to:</p>
+    <p class="font-semibold text-indigo-600 mb-1" id="recipientName">Loading...</p>
+    <p class="text-sm text-gray-500" id="recipientEmail">Loading...</p>
+
+    <div class="mt-6 text-left">
+      <label class="block text-sm font-medium mb-1">Amount (USD)</label>
+      <input type="number" id="amount" class="w-full border p-2 rounded mb-4" placeholder="Enter amount">
+
+      <label class="block text-sm font-medium mb-1">Your Email</label>
+      <input type="email" id="senderEmail" class="w-full border p-2 rounded mb-4" placeholder="Enter your email">
+
+      <button onclick="payNow()" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">Pay with Paystack</button>
+    </div>
+  </div>
+
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script>
+const userId = new URLSearchParams(window.location.search).get('uid');
+
+
+    let recipient = {};
+
+    async function loadRecipient() {
+      try {
+        const res = await fetch(`https://pay-y3bt.onrender.com/api/public-user/${userId}`);
+        const data = await res.json();
+        recipient = data;
+        document.getElementById('recipientName').textContent = recipient.name;
+        document.getElementById('recipientEmail').textContent = recipient.email;
+      } catch {
+        alert('❌ Failed to load recipient');
+      }
+    }
+
+    function payNow() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const senderEmail = document.getElementById('senderEmail').value;
+      if (!amount || amount < 1 || !senderEmail) return alert('Enter valid details');
+
+      const handler = PaystackPop.setup({
+        key: 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2',
+        email: senderEmail,
+        amount: amount * 100,
+        currency: 'USD',
+        callback: async function (response) {
+          await fetch('https://pay-y3bt.onrender.com/api/wallet/public-receive', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              fromEmail: senderEmail,
+              amount,
+              reference: response.reference
+            })
+          });
+          alert('✅ Payment sent successfully!');
+        },
+        onClose: function () {
+          alert('💡 Payment window closed');
+        }
+      });
+
+      handler.openIframe();
+    }
+
+    document.addEventListener('DOMContentLoaded', loadRecipient);
+  </script>
+</body>
+</html>
