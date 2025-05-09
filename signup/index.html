@@ -11,56 +11,126 @@
   <div class="w-full max-w-md bg-white p-8 rounded shadow">
     <h2 class="text-2xl font-bold text-center mb-6">Create an Account</h2>
     <form id="signupForm">
-      <input id="name" type="text" placeholder="Full Name" class="w-full p-3 mb-4 border rounded" required>
+      <input id="name" type="text" placeholder="Payment name/ company name" class="w-full p-3 mb-4 border rounded" required>
       <input id="email" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded" required>
-      <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded" required>
-      <input id="confirm" type="password" placeholder="Confirm Password" class="w-full p-3 mb-4 border rounded" required>
-      <button type="submit" class="w-full bg-yellow-400 text-black py-3 rounded hover:bg-yellow-300">Sign Up</button>
+      <button id="sendCodeBtn" type="button" class="w-full bg-blue-500 text-white py-3 rounded mb-4 hover:bg-blue-600">Send Code</button>
+      
+      <input id="verifyCode" type="text" placeholder="Enter verification code" class="w-full p-3 mb-4 border rounded hidden">
+      
+      <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded hidden" required>
+      <input id="confirm" type="password" placeholder="Confirm Password" class="w-full p-3 mb-4 border rounded hidden" required>
+      <button id="signupBtn" type="submit" class="w-full bg-yellow-400 text-black py-3 rounded hover:bg-yellow-300 hidden">Sign Up</button>
     </form>
     <p class="text-center text-sm text-gray-600 mt-4">
       Already have an account? <a href="../login" class="text-indigo-600">Login</a>
     </p>
   </div>
 
+  <!-- Signing Up Modal -->
+  <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
+    <div class="bg-white px-6 py-4 rounded shadow-lg text-center animate-pulse">
+      <p class="text-lg font-semibold text-yellow-500">🛠️ Creating your account...</p>
+    </div>
+  </div>
+
   <script>
-    document.getElementById('signupForm').addEventListener('submit', async function (e) {
+    const signupForm = document.getElementById('signupForm');
+    const signupBtn = document.getElementById('signupBtn');
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+    const verifyCodeInput = document.getElementById('verifyCode');
+    const loadingModal = document.getElementById('loadingModal');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm');
+
+    async function isNameTaken(name) {
+      const res = await fetch(`https://pay-y3bt.onrender.com/api/auth/check-name?name=${encodeURIComponent(name)}`);
+      const data = await res.json();
+      return data.exists;
+    }
+
+    sendCodeBtn.addEventListener('click', async () => {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!name || !email) return alert("Please enter both name and email.");
+
+      const nameTaken = await isNameTaken(name);
+      if (nameTaken) return alert("🚫 This name is already taken. Choose a different one.");
+
+      sendCodeBtn.disabled = true;
+      sendCodeBtn.textContent = "Sending...";
+
+      try {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/signup/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("✅ Code sent to your email. Please enter it to continue.");
+          verifyCodeInput.classList.remove('hidden');
+          passwordInput.classList.remove('hidden');
+          confirmInput.classList.remove('hidden');
+          signupBtn.classList.remove('hidden');
+        } else {
+          alert(data.msg || "Failed to send verification code.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Server error while sending code.");
+      }
+
+      sendCodeBtn.disabled = false;
+      sendCodeBtn.textContent = "Send Code";
+    });
+
+    signupForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirm = document.getElementById('confirm').value;
+      const password = passwordInput.value;
+      const confirm = confirmInput.value;
+      const code = verifyCodeInput.value.trim();
 
-      if (!name || !email || !password || !confirm) {
-        return alert('Please fill in all fields.');
+      if (!name || !email || !password || !confirm || !code) {
+        return alert('Please complete all fields.');
       }
 
       if (password !== confirm) {
         return alert('Passwords do not match.');
       }
 
+      signupBtn.disabled = true;
+      signupBtn.textContent = 'Creating...';
+      loadingModal.classList.remove('hidden');
+
       try {
         const res = await fetch('https://pay-y3bt.onrender.com/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password })
+          body: JSON.stringify({ name, email, password, code })
         });
 
         const data = await res.json();
-        console.log('Signup Response:', data); // ✅ Debugging response
 
         if (res.ok && data.user && data.token) {
           localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user)); // ✅ Save user to localStorage
+          localStorage.setItem('user', JSON.stringify(data.user));
           window.location.href = '../dashboard';
         } else {
-          alert(data.msg || 'Signup failed. Please try again.');
+          alert(data.msg || 'Signup failed. Try again.');
         }
-
       } catch (err) {
         console.error('Signup error:', err);
-        alert('⚠️ Could not connect to server. Please try again.');
+        alert('❌ Server error. Please try again later.');
       }
+
+      signupBtn.disabled = false;
+      signupBtn.textContent = 'Sign Up';
+      loadingModal.classList.add('hidden');
     });
   </script>
 

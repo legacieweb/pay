@@ -7,6 +7,8 @@ const cors = require('cors');
 app.use(cors());
 const walletRoutes = require('./routes/wallet');
 const publicRoutes = require('./routes/public'); // or wherever the file is
+const adminRoutes = require('./routes/admin');
+
 
 
 dotenv.config();
@@ -18,6 +20,7 @@ app.use('/api', publicRoutes);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', require('./routes/wallet'));
+app.use('/api/admin', adminRoutes);
 // Protected example
 app.get('/', (req, res) => res.send('IyonicPay API Running'));
 

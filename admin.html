@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IyonicPay Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg">
+      <h2 class="text-xl font-semibold mb-4 text-center">Admin Login</h2>
+      <input id="adminPassword" type="password" placeholder="Enter Admin Password" class="w-full border p-3 rounded mb-4" />
+      <button onclick="verifyAdmin()" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Login</button>
+      <p id="loginError" class="text-red-500 text-sm mt-2 hidden text-center">Invalid password</p>
+    </div>
+  </div>
+
+  <!-- Main Admin Content -->
+  <header class="bg-indigo-700 text-white p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Admin | IyonicPay</h1>
+    <button onclick="logout()" class="bg-white text-indigo-600 px-4 py-2 rounded hover:bg-gray-100">Logout</button>
+  </header>
+
+  <main class="p-6">
+    <!-- Search & Manage User -->
+<section class="bg-white p-4 rounded shadow mb-8">
+  <h3 class="text-lg font-semibold mb-3">Manage User</h3>
+  <input type="email" id="searchEmail" placeholder="Enter user email" class="border p-2 rounded w-full max-w-md mb-3" />
+  <button onclick="searchUser()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mb-4">Search</button>
+
+  <div id="userDetails" class="hidden">
+    <p><strong>Name:</strong> <span id="userNameField"></span></p>
+    <p><strong>Email:</strong> <span id="userEmailField"></span></p>
+    
+    <div class="mt-4 flex gap-2 flex-wrap">
+      <button onclick="loadUserTransactions()" class="bg-indigo-500 text-white px-4 py-1 rounded hover:bg-indigo-600">View Transactions</button>
+    </div>
+
+    <div id="userTxContainer" class="mt-6 hidden">
+      <h4 class="font-bold text-md mb-2">User Transactions</h4>
+      <table class="min-w-full text-sm border">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-2 py-1">Type</th>
+            <th class="px-2 py-1">Amount</th>
+            <th class="px-2 py-1">To / From</th>
+            <th class="px-2 py-1">Status</th>
+            <th class="px-2 py-1">Date</th>
+            <th class="px-2 py-1">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userTxTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <h2 class="text-xl font-semibold mb-4">All Transactions</h2>
+    <div class="bg-white shadow rounded overflow-x-auto">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-gray-200 text-gray-600 uppercase font-semibold text-xs">
+          <tr>
+            <th class="px-4 py-2">User</th>
+            <th class="px-4 py-2">Email</th>
+            <th class="px-4 py-2">Type</th>
+            <th class="px-4 py-2">Amount</th>
+            <th class="px-4 py-2">To / From</th>
+            <th class="px-4 py-2">Date</th>
+          </tr>
+        </thead>
+        <tbody id="transactionTableBody" class="text-gray-700">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    // Check if already logged in on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          await loadTransactions();
+          document.getElementById('adminLoginModal').style.display = 'none';
+        } catch {
+          logout(); // fallback if token is expired/invalid
+        }
+      }
+    });
+
+    async function verifyAdmin() {
+      const password = document.getElementById('adminPassword').value;
+      try {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('token', data.token);
+          document.getElementById('adminLoginModal').style.display = 'none';
+          loadTransactions();
+        } else {
+          document.getElementById('loginError').classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error('Login failed:', err);
+        document.getElementById('loginError').classList.remove('hidden');
+      }
+    }
+
+    async function loadTransactions() {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Unauthorized');
+
+      const res = await fetch('https://pay-y3bt.onrender.com/api/admin/transactions', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (!res.ok || !Array.isArray(data)) {
+        throw new Error(data.msg || 'Unauthorized');
+      }
+
+      const tbody = document.getElementById('transactionTableBody');
+      tbody.innerHTML = '';
+      data.forEach(tx => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="border px-4 py-2">${tx.userName}</td>
+          <td class="border px-4 py-2">${tx.email}</td>
+          <td class="border px-4 py-2">${tx.type}</td>
+<td class="border px-4 py-2">$${(tx.amount || 0).toFixed(2)}</td>
+          <td class="border px-4 py-2">${tx.to || tx.from || '-'}</td>
+          <td class="border px-4 py-2">${tx.status}</td>
+          <td class="border px-4 py-2">${new Date(tx.date).toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.reload();
+    }
+    let selectedUserId = null;
+
+async function searchUser() {
+  const email = document.getElementById('searchEmail').value.trim();
+  const token = localStorage.getItem('token');
+
+  const res = await fetch(`https://pay-y3bt.onrender.com/api/admin/user?email=${email}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await res.json();
+  if (!res.ok) return alert(data.msg || 'User not found');
+
+  selectedUserId = data._id;
+  document.getElementById('userDetails').classList.remove('hidden');
+  document.getElementById('userNameField').textContent = data.name;
+  document.getElementById('userEmailField').textContent = data.email;
+
+}
+
+
+
+async function loadUserTransactions() {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`https://pay-y3bt.onrender.com/api/admin/user-transactions?userId=${selectedUserId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await res.json();
+  if (!res.ok) return alert(data.msg || 'Error loading transactions');
+
+  const txBody = document.getElementById('userTxTableBody');
+  txBody.innerHTML = '';
+  data.forEach(tx => {
+    txBody.innerHTML += `
+      <tr class="border-t">
+        <td class="px-2 py-1">${tx.type}</td>
+        <td class="px-2 py-1">$${tx.amount.toFixed(2)}</td>
+        <td class="px-2 py-1">${tx.to || tx.from || '-'}</td>
+        <td class="px-2 py-1">${tx.status}</td>
+        <td class="px-2 py-1">${new Date(tx.date).toLocaleString()}</td>
+        <td class="px-2 py-1">${tx.type === 'withdraw' ? `<button onclick="updateWithdrawStatus('${tx._id}')" class="text-sm bg-indigo-500 text-white px-2 py-1 rounded">Mark Done</button>` : ''}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById('userTxContainer').classList.remove('hidden');
+}
+
+async function updateWithdrawStatus(txId) {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`https://pay-y3bt.onrender.com/api/admin/withdraw-status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ txId })
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+  loadUserTransactions(); // refresh
+}
+
+  </script>
+
+</body>
+</html>

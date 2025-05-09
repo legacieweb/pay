@@ -17,15 +17,67 @@
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <header class="text-center py-20 bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-800 text-white px-4">
-    <h2 class="text-4xl font-bold mb-4 leading-tight">Simplify Your Payments with IyonicPay</h2>
-    <p class="text-lg max-w-xl mx-auto mb-6 opacity-90">Send, receive, and manage money with confidence — anytime, anywhere.</p>
-    <a href="./signup" class="inline-block px-6 py-3 bg-yellow-400 text-black font-semibold rounded-full hover:bg-yellow-300 transition">
+  <style>
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  
+    .animate-fadeIn {
+      animation: fadeIn 1.5s ease-out both;
+    }
+  </style>
+  
+
+<!-- Hero Section -->
+<header class="relative overflow-hidden bg-gradient-to-br from-indigo-700 via-indigo-800 to-black text-white">
+  <div class="max-w-7xl mx-auto px-6 py-24 text-center relative z-10">
+    <h1 class="text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl mb-6 drop-shadow-xl animate-fadeIn">
+      Seamless, Secure <br class="hidden sm:inline" /> Payments with <span class="text-yellow-400">IyonicPay</span>
+    </h1>
+    <p class="text-lg max-w-2xl mx-auto text-indigo-100 mb-8">
+      Send, receive, and manage money with confidence — wherever you are in the world.
+    </p>
+    <a href="./signup"
+       class="inline-block px-8 py-3 text-lg bg-yellow-400 text-black font-semibold rounded-full shadow-lg hover:bg-yellow-300 transition transform hover:scale-105">
       Get Started Free
     </a>
-  </header>
+  </div>
+
+  <!-- Decorative Glows -->
+  <div class="absolute -top-20 -left-20 w-80 h-80 bg-purple-500 opacity-30 rounded-full filter blur-3xl animate-pulse"></div>
+  <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400 opacity-20 rounded-full filter blur-2xl animate-ping"></div>
+</header>
+
   
+
+<!-- Brand Showcase Section -->
+<section class="py-20 bg-white px-6">
+  <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+    <!-- Text Content -->
+    <div>
+      <h3 class="text-3xl font-bold mb-4 text-indigo-700">Built for Speed. Trusted for Security.</h3>
+      <p class="text-gray-600 mb-6 text-sm leading-relaxed">
+        IyonicPay is more than a wallet — it’s your trusted partner for sending and receiving money globally.
+        Whether you're an entrepreneur, freelancer, or everyday user, we bring you the power of instant, secure payments
+        with total control and transparency.
+      </p>
+      <ul class="space-y-3 text-sm text-gray-700">
+        <li class="flex items-start"><span class="text-green-600 mr-2">✔️</span> Transparent fees, no hidden charges</li>
+        <li class="flex items-start"><span class="text-green-600 mr-2">✔️</span> Advanced fraud detection and reporting</li>
+        <li class="flex items-start"><span class="text-green-600 mr-2">✔️</span> Supports local currencies and USD</li>
+        <li class="flex items-start"><span class="text-green-600 mr-2">✔️</span> Smart refunds and dispute resolution</li>
+      </ul>
+    </div>
+
+    <!-- Image or Illustration -->
+    <div class="flex justify-center">
+      <img src="https://sanctamaria.in/wp-content/uploads/2022/02/electronic-transactions-more-secure.png" alt="Secure Transactions Illustration" class="rounded-lg shadow-lg max-w-full w-96">
+    </div>
+  </div>
+</section>
+
+
   <!-- Anti-Scam Trust Section -->
 <section class="bg-gray-50 py-16 px-6 text-center">
   <div class="max-w-4xl mx-auto">

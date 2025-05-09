@@ -11,7 +11,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
     });
 
     const mailOptions = {
-      from: `"IyonicPay 👛" <${process.env.EMAIL_USER}>`,
+      from: `"IyonicPay💸" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text: text || '', // fallback for clients that don't support HTML

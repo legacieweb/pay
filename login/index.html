@@ -13,7 +13,7 @@
     <form id="loginForm">
       <input id="email" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded" required>
       <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded" required>
-      <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">Login</button>
+      <button id="loginBtn" type="submit" class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">Login</button>
     </form>
 
     <p class="text-center text-sm text-indigo-600 mt-4 cursor-pointer" onclick="document.getElementById('resetSection').classList.remove('hidden')">Forgot Password?</p>
@@ -34,11 +34,27 @@
     </p>
   </div>
 
+  <!-- Logging In Modal -->
+  <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
+    <div class="bg-white px-6 py-4 rounded shadow-lg text-center animate-pulse">
+      <p class="text-lg font-semibold text-indigo-600">🔐 Logging you in...</p>
+    </div>
+  </div>
+
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const loadingModal = document.getElementById('loadingModal');
+
+    loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+      loadingModal.classList.remove('hidden');
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
 
       try {
         const res = await fetch('https://pay-y3bt.onrender.com/api/auth/login', {
@@ -48,14 +64,21 @@
         });
 
         const data = await res.json();
+
         if (res.ok) {
           localStorage.setItem('token', data.token);
           window.location.href = '../dashboard';
         } else {
           alert(data.msg || 'Login failed');
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+          loadingModal.classList.add('hidden');
         }
       } catch (err) {
         alert('Error connecting to server');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+        loadingModal.classList.add('hidden');
       }
     });
 

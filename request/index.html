@@ -1,3 +1,4 @@
+<!-- ✅ Your Final, Fixed, and Enhanced File -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,23 +7,109 @@
   <title>Pay Request | IyonicPay</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    @keyframes fade {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fade {
+      animation: fade 0.3s ease-out forwards;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
   <div class="max-w-md w-full bg-white p-6 rounded shadow text-center">
     <h2 class="text-2xl font-bold mb-4">Pay <span id="requestName">...</span></h2>
-    <p class="text-gray-600 mb-4">Send a direct payment to this IyonicPay user.</p>
+    <p class="text-gray-600 mb-2">Send a secure payment to this IyonicPay user.</p>
 
-    <input type="email" id="payerEmail" placeholder="Your Email" class="w-full border p-3 rounded mb-4" required>
-    <input type="number" id="amount" placeholder="Amount in USD" class="w-full border p-3 rounded mb-4">
+    <select id="currencySelect" class="w-full border p-3 rounded mb-3">
+      <option value="USD">🇺🇸 USD</option>
+      <option value="KES">🇰🇪 KES</option>
+    </select>
+
+    <input type="text" id="payerName" placeholder="Your Full Name" class="w-full border p-3 rounded mb-3" required>
+    <input type="email" id="payerEmail" placeholder="Your Email" class="w-full border p-3 rounded mb-3" required>
+    <input type="number" id="amount" placeholder="Enter Amount" class="w-full border p-3 rounded mb-3">
+
+    <p id="feeNote" class="text-sm text-gray-600 mb-3 hidden"></p>
+
     <button onclick="payUser()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full">Pay Now</button>
 
-    <hr class="my-6">
-    <p class="text-sm text-gray-500">Share this page with customers to receive payments.</p>
-    <input readonly id="shareLink" class="w-full mt-2 p-2 border rounded bg-gray-100 text-center text-sm">
+    <div id="shareBlock" class="mt-6 hidden">
+      <hr class="my-4">
+      <p class="text-sm text-gray-500 mb-1">Your Share Link:</p>
+      <input readonly id="shareLink" class="w-full p-2 border rounded bg-gray-100 text-center text-sm">
+    </div>
   </div>
+
+<!-- ✅ Thank You Modal -->
+<div id="thankYouModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white max-w-md w-full p-8 rounded-xl shadow-2xl text-center animate-fade-in">
+    
+<!-- Success Icon -->
+<div class="mb-4">
+  <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="Success" class="w-14 h-14 mx-auto" />
+</div>
+
+
+    <!-- Message -->
+    <h3 class="text-2xl font-semibold text-gray-800 mb-2">
+      Thank You, <span id="thankPayerName" class="text-indigo-600">Customer</span>!
+    </h3>
+    <p class="text-gray-600 text-sm mb-6">
+      Your payment was successful. We appreciate your trust in IyonicPay.
+    </p>
+
+    <!-- Learn More Button -->
+    <a href="https://pay.iyonicorp.com" target="_blank"
+       class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow hover:bg-indigo-700 transition">
+      Learn About IyonicPay →
+    </a>
+
+    <!-- Close Button -->
+    <button onclick="closeThankYou()" class="mt-4 text-sm text-gray-500 hover:text-gray-700 hover:underline transition">
+      Close
+    </button>
+  </div>
+</div>
+
+<!-- Add this to your styles (preferably <head> or global) -->
+<style>
+  @keyframes fade-in {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+</style>
+
 
   <script>
     let user = null;
+    const rates = { USD: 1, KES: 160 };
+
+    document.getElementById('amount').addEventListener('input', updateFeeNote);
+    document.getElementById('currencySelect').addEventListener('change', updateFeeNote);
+
+    function updateFeeNote() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const currency = document.getElementById('currencySelect').value;
+      const note = document.getElementById('feeNote');
+      const rate = rates[currency];
+
+      if (!amount || amount < 1 || !rate) {
+        note.classList.add('hidden');
+        return;
+      }
+
+      const fee = amount * 0.05;
+      const total = amount + fee;
+      const usdEquivalent = total / rate;
+
+      note.textContent = `💸 Total with 5% Fee: ${total.toFixed(2)} ${currency} (~$${usdEquivalent.toFixed(2)} USD)`;
+      note.classList.remove('hidden');
+    }
 
     async function loadUser() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -39,30 +126,46 @@
 
         user = data;
         document.getElementById('requestName').textContent = user.name;
-        document.getElementById('shareLink').value = window.location.href;
 
+        if (localStorage.getItem('token')) {
+          document.getElementById('shareLink').value = window.location.href;
+          document.getElementById('shareBlock').classList.remove('hidden');
+        }
       } catch {
         document.body.innerHTML = '<p class="text-red-500 text-center mt-10">Unable to load user data. Check your link.</p>';
       }
     }
 
     function payUser() {
-      const amount = parseFloat(document.getElementById('amount').value);
+      const payerName = document.getElementById('payerName').value.trim();
       const payerEmail = document.getElementById('payerEmail').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+      let currency = document.getElementById('currencySelect').value;
+      const rate = rates[currency];
 
-      if (!user || !amount || amount < 1 || !payerEmail) {
-        return alert('Please enter valid amount and your email.');
+      if (!user || !payerName || !payerEmail || !amount || amount < 1 || !rate) {
+        return alert('Please enter all required fields correctly.');
       }
 
+      // fallback for unsupported currencies
+      if (currency === 'KES') {
+        alert('Note: KES is currently not supported in test mode. Using USD for this payment.');
+        currency = 'USD';
+      }
+
+      const fee = amount * 0.05;
+      const total = amount + fee;
+      const usdAmount = total / rate;
       const ref = 'REQPAY_' + Math.floor(Math.random() * 1e9);
+
       const handler = PaystackPop.setup({
-        key: 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2', // 🔐 Replace with your real key
+        key: 'pk_live_7ab8e015626516d7d00210b2e7fe169805c226b8',
         email: payerEmail,
-        amount: amount * 100,
-        currency: 'USD',
+        amount: total * 100,
+        currency,
         ref,
         callback: function(response) {
-          handlePaymentSuccess(amount, ref, payerEmail);
+          handlePaymentSuccess(usdAmount, ref, payerEmail, payerName);
         },
         onClose: function () {
           alert('Payment was cancelled.');
@@ -72,29 +175,36 @@
       handler.openIframe();
     }
 
-    async function handlePaymentSuccess(amount, reference, payerEmail) {
+    async function handlePaymentSuccess(amountUSD, reference, payerEmail, payerName) {
       try {
         const res = await fetch('https://pay-y3bt.onrender.com/api/public/request-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user.id,
-            amount,
+            amount: amountUSD,
             reference,
-            payerEmail
+            payerEmail,
+            payerName
           })
         });
 
         const data = await res.json();
         if (res.ok) {
-          alert('✅ Payment completed successfully!');
+          document.getElementById('thankPayerName').textContent = payerName;
+          document.getElementById('thankYouModal').classList.remove('hidden');
         } else {
           alert(data.msg || 'Error recording payment');
         }
       } catch (err) {
-        console.error(err);
-        alert('Failed to record the payment.');
+        console.error('Payment error:', err);
+        alert('❌ Failed to record payment.');
       }
+    }
+
+    function closeThankYou() {
+      document.getElementById('thankYouModal').classList.add('hidden');
+      location.reload();
     }
 
     document.addEventListener('DOMContentLoaded', loadUser);

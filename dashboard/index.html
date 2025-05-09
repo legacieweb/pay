@@ -15,12 +15,60 @@
 <body class="bg-gray-100 min-h-screen flex">
 
   <!-- Hamburger Menu (Visible on Mobile) -->
-<button id="menuToggle" class="md:hidden fixed top-4 left-4 z-50 bg-indigo-600 text-white p-2 rounded focus:outline-none">
+<button id="menuToggle" class="md:hidden fixed top-4 right-4 z-50 bg-indigo-600 text-white p-2 rounded focus:outline-none">
   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
       d="M4 6h16M4 12h16M4 18h16"/>
   </svg>
 </button>
+
+<!-- Cool Confirm Send Modal -->
+<div id="confirmSendModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform scale-95 opacity-0 transition-all duration-300 ease-out animate-show">
+    <div class="flex items-center space-x-3 mb-4">
+      <div class="bg-blue-100 text-blue-600 p-2 rounded-full">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 9V7a4 4 0 00-8 0v2m-2 4h12m-6 4h.01" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-800">Confirm Your Transfer</h3>
+    </div>
+
+    <div class="text-gray-700 space-y-2">
+      <p>You're about to send:</p>
+      <p class="text-2xl font-bold text-blue-600" id="confirmAmount">$0.00</p>
+      <p>To: <span class="font-medium" id="confirmName">Recipient Name</span></p>
+      <p class="text-sm text-gray-500" id="confirmEmail">email@example.com</p>
+    </div>
+
+    <div class="flex justify-end space-x-3 pt-6">
+      <button onclick="document.getElementById('confirmSendModal').classList.add('hidden')" class="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
+        Cancel
+      </button>
+      <button id="confirmTransferBtn" onclick="confirmSendTransaction()" class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition">
+        Confirm & Send
+      </button>      
+    </div>
+  </div>
+</div>
+
+<!-- Animate scale+fade (Tailwind utility override) -->
+<style>
+  @keyframes show {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .animate-show {
+    animation: show 0.3s ease-out forwards;
+  }
+</style>
 
 
 <!-- Sidebar -->
@@ -31,6 +79,7 @@
     <button onclick="showSection('transactions', this)" class="block w-full text-left nav-btn">Transactions</button>
     <button onclick="showSection('receive', this)" class="block w-full text-left nav-btn">Receive Money</button>
     <button onclick="showSection('withdraw', this)" class="block w-full text-left nav-btn">Withdraw</button>
+    <button onclick="showSection('refunds', this)" class="block w-full text-left nav-btn">Refunds</button>
     <button onclick="showSection('settings', this)" class="block w-full text-left nav-btn">Settings</button>
     <button onclick="logout()" class="mt-10 text-red-300 hover:text-red-500">Logout</button>
   </nav>
@@ -65,11 +114,18 @@
       <!-- Deposit -->
       <div class="bg-white p-4 rounded shadow space-y-3">
         <h3 class="font-semibold text-lg">Deposit Money</h3>
-        <input type="number" id="depositAmount" class="w-full border p-2 rounded" placeholder="Enter amount (USD)">
+        <select id="depositCurrency" class="w-full border p-2 rounded">
+          <option value="USD">🇺🇸 USD</option>
+          <option value="KES">🇰🇪 KES (Kenya Shillings)</option>
+        
+        </select>
+        <input type="number" id="depositAmount" class="w-full border p-2 rounded" placeholder="Enter amount (in selected currency)">
+        <p id="depositFeeNote" class="text-sm text-gray-600 hidden"></p>
         <button onclick="startDeposit()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-          Deposit with Paystack
+          Deposit
         </button>
       </div>
+      
   
       <!-- Send -->
       <div class="bg-white p-4 rounded shadow space-y-3">
@@ -118,45 +174,89 @@
 
 
 
-<script>
-function openRequestPage() {
-  const name = document.getElementById('userName').textContent.trim();
-  const username = encodeURIComponent(name.replace(/\s+/g, '')); // e.g. "John Doe" → "JohnDoe"
-  window.location.href = `../request?user=${username}`;
-}
 
-</script>
-
-
-
-    <!-- Withdraw -->
+         <!-- Withdraw -->
     <section id="withdraw" class="dashboard-section hidden">
       <h2 class="text-2xl font-bold mb-4">Withdraw Funds</h2>
-      <form class="bg-white p-6 rounded shadow max-w-md space-y-4">
+      <form id="withdrawForm" class="bg-white p-6 rounded shadow max-w-md space-y-4" onsubmit="submitWithdrawal(event)">
         <div>
-          <label class="block mb-1">Amount (USD)</label>
-          <input type="number" class="w-full border p-2 rounded" placeholder="Enter amount">
-        </div>
-        <div>
-          <label class="block mb-1">Method</label>
-          <select class="w-full border p-2 rounded">
-            <option>Bank Transfer</option>
-            <option>Mobile Money</option>
-            <option>Crypto</option>
+          <label class="block mb-1">Country</label>
+          <select id="withdrawCountry" class="w-full border p-2 rounded" required onchange="updateMethods()">
+            <option value="">Select Country</option>
+            <option value="Nigeria">Nigeria</option>
+            <option value="Kenya">Kenya</option>
+            <option value="USA">USA</option>
+            <option value="UK">UK</option>
           </select>
         </div>
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Withdraw</button>
+        <div>
+          <label class="block mb-1">Withdrawal Method</label>
+          <select id="withdrawMethod" class="w-full border p-2 rounded" required></select>
+        </div>
+        <div>
+          <label class="block mb-1">Account Details</label>
+          <textarea id="accountDetails" class="w-full border p-2 rounded" placeholder="e.g. Bank name, account number, wallet ID" required></textarea>
+        </div>
+        <div>
+          <label class="block mb-1">Amount (USD)</label>
+          <input type="number" id="withdrawAmount" class="w-full border p-2 rounded" required>
+          <p id="feeBreakdown" class="text-sm text-gray-600 mt-1 hidden"></p>
+        </div>        
+        <button id="withdrawBtn" type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+          Withdraw
+        </button>         
       </form>
+      <div>
+        <input type="checkbox" id="saveAccount" class="mr-2">
+        <label for="saveAccount">Save account details for next time</label>
+      </div>
+      
+      <div id="conversionNote" class="text-sm text-gray-600 mt-1 hidden"></div>
     </section>
+    
+    
+    <section id="refunds" class="dashboard-section hidden">
+      <h2 class="text-2xl font-bold mb-4">Refund Center</h2>
+    
+      <!-- Sent Transactions - Request Refund -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold mb-2">Your Sent Transactions</h3>
+        <div id="yourRefundables" class="space-y-2"></div>
+      </div>
+    
+      <!-- Received Refund Requests -->
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Refund Requests You Received</h3>
+        <div id="incomingRefunds" class="space-y-2"></div>
+      </div>
+    </section>
+    
+
 
     <!-- Settings -->
     <section id="settings" class="dashboard-section hidden">
       <h2 class="text-2xl font-bold mb-4">Settings</h2>
-      <div class="bg-white p-6 rounded shadow max-w-md">
-        <p><strong>Name:</strong> <span id="settingName">Loading...</span></p>
-        <p><strong>Email:</strong> <span id="settingEmail">Loading...</span></p>
+    
+      <div class="bg-white p-6 rounded shadow max-w-md space-y-4">
+        <div>
+          <p><strong>Name:</strong> <span id="settingName">Loading...</span></p>
+          <p><strong>Email:</strong> <span id="settingEmail">Loading...</span></p>
+        </div>
+    
+        <hr class="my-4">
+    
+        <div>
+          <h3 class="text-lg font-semibold mb-2">Change Password</h3>
+          <input type="password" id="currentPassword" class="w-full border p-2 rounded mb-2" placeholder="Current Password">
+          <input type="password" id="newPassword" class="w-full border p-2 rounded mb-2" placeholder="New Password">
+          <input type="password" id="confirmNewPassword" class="w-full border p-2 rounded mb-3" placeholder="Confirm New Password">
+          <button onclick="changePassword()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full">
+            Update Password
+          </button>
+        </div>
       </div>
     </section>
+    
   </main>
 
   <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -168,17 +268,17 @@ async function fetchUserData() {
   try {
     const res = await fetch('https://pay-y3bt.onrender.com/api/auth/dashboard', {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
     if (!res.ok) throw new Error('Invalid session');
-
     const data = await res.json();
     const user = data.user;
 
-    // Set user info
+    // ✅ Set global email for later use
+    currentUserEmail = user.email;
+
+    // === Set User Info ===
     document.getElementById('userName').textContent = user.name;
     document.getElementById('userEmail').textContent = user.email;
     document.getElementById('settingName').textContent = user.name;
@@ -187,7 +287,7 @@ async function fetchUserData() {
     document.getElementById('balanceAmount').textContent = `$${(user.balance || 0).toFixed(2)}`;
     document.getElementById('weeklyTx').textContent = `${user.transactions.length} Transactions`;
 
-    // Calculate today's spend
+    // === Today's Spend ===
     const today = new Date().toISOString().split('T')[0];
     const spendToday = user.transactions
       .filter(tx => ['send', 'withdraw'].includes(tx.type))
@@ -195,7 +295,7 @@ async function fetchUserData() {
       .reduce((sum, tx) => sum + tx.amount, 0);
     document.getElementById('todaysSpend').textContent = `-$${spendToday.toFixed(2)}`;
 
-    // Show latest 10 transactions in overview
+    // === OVERVIEW ===
     const latestTx = user.transactions.slice(-10).reverse();
     const existingTxList = document.getElementById('latestTxList');
     if (existingTxList) existingTxList.remove();
@@ -221,15 +321,15 @@ async function fetchUserData() {
 
     document.getElementById('overview').appendChild(txList);
 
-    // Fill full transactions table
+    // === TRANSACTIONS TABLE ===
     const txBody = document.getElementById('transactionTableBody');
     txBody.innerHTML = '';
-
     user.transactions.slice().reverse().forEach(tx => {
       const isPositive = ['receive', 'deposit', 'requested'].includes(tx.type);
       const typeLabel = tx.type === 'requested' ? 'Request Payment' : tx.type.charAt(0).toUpperCase() + tx.type.slice(1);
-      const direction = tx.to || tx.from || tx.customerEmail || '-';
-
+      const direction = tx.fromName ? `${tx.fromName} (${tx.from})` :
+                   tx.toName ? `${tx.toName} (${tx.to})` :
+                   tx.to || tx.from || tx.customerEmail || '-';
       const row = document.createElement('tr');
       row.className = 'border-t hover:bg-gray-50';
       row.innerHTML = `
@@ -244,7 +344,66 @@ async function fetchUserData() {
       txBody.appendChild(row);
     });
 
+// === REFUND SECTIONS ===
+const yourRefundables = document.getElementById('yourRefundables');
+const incomingRefunds = document.getElementById('incomingRefunds');
+yourRefundables.innerHTML = '';
+incomingRefunds.innerHTML = '';
+
+let refundablesFound = false;
+
+user.transactions.slice().reverse().forEach((tx, idx, arr) => {
+  const txIndex = arr.length - 1 - idx;
+  const txDate = new Date(tx.date).toLocaleDateString();
+  const txTime = new Date(tx.date).getTime();
+  const now = Date.now();
+  const hoursPassed = (now - txTime) / (1000 * 60 * 60);
+
+  // === Eligible Refunds (Sent Transactions) ===
+  if (tx.type === 'send' && tx.status === 'completed' && hoursPassed <= 24) {
+    refundablesFound = true;
+    const div = document.createElement('div');
+    div.className = 'bg-white shadow p-4 rounded mb-4 space-y-2';
+    div.innerHTML = `
+      <p><strong>Sent $${tx.amount.toFixed(2)}</strong> to <strong>${tx.to}</strong> on ${txDate}</p>
+      <p class="text-sm text-gray-500">⏳ Refund available for ${Math.max(0, (24 - hoursPassed)).toFixed(1)} more hour(s)</p>
+      <button id="refundBtn${txIndex}" onclick="askRefundReason(${txIndex})"
+              class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded text-sm">
+        Request Refund
+      </button>
+    `;
+    yourRefundables.appendChild(div);
+  }
+
+  // === Received Refund Requests ===
+  if (tx.type === 'receive' && tx.status === 'refund_requested') {
+    const div = document.createElement('div');
+    div.className = 'bg-white shadow p-4 rounded mb-4 space-y-2';
+    div.innerHTML = `
+      <p><strong>${tx.from}</strong> requested a refund of <strong>$${tx.amount.toFixed(2)}</strong></p>
+      <div class="space-x-2">
+        <button id="approveBtn${txIndex}" onclick="approveRefundByIndex(${txIndex})"
+          class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">Approve</button>
+        <button id="rejectBtn${txIndex}" onclick="rejectRefundByIndex(${txIndex})"
+          class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Reject</button>
+      </div>
+    `;
+    incomingRefunds.appendChild(div);
+  }
+});
+
+// === No Refundable Transactions Message ===
+if (!refundablesFound) {
+  yourRefundables.innerHTML = `
+    <div class="bg-white text-center text-gray-500 p-6 rounded shadow">
+      <p>🚫 No transactions eligible for refund.</p>
+      <p class="text-sm mt-1">Only send transactions within 24 hours are refundable.</p>
+    </div>
+  `;
+}
+
     showSection('overview', document.querySelector('.nav-btn'));
+
   } catch (err) {
     console.error('Dashboard load error:', err);
     alert('Session expired or invalid. Please log in again.');
@@ -252,31 +411,64 @@ async function fetchUserData() {
   }
 }
 
-    function startDeposit() {
-      const amount = parseFloat(document.getElementById('depositAmount').value);
-      if (!amount || amount < 1) return alert('Enter a valid amount');
-  
-      const token = localStorage.getItem('token');
-      const userEmail = document.getElementById('userEmail').textContent;
-      const reference = 'IYPAY_' + Math.floor(Math.random() * 1000000000);
-  
-      const handler = PaystackPop.setup({
-        key: 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2',
-        email: userEmail,
-        amount: amount * 100,
-        currency: 'USD',
-        ref: reference,
-        callback: function (response) {
-          handleDepositSuccess(response, amount, token);
-        },
-        onClose: function () {
-          alert('💡 Deposit cancelled.');
-        }
-      });
-  
-      handler.openIframe();
+const currencyRates = {
+  KES: 160,
+  USD: 1
+};
+
+document.getElementById('depositAmount').addEventListener('input', updateDepositFeeNote);
+document.getElementById('depositCurrency').addEventListener('change', updateDepositFeeNote);
+
+function updateDepositFeeNote() {
+  const amount = parseFloat(document.getElementById('depositAmount').value);
+  const currency = document.getElementById('depositCurrency').value;
+  const rate = currencyRates[currency];
+  const note = document.getElementById('depositFeeNote');
+
+  if (amount && rate) {
+    const usdBeforeFee = amount / rate;
+    const fee = usdBeforeFee * 0.05;
+    const usdFinal = usdBeforeFee - fee;
+
+    note.textContent = `💲 After 5% fee, you'll receive ~$${usdFinal.toFixed(2)} USD.`;
+    note.classList.remove('hidden');
+  } else {
+    note.classList.add('hidden');
+  }
+}
+
+
+function startDeposit() {
+  const rawAmount = parseFloat(document.getElementById('depositAmount').value);
+  const currency = document.getElementById('depositCurrency').value;
+  const rate = currencyRates[currency];
+  const token = localStorage.getItem('token');
+  const userEmail = document.getElementById('userEmail').textContent;
+  const reference = 'IYPAY_' + Math.floor(Math.random() * 1000000000);
+
+  if (!rawAmount || rawAmount < 1 || !rate) return alert('Enter a valid amount');
+
+  const usdAmount = rawAmount / rate;
+  const fee = usdAmount * 0.05;
+  const finalUsdAmount = usdAmount - fee;
+
+  const handler = PaystackPop.setup({
+    key: 'pk_live_7ab8e015626516d7d00210b2e7fe169805c226b8',
+    email: userEmail,
+    amount: rawAmount * 100, // Paystack expects in minor units
+    currency: currency,
+    ref: reference,
+    callback: function (response) {
+      handleDepositSuccess(response, finalUsdAmount, token);
+    },
+    onClose: function () {
+      alert('💡 Deposit cancelled.');
     }
-  
+  });
+
+  handler.openIframe();
+}
+
     async function handleDepositSuccess(response, amount, token) {
       try {
         const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/deposit', {
@@ -302,40 +494,90 @@ async function fetchUserData() {
     }
   
     async function sendMoney() {
-      const recipient = document.getElementById('recipientEmail').value;
-      const amount = parseFloat(document.getElementById('sendAmount').value);
-      const token = localStorage.getItem('token');
-  
-      if (!recipient || !amount || amount < 1) {
-        return alert('Fill in recipient and amount');
-      }
-  
-      try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ toEmail: recipient, amount })
-        });
-  
-        const data = await res.json();
-        if (res.ok) {
-          alert('💸 Transfer completed!');
-          fetchUserData(); // Refresh balance & tx
-        } else {
-          alert(data.msg || 'Transfer failed');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Error during transaction');
-      }
+  const email = document.getElementById('recipientEmail').value.trim();
+  const amount = parseFloat(document.getElementById('sendAmount').value);
+  const token = localStorage.getItem('token');
+
+  if (!email || !amount || amount < 1) {
+    return alert('Please enter a valid recipient and amount.');
+  }
+
+  // 🚫 Prevent sending to self
+  if (email.toLowerCase() === currentUserEmail.toLowerCase()) {
+    return alert("⚠️ You cannot send money to your own account.");
+  }
+
+  try {
+    const res = await fetch(`https://pay-y3bt.onrender.com/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.user) {
+      return alert(data.msg || 'Recipient not found.');
     }
-  
-    function logout() {
+
+    pendingSendDetails = { email, amount };
+
+    // Fill modal details
+    document.getElementById('confirmEmail').textContent = data.user.email;
+    document.getElementById('confirmName').textContent = data.user.name;
+    document.getElementById('confirmAmount').textContent = `$${amount.toFixed(2)}`;
+    document.getElementById('confirmSendModal').classList.remove('hidden');
+
+  } catch (err) {
+    console.error(err);
+    alert('Error verifying recipient.');
+  }
+}
+
+
+function closeSendModal() {
+  document.getElementById('confirmSendModal').classList.add('hidden');
+  pendingSendDetails = null;
+}
+
+async function confirmSendTransaction() {
+  if (!pendingSendDetails) return;
+
+  const btn = document.getElementById('confirmTransferBtn');
+  disableButton(btn, 'Sending...');
+
+  const token = localStorage.getItem('token');
+
+  try {
+    const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        toEmail: pendingSendDetails.email,
+        amount: pendingSendDetails.amount
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Transfer successful!');
+      document.getElementById('confirmSendModal').classList.add('hidden');
+      pendingSendDetails = null;
+      fetchUserData(); // refresh balance
+    } else {
+      alert(data.msg || 'Transfer failed');
+    }
+  } catch (err) {
+    console.error('Send transaction error:', err);
+    alert('Error processing transaction');
+  } finally {
+    enableButton(btn);
+  }
+}
+
+   function logout() {
       localStorage.clear();
-      window.location.href = '../signup';
+      window.location.href = '../login';
     }
   
     function showSection(id, btn) {
@@ -349,22 +591,319 @@ async function fetchUserData() {
   </script>
   
   <script>
-    const menuBtn = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-  
-    menuBtn.addEventListener('click', () => {
-      const isOpen = sidebar.classList.contains('-translate-x-full');
-      sidebar.classList.toggle('-translate-x-full', !isOpen);
-      sidebar.classList.toggle('translate-x-0', isOpen);
+ const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+
+// Toggle sidebar on hamburger click
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('-translate-x-full');
+});
+
+// Close sidebar after section change (on mobile only)
+function showSection(id, btn) {
+  document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
+  if (btn) btn.classList.add('active-tab');
+
+  // Auto close sidebar on mobile
+  if (window.innerWidth < 768) {
+    sidebar.classList.add('-translate-x-full');
+  }
+}
+
+
+  </script>
+
+<script>
+async function submitWithdrawal(event) {
+  event.preventDefault();
+  const btn = document.getElementById('withdrawBtn');
+  btn.disabled = true;
+  btn.textContent = "Processing...";
+
+  const token = localStorage.getItem('token');
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  const method = document.getElementById('withdrawMethod').value;
+  const country = document.getElementById('withdrawCountry').value;
+  const accountDetails = document.getElementById('accountDetails').value.trim();
+  const saveAccount = document.getElementById('saveAccount').checked;
+
+  if (!amount || !method || !country || !accountDetails) {
+    alert('⚠️ Please fill in all fields correctly.');
+    btn.disabled = false;
+    btn.textContent = "Withdraw";
+    return;
+  }
+
+  try {
+    const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/withdraw', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ amount, method, country, accountDetails, saveAccount })
     });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Withdrawal request sent!');
+      fetchUserData();
+    } else {
+      alert(data.msg || 'Withdrawal failed');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ Server error during withdrawal.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Withdraw";
+  }
+}
+
+  const rates = {
+  Nigeria: 1400, // 1 USD = 1400 NGN (example)
+  Kenya: 110,
+  USA: 1,
+  UK: 0.79
+};
+
+document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawalSummary);
+document.getElementById('withdrawCountry').addEventListener('change', updateWithdrawalSummary);
+
+function updateWithdrawalSummary() {
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  const country = document.getElementById('withdrawCountry').value;
+  const rate = rates[country];
+  const conversionNote = document.getElementById('conversionNote');
+  const feeNote = document.getElementById('feeBreakdown');
+
+  if (!amount || !rate) {
+    conversionNote.classList.add('hidden');
+    feeNote.classList.add('hidden');
+    return;
+  }
+
+  const fee = amount * 0.08;
+  const netAmount = amount - fee;
+  const localCurrency = netAmount * rate;
+
+  conversionNote.textContent = `~ ${localCurrency.toLocaleString()} ${country} currency`;
+  conversionNote.classList.remove('hidden');
+
+  feeNote.textContent = `💸 8% Fee: $${fee.toFixed(2)} | You'll receive: $${netAmount.toFixed(2)} (${localCurrency.toLocaleString()} ${country})`;
+  feeNote.classList.remove('hidden');
+}
+
+</script>
+    
+      
+<script>
+  const methodsByCountry = {
+    Nigeria: ['Bank Transfer', 'Flutterwave', 'Paga'],
+    Kenya: ['M-Pesa', 'Airtel Money', 'Bank Transfer'],
+    USA: ['PayPal', 'ACH Transfer', 'Cash App'],
+    UK: ['Bank Transfer', 'Wise', 'Revolut']
+  };
   
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', (e) => {
-      if (!sidebar.contains(e.target) && !menuBtn.contains(e.target) && window.innerWidth < 768) {
-        sidebar.classList.add('-translate-x-full');
-        sidebar.classList.remove('translate-x-0');
-      }
+  function updateMethods() {
+    const country = document.getElementById('withdrawCountry').value;
+    const methodSelect = document.getElementById('withdrawMethod');
+    methodSelect.innerHTML = '';
+    if (methodsByCountry[country]) {
+      methodsByCountry[country].forEach(method => {
+        const option = document.createElement('option');
+        option.value = method;
+        option.textContent = method;
+        methodSelect.appendChild(option);
+      });
+    }
+  }
+  </script>
+
+<script>
+
+async function approveRefundByIndex(index) {
+  const token = localStorage.getItem('token');
+  const btn = document.getElementById(`approveBtn${index}`);
+  if (!btn) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    const res = await fetch(`https://pay-y3bt.onrender.com/api/wallet/approve-refund-by-index/${index}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
     });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Refund approved.');
+      fetchUserData(); // refresh UI
+    } else {
+      alert(data.msg || 'Approval failed.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error approving refund.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Approve';
+  }
+}
+
+async function rejectRefundByIndex(index) {
+  const token = localStorage.getItem('token');
+  const btn = document.getElementById(`rejectBtn${index}`);
+  if (!btn) return;
+
+  const reason = prompt('❗ Please enter a reason for rejecting this refund:');
+  if (!reason || reason.trim().length < 3) {
+    return alert('⚠️ A valid reason is required.');
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    const res = await fetch(`https://pay-y3bt.onrender.com/api/wallet/reject-refund-by-index/${index}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reason: reason.trim() })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('🚫 Refund rejected.');
+      fetchUserData();
+    } else {
+      alert(data.msg || 'Rejection failed.');
+    }
+  } catch (err) {
+    console.error('Reject error:', err);
+    alert('Error rejecting refund.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Reject';
+  }
+}
+
+
+
+  </script>
+<script>
+function askRefundReason(txIndex) {
+  const reason = prompt("📝 Enter refund reason (min 5 chars):");
+  if (!reason || reason.trim().length < 5) return alert("⚠️ Reason too short.");
+  requestRefundByIndex(txIndex, reason.trim());
+}
+
+async function requestRefundByIndex(index, reason) {
+  const token = localStorage.getItem('token');
+  const btn = document.getElementById(`refundBtn${index}`);
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Requesting...";
+  }
+
+  try {
+    const res = await fetch(`https://pay-y3bt.onrender.com/api/wallet/refund-request-by-index/${index}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reason })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Refund request submitted.');
+      fetchUserData();
+    } else {
+      alert(data.msg || 'Refund request failed.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ Server error during refund.');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Request Refund";
+    }
+  }
+}
+
+async function changePassword() {
+  const currentPassword = document.getElementById('currentPassword').value.trim();
+  const newPassword = document.getElementById('newPassword').value.trim();
+  const confirmNewPassword = document.getElementById('confirmNewPassword').value.trim();
+  const btn = document.querySelector('#settings button');
+
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    return alert("⚠️ Please fill in all fields.");
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    return alert("🚫 New passwords do not match.");
+  }
+
+  if (newPassword.length < 6) {
+    return alert("🔒 Password should be at least 6 characters long.");
+  }
+
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Updating...';
+
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('https://pay-y3bt.onrender.com/api/auth/change-password', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Password updated successfully! A confirmation email has been sent.');
+      document.getElementById('currentPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmNewPassword').value = '';
+    } else {
+      alert(data.msg || 'Password update failed.');
+    }
+  } catch (err) {
+    console.error('Password update error:', err);
+    alert("❌ Something went wrong. Try again later.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+  </script>
+  <script>
+    function disableButton(button, text = 'Processing...') {
+      if (!button) return;
+      button.disabled = true;
+      button.dataset.originalText = button.textContent;
+      button.textContent = text;
+    }
+  
+    function enableButton(button) {
+      if (!button) return;
+      button.disabled = false;
+      button.textContent = button.dataset.originalText || 'Submit';
+    }
   </script>
   
 </body>
