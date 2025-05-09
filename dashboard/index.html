@@ -904,6 +904,14 @@ async function changePassword() {
       button.disabled = false;
       button.textContent = button.dataset.originalText || 'Submit';
     }
+
+    function openRequestPage() {
+  const name = document.getElementById('userName').textContent.trim();
+  const username = encodeURIComponent(name.replace(/\s+/g, '')); // e.g. "John Doe" → "JohnDoe"
+  window.location.href = `../request?user=${username}`;
+}
+
+
   </script>
   
 </body>
