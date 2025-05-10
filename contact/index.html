@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us | IyonicPay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in {
+      animation: fadeIn 0.8s ease-out both;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-indigo-700 text-white p-4 fade-in">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">IyonicPay</h1>
+      <nav class="space-x-4">
+        <a href="https://pay.iyonicorp.com/" class="hover:underline">Home</a>
+        <a href="../terms" class="hover:underline">Terms</a>
+        <a href="../privacy" class="hover:underline">Privacy</a>
+        <a href="../refunds" class="hover:underline">Refund</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-3xl mx-auto px-6 py-16 fade-in">
+    <h1 class="text-4xl font-bold text-indigo-700 mb-6">Contact Us</h1>
+    <p class="text-lg text-gray-700 mb-8">Have a question or need support? We’re here to help. Fill out the form below and we’ll get back to you.</p>
+
+    <form id="contactForm" class="space-y-6 bg-white shadow-xl rounded-xl p-8 border border-gray-200 fade-in">
+      <div class="transition transform hover:scale-105">
+        <label for="name" class="block font-semibold mb-2 text-indigo-700">Your Name</label>
+        <input type="text" id="name" name="name" required class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div class="transition transform hover:scale-105">
+        <label for="email" class="block font-semibold mb-2 text-indigo-700">Your Email</label>
+        <input type="email" id="email" name="email" required class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div class="transition transform hover:scale-105">
+        <label for="message" class="block font-semibold mb-2 text-indigo-700">Message</label>
+        <textarea id="message" name="message" rows="5" required class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+      </div>
+      <button id="submitBtn" type="submit" class="bg-indigo-700 text-white px-6 py-3 rounded-lg hover:bg-indigo-800 transition transform hover:scale-105 disabled:opacity-50">Send Message</button>
+    </form>
+
+    <p id="responseMessage" class="mt-6 text-green-600 font-medium hidden fade-in"></p>
+    <p class="mt-4 text-gray-600">We aim to respond within 24 hours. Thank you for reaching out!</p>
+  </main>
+
+
+
+  <!-- Script -->
+  <script>
+    const form = document.getElementById("contactForm");
+    const button = document.getElementById("submitBtn");
+    const responseMessage = document.getElementById("responseMessage");
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      button.disabled = true;
+      button.innerText = "Sending...";
+
+      const res = await fetch('https://pay-y3bt.onrender.com/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name.value,
+          email: form.email.value,
+          message: form.message.value
+        })
+      });
+
+      const data = await res.json();
+
+      responseMessage.textContent = data.message || data.error;
+      responseMessage.classList.remove("hidden");
+
+      if (res.ok) {
+        responseMessage.classList.replace("text-red-600", "text-green-600");
+        form.reset();
+      } else {
+        responseMessage.classList.replace("text-green-600", "text-red-600");
+      }
+
+      button.disabled = false;
+      button.innerText = "Send Message";
+    });
+  </script>
+
+</body>
+</html>
