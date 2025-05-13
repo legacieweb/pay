@@ -14,7 +14,6 @@
     .animate-fade {
       animation: fade 0.3s ease-out forwards;
     }
-
     @keyframes fade-in {
       0% { opacity: 0; transform: scale(0.95); }
       100% { opacity: 1; transform: scale(1); }
@@ -29,9 +28,9 @@
     <h2 class="text-2xl font-bold mb-4">Pay <span id="requestName">...</span></h2>
     <p class="text-gray-600 mb-2">Send a secure payment to this IyonicPay user.</p>
 
-    <!-- Only USD now -->
-    <select id="currencySelect" class="w-full border p-3 rounded mb-3" disabled>
-      <option value="USD" selected>🇺🇸 USD</option>
+    <select id="currencySelect" class="w-full border p-3 rounded mb-3">
+      <option value="USD">🇺🇸 USD</option>
+      <option value="KES">🇰🇪 KES</option>
     </select>
 
     <input type="text" id="payerName" placeholder="Your Full Name" class="w-full border p-3 rounded mb-3" required>
@@ -73,24 +72,27 @@
 
   <script>
     let user = null;
-    const rates = { USD: 1 };
+    const rates = { USD: 1, KES: 160 }; // KES to USD rate
 
     document.getElementById('amount').addEventListener('input', updateFeeNote);
+    document.getElementById('currencySelect').addEventListener('change', updateFeeNote);
 
     function updateFeeNote() {
       const amount = parseFloat(document.getElementById('amount').value);
-      const rate = rates["USD"];
+      const currency = document.getElementById('currencySelect').value;
+      const rate = rates[currency];
       const note = document.getElementById('feeNote');
 
-      if (!amount || amount < 1) {
+      if (!amount || amount < 1 || !rate) {
         note.classList.add('hidden');
         return;
       }
 
       const fee = amount * 0.05;
       const total = amount + fee;
+      const usdEquivalent = total / rate;
 
-      note.textContent = `💸 Total with 5% Fee: $${total.toFixed(2)} USD`;
+      note.textContent = `💸 Total with 5% Fee: ${total.toFixed(2)} ${currency} (~$${usdEquivalent.toFixed(2)} USD)`;
       note.classList.remove('hidden');
     }
 
@@ -123,7 +125,8 @@
       const payerName = document.getElementById('payerName').value.trim();
       const payerEmail = document.getElementById('payerEmail').value.trim();
       const amount = parseFloat(document.getElementById('amount').value);
-      const rate = rates["USD"];
+      const currency = document.getElementById('currencySelect').value;
+      const rate = rates[currency];
 
       if (!user || !payerName || !payerEmail || !amount || amount < 1 || !rate) {
         return alert('Please enter all required fields correctly.');
@@ -138,7 +141,7 @@
         key: 'pk_live_7ab8e015626516d7d00210b2e7fe169805c226b8',
         email: payerEmail,
         amount: total * 100,
-        currency: "USD",
+        currency: currency,
         ref,
         callback: function(response) {
           handlePaymentSuccess(usdAmount, ref, payerEmail, payerName);
