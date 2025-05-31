@@ -118,13 +118,13 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
     // Calculate fee and total
-    const fee = amount * 0.08;
+    const fee = amount * 0.04;
     const totalDeducted = amount + fee;
 
     // Exchange rates per country
     const exchangeRates = {
       Nigeria: 1400,
-      Kenya: 160,
+      Kenya: 120,
       USA: 1,
       UK: 0.79
     };

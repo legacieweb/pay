@@ -4,8 +4,7 @@ const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
 // @route   POST /api/public/pay/:userId
-// @desc    Accept payment to a user via shared link
-// @access  Public
+
 router.post('/pay/:userId', async (req, res) => {
   const { amount, reference, senderEmail } = req.body;
   const { userId } = req.params;

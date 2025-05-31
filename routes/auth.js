@@ -28,11 +28,11 @@ router.post('/signup/send-code', async (req, res) => {
 
     await sendEmail({
       to: email,
-      subject: '🔐 Your IyonicPay Verification Code',
+      subject: 'Your IyonicPay Verification Code',
       html: `<p>Hello ${name},</p><p>Your verification code is:</p><h2>${code}</h2><p>This code expires in 10 minutes.</p>`
     });
 
-    res.json({ msg: 'Verification code sent to your email' });
+    res.json({ msg: 'Verification code sent to your email. Please check the your spam folder' });
 
   } catch (err) {
     console.error(err);
@@ -40,7 +40,6 @@ router.post('/signup/send-code', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/signup
 // @route POST /api/auth/signup
 router.post('/signup', async (req, res) => {
   const { name, email, password, code } = req.body;
@@ -77,7 +76,7 @@ html: `
     <h2 style="color: #4F46E5;">Hi ${name},</h2>
     <p>🎉 <strong>Welcome to IyonicPay!</strong> Your account has been successfully created and you're now part of a smarter, faster way to handle money.</p>
 
-    <h3 style="margin-top: 20px; color: #111827;">🔐 What is IyonicPay?</h3>
+    <h3 style="margin-top: 20px; color: #111827;">What is IyonicPay?</h3>
     <p>IyonicPay is your all-in-one digital wallet built for individuals and businesses across Africa and beyond. With IyonicPay, you can:</p>
     <ul style="line-height: 1.6;">
       <li>✅ <strong>Send & receive money</strong> instantly to anyone using email.</li>
@@ -138,7 +137,7 @@ router.post('/login', async (req, res) => {
     // Send login notification email
     sendEmail({
       to: email,
-      subject: '🔐 Login Notification - IyonicPay',
+      subject: 'Login Notification - IyonicPay',
       html: `
         <p>Hello ${user.name},</p>
         <p>Your account was just logged in. If this wasn't you, please <a href="#">reset your password</a> immediately.</p>
@@ -189,7 +188,7 @@ router.post('/request-reset', async (req, res) => {
   
     sendEmail({
       to: email,
-      subject: '🔑 Password Reset Code - IyonicPay',
+      subject: 'Password Reset Code - IyonicPay',
       html: `<p>Your reset code is: <strong>${code}</strong></p><p>This code expires in 15 minutes.</p>`
     });
   
@@ -214,7 +213,7 @@ router.post('/confirm-reset', async (req, res) => {
     // ✅ Send confirmation email
     sendEmail({
       to: email,
-      subject: '✅ Your IyonicPay Password Has Been Reset',
+      subject: 'Your IyonicPay Password Has Been Reset',
       html: `
         <h2>Password Changed Successfully</h2>
         <p>Hello ${user.name},</p>
@@ -260,7 +259,7 @@ router.post('/change-password', authMiddleware, async (req, res) => {
 
     await sendEmail({
       to: user.email,
-      subject: '🔐 Your Password Was Changed',
+      subject: 'Your Password Was Changed',
       html: `<p>Hello ${user.name},</p>
              <p>Your IyonicPay password was changed successfully.</p>
              <p>If you did not perform this action, please reset your password immediately.</p>`

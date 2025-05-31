@@ -21,6 +21,7 @@ app.use('/api', publicRoutes);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', require('./routes/wallet'));
+
 app.use('/api/admin', adminRoutes);
 // Protected example
 app.get('/', (req, res) => res.send('IyonicPay API Running'));
@@ -78,6 +79,8 @@ app.get('/', (req, res) => res.send('IyonicPay API Running'));
     res.status(500).json({ error: 'Failed to send message.' });
   }
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

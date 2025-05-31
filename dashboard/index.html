@@ -1,9 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Required Meta Tags -->
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IyonicPay Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IyonicPay Dashboard | Manage Your Online Payments</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Access your IyonicPay dashboard to manage balances, transactions, send and receive money, withdraw funds, and control your account settings securely.">
+  <meta name="keywords" content="IyonicPay dashboard, payment dashboard, transaction history, manage payments, send money, receive money, withdraw funds, account settings, online wallet, payment management, user dashboard, financial dashboard, digital wallet, payment overview, payment analytics, secure dashboard, fintech dashboard, payment platform, user account, payment summary, transaction management, refund center, payment activity, account balance, payment security, seamless payments, online transactions, payment control, dashboard analytics, payment insights, payment reports, IyonicPay user, payment portal, dashboard features, payment monitoring, payment notifications, payment tools, payment services, payment support, dashboard security, payment tracking, payment overview, payment management tools">
+  <meta name="author" content="Iyonic Corporation">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph Meta Tags for Social Sharing -->
+  <meta property="og:title" content="IyonicPay Dashboard | Manage Your Online Payments">
+  <meta property="og:description" content="Monitor your balances, view transactions, send and receive money, and manage your IyonicPay account securely from your dashboard.">
+  <meta property="og:url" content="https://pay.iyonicorp.com/dashboard">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://i.imgur.com/yC5p4uG.png">
+
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="IyonicPay Dashboard | Manage Your Online Payments">
+  <meta name="twitter:description" content="Your secure dashboard for managing payments, transactions, and account settings with IyonicPay.">
+  <meta name="twitter:image" content="https://i.imgur.com/yC5p4uG.png">
+
+  <!-- Canonical Tag -->
+  <link rel="canonical" href="https://pay.iyonicorp.com/dashboard">
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" type="image/x-icon">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .active-tab {
@@ -201,16 +228,17 @@
           <label class="block mb-1">Amount (USD)</label>
           <input type="number" id="withdrawAmount" class="w-full border p-2 rounded" required>
           <p id="feeBreakdown" class="text-sm text-gray-600 mt-1 hidden"></p>
+                <div>
+        <input type="checkbox" id="saveAccount" class="mr-2">
+        <label for="saveAccount">I've Confirm everything</label>
+      </div>
+      
         </div>        
         <button id="withdrawBtn" type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
           Withdraw
         </button>         
       </form>
-      <div>
-        <input type="checkbox" id="saveAccount" class="mr-2">
-        <label for="saveAccount">Save account details for next time</label>
-      </div>
-      
+
       <div id="conversionNote" class="text-sm text-gray-600 mt-1 hidden"></div>
     </section>
     
@@ -664,7 +692,7 @@ async function submitWithdrawal(event) {
 
   const rates = {
   Nigeria: 1400, // 1 USD = 1400 NGN (example)
-  Kenya: 110,
+  Kenya: 120,
   USA: 1,
   UK: 0.79
 };
@@ -685,14 +713,14 @@ function updateWithdrawalSummary() {
     return;
   }
 
-  const fee = amount * 0.08;
+  const fee = amount * 0.04;
   const netAmount = amount - fee;
   const localCurrency = netAmount * rate;
 
   conversionNote.textContent = `~ ${localCurrency.toLocaleString()} ${country} currency`;
   conversionNote.classList.remove('hidden');
 
-  feeNote.textContent = `💸 8% Fee: $${fee.toFixed(2)} | You'll receive: $${netAmount.toFixed(2)} (${localCurrency.toLocaleString()} ${country})`;
+  feeNote.textContent = `4% Fee: $${fee.toFixed(2)} | You'll receive: $${netAmount.toFixed(2)} (${localCurrency.toLocaleString()} ${country})`;
   feeNote.classList.remove('hidden');
 }
 
@@ -914,5 +942,91 @@ async function changePassword() {
 
   </script>
   
+  
+<script>
+    setInterval(() => {
+      console.clear();
+    }, 100);
+  
+    (function() {
+      const devtools = /./;
+      devtools.toString = function() {
+        console.clear();
+        console.log("DevTools detection activated!");
+        return "";
+      };
+      console.log("%c", devtools);
+    })();
+  </script>
+
+<script>
+  (function() {
+     // 🔥 Disable Right-Click
+     document.addEventListener("contextmenu", function(event) {
+       event.preventDefault();
+     });
+ 
+     // 🔒 Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+     document.addEventListener("keydown", function(event) {
+       if (event.keyCode == 123) { // F12
+         event.preventDefault();
+       }
+       if (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74)) { // Ctrl+Shift+I / J
+         event.preventDefault();
+       }
+       if (event.ctrlKey && event.keyCode == 85) { // Ctrl+U
+         event.preventDefault();
+       }
+     });
+ 
+     // 🚨 Detect DevTools Opened
+     function detectDevTools() {
+       let devtoolsOpen = false;
+ 
+       const before = new Date();
+       debugger;
+       const after = new Date();
+ 
+       if (after - before > 100) {
+         devtoolsOpen = true;
+       }
+ 
+       if (devtoolsOpen) {
+         document.body.innerHTML = `<div style="text-align:center; font-size:24px; font-weight:bold; color:red; margin-top:50px;">
+           🚨 ERROR: DevTools Detected! Please close DevTools to access this website. 🚨
+         </div>`;
+       }
+     }
+ 
+     setInterval(detectDevTools, 1000);
+         // ❌ Prevent XSS Attacks (Sanitize Input Fields)
+         document.querySelectorAll("input, textarea").forEach((element) => {
+       element.addEventListener("input", function() {
+         this.value = this.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+       });
+     });
+ 
+     // 🌍 Detect VPN or Proxy Usage
+     async function detectVPN() {
+       try {
+         const response = await fetch("https://vpnapi.io/api/?key=564239f58fd7438d8cbbbb1c0960ff07");
+         const data = await response.json();
+ 
+         if (data.security.vpn || data.security.proxy || data.security.tor) {
+           document.body.innerHTML = `<div style="text-align:center; font-size:24px; font-weight:bold; color:red; margin-top:50px;">
+             🚨 ERROR: VPN/Proxy Detected! Please disable VPN to access this website. 🚨
+           </div>`;
+         }
+       } catch (error) {
+         console.log("VPN detection error:", error);
+       }
+     }
+ 
+     detectVPN();
+ 
+   })();
+ </script>
+
+
 </body>
 </html>
