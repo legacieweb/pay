@@ -17,13 +17,13 @@
   <meta property="og:description" content="Streamline your online transactions with IyonicPay. Simple integration, powerful features.">
   <meta property="og:url" content="https://pay.iyonicorp.com">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://i.imgur.com/yC5p4uG.png">
+  <meta property="og:image" content="https://images.pexels.com/photos/7680637/pexels-photo-7680637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1">
 
   <!-- Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="IyonicPay | Secure & Seamless Online Payments">
   <meta name="twitter:description" content="Experience smooth and secure payments with IyonicPay. Perfect for e-commerce and platforms.">
-  <meta name="twitter:image" content="https://i.imgur.com/yC5p4uG.png">
+  <meta name="twitter:image" content="https://images.pexels.com/photos/7680637/pexels-photo-7680637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1">
 
   <!-- Canonical Tag -->
   <link rel="canonical" href="https://pay.iyonicorp.com">
@@ -38,12 +38,66 @@
 <body class="bg-white text-gray-800">
 
   <!-- Navigation -->
-  <nav class="flex justify-between items-center px-6 py-4 bg-indigo-700 text-white shadow">
-    <h1 class="text-2xl font-bold tracking-tight">IyonicPay</h1>
-    <div>
-      <a href="./login" class="px-4 py-2 bg-white text-indigo-600 rounded hover:bg-gray-100 transition">Login</a>
-      <a href="./signup" class="ml-2 px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-300 transition">Sign Up</a>
+  <nav class="relative z-20 flex justify-between items-center px-8 py-5 bg-gradient-to-r from-indigo-900 via-indigo-700 to-indigo-600 shadow-lg">
+    <!-- Logo & Brand -->
+    <div class="flex items-center gap-3">
+      <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-9 h-9 rounded-full shadow-md border-2 border-yellow-400 animate-bounce-slow" />
+      <span class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-yellow-300 via-white to-yellow-400 bg-clip-text text-transparent drop-shadow-lg animate-gradient-x">IyonicPay</span>
     </div>
+    <!-- Navigation Links -->
+    <div class="hidden md:flex items-center gap-6 text-lg font-medium">
+      <a href="#payment-methods" class="hover:text-yellow-300 transition duration-200">Payments</a>
+      <a href="#fees" class="hover:text-yellow-300 transition duration-200">Fees</a>
+      <a href="./contact" class="hover:text-yellow-300 transition duration-200">Contact</a>
+    </div>
+    <!-- Auth Buttons -->
+    <div class="flex items-center gap-2">
+      <a href="./login" class="px-5 py-2 rounded-full bg-white text-indigo-700 font-semibold shadow hover:bg-yellow-50 hover:text-yellow-600 transition duration-200 border border-yellow-300">Login</a>
+      <a href="./signup" class="px-5 py-2 rounded-full bg-yellow-400 text-indigo-900 font-bold shadow hover:bg-yellow-300 hover:scale-105 transition duration-200 border border-yellow-300 animate-pulse">Sign Up</a>
+    </div>
+    <!-- Mobile Menu Button -->
+    <button id="nav-toggle" class="md:hidden ml-4 p-2 rounded hover:bg-indigo-800 transition">
+      <svg class="w-7 h-7 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-indigo-900/95 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white z-50 hidden">
+      <button id="nav-close" class="absolute top-6 right-8 p-2 rounded hover:bg-indigo-800 transition">
+        <svg class="w-8 h-8 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <a href="#payment-methods" class="hover:text-yellow-300 transition" onclick="closeMenu()">Payments</a>
+      <a href="#fees" class="hover:text-yellow-300 transition" onclick="closeMenu()">Fees</a>
+      <a href="./contact" class="hover:text-yellow-300 transition" onclick="closeMenu()">Contact</a>
+      <a href="./login" class="px-6 py-2 rounded-full bg-white text-indigo-700 font-semibold shadow hover:bg-yellow-50 hover:text-yellow-600 transition border border-yellow-300" onclick="closeMenu()">Login</a>
+      <a href="./signup" class="px-6 py-2 rounded-full bg-yellow-400 text-indigo-900 font-bold shadow hover:bg-yellow-300 transition border border-yellow-300 animate-pulse" onclick="closeMenu()">Sign Up</a>
+    </div>
+    <style>
+      @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0);}
+        50% { transform: translateY(-6px);}
+      }
+      .animate-bounce-slow { animation: bounce-slow 2.5s infinite; }
+      @keyframes gradient-x {
+        0%,100% { background-position: 0% 50%;}
+        50% { background-position: 100% 50%;}
+      }
+      .animate-gradient-x {
+        background-size: 200% 200%;
+        animation: gradient-x 4s ease-in-out infinite;
+      }
+    </style>
+    <script>
+      // Mobile menu toggle
+      const navToggle = document.getElementById('nav-toggle');
+      const navClose = document.getElementById('nav-close');
+      const mobileMenu = document.getElementById('mobile-menu');
+      navToggle.onclick = () => mobileMenu.classList.remove('hidden');
+      navClose.onclick = () => mobileMenu.classList.add('hidden');
+      function closeMenu() { mobileMenu.classList.add('hidden'); }
+    </script>
   </nav>
 
   <style>
@@ -57,25 +111,54 @@
     }
   </style>
   
+<!-- Hero Section with Background Image and Animated Text -->
+<style>
+  @keyframes slideFadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 
-<!-- Hero Section -->
-<header class="relative overflow-hidden bg-gradient-to-br from-indigo-700 via-indigo-800 to-black text-white">
+  .animate-slideFadeIn {
+    animation: slideFadeIn 1s ease-out forwards;
+  }
+
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+      opacity: 1;
+    }
+    20%, 22%, 24%, 55% {
+      opacity: 0.4;
+    }
+  }
+
+  .flicker {
+    animation: flicker 2s linear infinite;
+  }
+</style>
+
+<header class="relative overflow-hidden bg-black text-white bg-cover bg-center" style="background-image: url('https://images.pexels.com/photos/6694575/pexels-photo-6694575.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');">
+  <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-black/80 to-black/90"></div>
+  
   <div class="max-w-7xl mx-auto px-6 py-24 text-center relative z-10">
-    <h1 class="text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl mb-6 drop-shadow-xl animate-fadeIn">
-      Seamless, Secure <br class="hidden sm:inline" /> Payments with <span class="text-yellow-400">IyonicPay</span>
+    <h1 class="text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl mb-6 drop-shadow-xl animate-slideFadeIn">
+      <span class="flicker">Seamless, Secure</span> <br class="hidden sm:inline" />
+      Payments with <span class="text-yellow-400">IyonicPay</span>
     </h1>
-    <p class="text-lg max-w-2xl mx-auto text-indigo-100 mb-8">
+    <p class="text-lg max-w-2xl mx-auto text-indigo-100 mb-8 animate-slideFadeIn" style="animation-delay: 0.3s;">
       Send, receive, and manage money with confidence — wherever you are in the world.
     </p>
     <a href="./signup"
-       class="inline-block px-8 py-3 text-lg bg-yellow-400 text-black font-semibold rounded-full shadow-lg hover:bg-yellow-300 transition transform hover:scale-105">
+       class="inline-block px-8 py-3 text-lg bg-yellow-400 text-black font-semibold rounded-full shadow-lg hover:bg-yellow-300 transition transform hover:scale-105 animate-slideFadeIn"
+       style="animation-delay: 0.6s;">
       Get Started Now
     </a>
   </div>
-
-  <!-- Decorative Glows -->
-  <div class="absolute -top-20 -left-20 w-80 h-80 bg-purple-500 opacity-30 rounded-full filter blur-3xl animate-pulse"></div>
-  <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400 opacity-20 rounded-full filter blur-2xl animate-ping"></div>
 </header>
 
   
@@ -338,7 +421,7 @@
       <!-- Deposits -->
       <div class="bg-gray-50 p-6 rounded shadow hover:shadow-md transition">
         <h3 class="text-xl font-semibold mb-2">Deposits</h3>
-        <p class="text-gray-700">5% fee on local and international card or mobile payments. Funds are instantly added to your wallet.</p>
+        <p class="text-gray-700">3% fee on local and international card or mobile payments. Funds are instantly added to your wallet.</p>
       </div>
 
       <!-- Refunds -->
@@ -349,6 +432,37 @@
     </div>
 
     <p class="text-sm text-gray-500 mt-10">No hidden fees. What you see is what you pay.</p>
+  </div>
+</section>
+<!-- Extra Info Section: "Did You Know?" -->
+<section class="bg-gradient-to-r from-indigo-700 via-indigo-500 to-indigo-400 text-white py-16 px-6 md:px-20">
+  <div class="max-w-5xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-4 flex items-center justify-center gap-3">
+      <svg class="w-8 h-8 text-yellow-300 inline-block animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/></svg>
+      Did You Know?
+    </h2>
+    <p class="text-lg md:text-xl mb-10 max-w-2xl mx-auto">
+      IyonicPay is designed for global reach, but did you know you can <span class="font-semibold text-yellow-200">customize your payment links</span> with your brand name? Stand out and build trust with every transaction!
+    </p>
+    <div class="grid md:grid-cols-3 gap-8 text-left">
+      <div class="bg-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+        <h4 class="font-semibold text-yellow-200 text-lg mb-2">Multi-Currency Support</h4>
+        <p class="text-indigo-100 text-sm">Accept and hold balances in multiple currencies. Perfect for freelancers and businesses with international clients.</p>
+      </div>
+      <div class="bg-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+        <h4 class="font-semibold text-yellow-200 text-lg mb-2">Instant Refunds</h4>
+        <p class="text-indigo-100 text-sm">Refunds are processed instantly to your wallet—no waiting, no hassle, and no extra fees within 24 hours.</p>
+      </div>
+      <div class="bg-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+        <h4 class="font-semibold text-yellow-200 text-lg mb-2">API Integrations</h4>
+        <p class="text-indigo-100 text-sm">Developers can connect IyonicPay to websites, apps, or SaaS platforms with our easy-to-use APIs and webhooks.</p>
+      </div>
+    </div>
+    <div class="mt-10">
+      <a href="./signup" class="inline-block bg-yellow-400 hover:bg-yellow-300 text-indigo-900 font-bold px-8 py-3 rounded-full shadow-lg transition transform hover:scale-105">
+        Try These Features Now
+      </a>
+    </div>
   </div>
 </section>
 
@@ -381,6 +495,7 @@
       <ul class="space-y-2 text-sm">
         <li><a href="./contact" class="hover:underline">Contact Us</a></li>
         <li><a href="./terms" class="hover:underline">Terms of Service</a></li>
+        <li><a href="./refunds" class="hover:underline">Refund policy</a></li>        
         <li><a href="./privacy" class="hover:underline">Privacy Policy</a></li>
       </ul>
     </div>
@@ -389,6 +504,7 @@
     &copy; <span id="year"></span> IyonicPay. All rights reserved.
   </div>
 </footer>
+
 
 <!-- Dynamic Year -->
 <script>

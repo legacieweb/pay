@@ -36,17 +36,29 @@
 <body class="bg-gray-100 text-gray-800">
 
   <!-- Header -->
-  <header class="bg-indigo-700 text-white p-4">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <h1 class="text-xl font-bold">IyonicPay</h1>
-      <nav class="space-x-4">
-        <a href="https://pay.iyonicorp.com/" class="hover:underline">Home</a>
-        <a href="../contact" class="hover:underline">Contact</a>
-        <a href="../privacy" class="hover:underline">Privacy</a>
-        <a href="../refunds" class="hover:underline">Refund</a>
+  <header class="bg-gradient-to-r from-indigo-800 via-indigo-700 to-purple-700 shadow-lg fade-in">
+    <div class="max-w-6xl mx-auto flex justify-between items-center py-4 px-2">
+      <div class="flex items-center gap-3">
+        <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-10 h-10 rounded-full shadow-md border-2 border-white animate-spin-slow">
+        <span class="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-pink-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent drop-shadow-lg">IyonicPay</span>
+      </div>
+      <nav class="space-x-2 md:space-x-6 flex items-center">
+        <a href="https://pay.iyonicorp.com/" class="relative px-4 py-2 rounded-lg transition duration-200 hover:bg-white hover:text-indigo-700 font-semibold hover:shadow-md">Home</a>
+        <a href="../contact" class="relative px-4 py-2 rounded-lg transition duration-200 hover:bg-white hover:text-indigo-700 font-semibold hover:shadow-md">Contact us</a>
+        <a href="../privacy" class="relative px-4 py-2 rounded-lg transition duration-200 hover:bg-white hover:text-indigo-700 font-semibold hover:shadow-md">Privacy</a>
+        <a href="../refunds" class="relative px-4 py-2 rounded-lg transition duration-200 hover:bg-white hover:text-indigo-700 font-semibold hover:shadow-md">Refund</a>
       </nav>
     </div>
   </header>
+  <style>
+    @keyframes spin-slow {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    .animate-spin-slow {
+      animation: spin-slow 8s linear infinite;
+    }
+  </style>
 
   <!-- Main Content -->
   <main class="max-w-3xl mx-auto px-6 py-16">

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pay Request | IyonicPay</title>
   <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="https://i.imgur.com/YAPRefp.png" type="image/x-icon">
   <script src="https://js.paystack.co/v1/inline.js"></script>
   <style>
     @keyframes fade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -271,17 +272,18 @@ async function loadDefaultAmount(userId) {
   }
 }
 
-// Call `loadUser` on page load
 window.addEventListener('DOMContentLoaded', async () => {
   await loadUser();
 
-  // Poll every 2 seconds
-  pollingInterval = setInterval(() => {
-    if (user?.id) {
+  const token = localStorage.getItem('token');
+  if (token && user?.id) {
+    // Only start polling if user is logged in
+    pollingInterval = setInterval(() => {
       loadDefaultAmount(user.id);
-    }
-  }, 2000);
+    }, 2000);
+  }
 });
+
 
 
 async function saveDefaultAmount() {
@@ -445,9 +447,6 @@ function payUser() {
       };
       console.log("%c", devtools);
     })();
-  </script>
-
-<script>
   (function() {
      // 🔥 Disable Right-Click
      document.addEventListener("contextmenu", function(event) {
@@ -514,6 +513,7 @@ function payUser() {
  
    })();
  </script>
+
 
 </body>
 </html>
