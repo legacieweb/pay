@@ -43,8 +43,8 @@
     <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-yellow-300 via-white to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">IyonicPay</span>
   </div>
   <div class="flex items-center gap-2">
-    <a href="./login" class="px-5 py-2 font-semibold rounded-full bg-white/90 text-indigo-700 shadow hover:bg-yellow-100 hover:text-indigo-900 transition-all duration-200 border border-yellow-300 hover:scale-105">Login</a>
-    <a href="./signup" class="px-5 py-2 font-semibold rounded-full bg-yellow-400 text-indigo-900 shadow hover:bg-yellow-300 transition-all duration-200 border border-yellow-200 hover:scale-110 animate-pulse">Sign Up</a>
+    <a href="./login" class="px-5 py-2 font-semibold rounded-full bg-white/90 text-indigo-700 shadow hover:bg-yellow-100 hover:text-black transition-all duration-200 border border-yellow-300 hover:scale-105">Login</a>
+    <a href="./signup" class="px-5 py-2 font-semibold rounded-full bg-yellow-400 text-black shadow hover:bg-yellow-300 transition-all duration-200 border border-yellow-200 hover:scale-110 animate-pulse">Sign Up</a>
   </div>
 </nav>
 <style>
@@ -105,7 +105,7 @@
 </style>
 
 <header class="relative overflow-hidden bg-black text-white bg-cover bg-center" style="background-image: url('https://images.pexels.com/photos/6694575/pexels-photo-6694575.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');">
-  <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-black/80 to-black/90"></div>
+  <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/80 to-black/90"></div>
   
   <div class="max-w-7xl mx-auto px-6 py-24 text-center relative z-10">
     <h1 class="text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl mb-6 drop-shadow-xl animate-slideFadeIn">
@@ -128,6 +128,7 @@
 <!-- Brand Showcase Section -->
 <section class="py-20 bg-white px-6">
   <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+    
     <!-- Text Content -->
     <div>
       <h3 class="text-3xl font-bold mb-4 text-indigo-700">Built for Speed. Trusted for Security.</h3>
@@ -143,57 +144,71 @@
         <li class="flex items-start"><span class="text-green-600 mr-2">✔️</span> Smart refunds and dispute resolution</li>
       </ul>
     </div>
+<!-- Radar Video with Circular Crop -->
+<div class="flex justify-center">
+  <div class="w-72 h-72 overflow-hidden rounded-full shadow-lg bg-black border-4 border-gray-900">
+    <video class="w-full h-full object-cover object-center" autoplay muted loop playsinline>
+      <source src="WhatsApp Video 2025-06-16 at 10.15.47_8e5a559c.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
 
-    <!-- Image or Illustration -->
-    <div class="flex justify-center">
-      <img src="https://sanctamaria.in/wp-content/uploads/2022/02/electronic-transactions-more-secure.png" alt="Secure Transactions Illustration" class="rounded-lg shadow-lg max-w-full w-96">
-    </div>
+
   </div>
 </section>
 
-<section id="payment-methods" class="bg-white py-14 px-6 md:px-20 border-t">
+
+<section id="payment-methods" class="bg-gradient-to-br from-indigo-50 via-white to-yellow-50 py-20 px-6 md:px-20 border-t border-gray-200">
   <div class="max-w-6xl mx-auto text-center">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6">Accepted Payment Methods</h2>
-    <p class="text-gray-600 mb-10 text-lg">IyonicPay supports a wide range of trusted and secure payment options for both local and international users.</p>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
-
+    <h2 class="text-4xl font-extrabold text-indigo-800 mb-4 tracking-tight drop-shadow-lg">Accepted Payment Methods</h2>
+    <p class="text-lg text-gray-700 mb-12 max-w-2xl mx-auto">
+      IyonicPay supports a wide range of trusted and secure payment options for both local and international users.
+    </p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
       <!-- Visa/MasterCard -->
-      <div class="bg-gray-50 p-5 rounded-lg shadow hover:shadow-md transition transform hover:scale-[1.02] text-center">
-        <img src="https://img.icons8.com/color/64/visa.png" class="w-12 mx-auto mb-3" alt="Visa">
-        <h3 class="text-lg font-semibold">Visa & MasterCard</h3>
-        <p class="text-sm text-gray-600">Make payments securely with any global credit or debit card.</p>
+      <div class="bg-white/80 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 hover:scale-105 border border-yellow-100">
+        <img src="https://img.icons8.com/color/64/visa.png" class="w-12 h-12 mx-auto mb-3 drop-shadow" alt="Visa">
+        <img src="https://img.icons8.com/color/64/mastercard-logo.png" class="w-12 h-12 mx-auto mb-3 drop-shadow -mt-6" alt="MasterCard">
+        <h3 class="text-base font-semibold text-indigo-700 mb-1">Visa & MasterCard</h3>
+        <p class="text-xs text-gray-600">Pay securely with any global credit or debit card.</p>
       </div>
-
-      <!-- Mobile Money -->
-      <div class="bg-gray-50 p-5 rounded-lg shadow hover:shadow-md transition transform hover:scale-[1.02] text-center">
-        <img src="https://img.icons8.com/color/64/money-transfer.png" class="w-12 mx-auto mb-3" alt="Mobile">
-        <h3 class="text-lg font-semibold">Mobile Wallets</h3>
-        <p class="text-sm text-gray-600">Accepted mobile methods in supported regions: M-Pesa, Airtel Money, and more.</p>
+      <!-- Mobile Wallets -->
+      <div class="bg-white/80 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 hover:scale-105 border border-yellow-100">
+        <img src="https://img.icons8.com/color/64/money-transfer.png" class="w-12 h-12 mx-auto mb-3 drop-shadow" alt="Mobile">
+        <h3 class="text-base font-semibold text-indigo-700 mb-1">Mobile Wallets</h3>
+        <p class="text-xs text-gray-600">M-Pesa, Airtel Money, and more in supported regions.</p>
       </div>
-
       <!-- Bank Transfer -->
-      <div class="bg-gray-50 p-5 rounded-lg shadow hover:shadow-md transition transform hover:scale-[1.02] text-center">
-        <img src="https://img.icons8.com/fluency/64/bank.png" class="w-12 mx-auto mb-3" alt="Bank">
-        <h3 class="text-lg font-semibold">Bank Transfers</h3>
-        <p class="text-sm text-gray-600">Fund your account directly from major banks in select countries.</p>
+      <div class="bg-white/80 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 hover:scale-105 border border-yellow-100">
+        <img src="https://img.icons8.com/fluency/64/bank.png" class="w-12 h-12 mx-auto mb-3 drop-shadow" alt="Bank">
+        <h3 class="text-base font-semibold text-indigo-700 mb-1">Bank Transfers</h3>
+        <p class="text-xs text-gray-600">Fund your account from major banks in select countries.</p>
       </div>
-
       <!-- Apple Pay -->
-      <div class="bg-gray-50 p-5 rounded-lg shadow hover:shadow-md transition transform hover:scale-[1.02] text-center">
-        <img src="https://img.icons8.com/ios-filled/64/000000/apple-pay.png" class="w-12 mx-auto mb-3" alt="Apple Pay">
-        <h3 class="text-lg font-semibold">Apple Pay</h3>
-        <p class="text-sm text-gray-600">Seamless and secure one-tap payments for Apple device users.</p>
+      <div class="bg-white/80 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 hover:scale-105 border border-yellow-100">
+        <img src="https://img.icons8.com/ios-filled/64/000000/apple-pay.png" class="w-12 h-12 mx-auto mb-3 drop-shadow" alt="Apple Pay">
+        <h3 class="text-base font-semibold text-indigo-700 mb-1">Apple Pay</h3>
+        <p class="text-xs text-gray-600">One-tap payments for Apple device users.</p>
       </div>
-
+      <!-- PayPal -->
+      <div class="bg-white/80 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 hover:scale-105 border border-yellow-100">
+        <img src="https://img.icons8.com/color/64/paypal.png" class="w-12 h-12 mx-auto mb-3 drop-shadow" alt="PayPal">
+        <h3 class="text-base font-semibold text-indigo-700 mb-1">PayPal</h3>
+        <p class="text-xs text-gray-600">Pay easily with your PayPal account.</p>
+      </div>
+      <!-- Google Pay -->
+      <div class="bg-white/80 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 hover:scale-105 border border-yellow-100">
+        <img src="https://img.icons8.com/color/64/google-pay-india.png" class="w-12 h-12 mx-auto mb-3 drop-shadow" alt="Google Pay">
+        <h3 class="text-base font-semibold text-indigo-700 mb-1">Google Pay</h3>
+        <p class="text-xs text-gray-600">Fast, secure payments with Google Pay.</p>
+      </div>
     </div>
-
-    <p class="mt-10 text-sm text-gray-500">
+    <p class="mt-12 text-sm text-gray-500">
       Whether you're receiving money from Nairobi, Lagos, London, or New York — IyonicPay makes it simple and secure.
     </p>
   </div>
 </section>
-
 
 <section id="receive-payments" class="bg-indigo-50 py-14 px-6 md:px-20">
   <div class="max-w-5xl mx-auto text-center">
@@ -260,7 +275,7 @@
       <div class="bg-indigo-50 p-6 rounded-xl shadow hover:shadow-md transition">
         <h3 class="text-xl font-semibold mb-2 text-indigo-700">🎯 How It Works</h3>
         <p class="text-gray-700 mb-2">Just assign a <code>data-amount</code> to your product price element:</p>
-        <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto text-gray-800">
+        <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto text-red-500">
 &lt;p class="text-lg font-bold" id="productPrice" data-amount="45"&gt;
   $45.00 USD
 &lt;/p&gt;
@@ -274,7 +289,7 @@
       <div class="bg-indigo-50 p-6 rounded-xl shadow hover:shadow-md transition">
         <h3 class="text-xl font-semibold mb-2 text-indigo-700">⚡ One Button to Start</h3>
         <p class="text-gray-700 mb-3">Use this simple button on your product or checkout page:</p>
-        <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto text-gray-800">
+        <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto text-red-500">
 &lt;button onclick="openPaymentPopup()"&gt;
   Pay Now
 &lt;/button&gt;
@@ -465,38 +480,38 @@ function openPaymentPopup() {
   </div>
 </section>
 <!-- Extra Info Section: "Did You Know?" -->
-<section class="bg-gradient-to-r from-indigo-700 via-indigo-500 to-indigo-400 text-white py-16 px-6 md:px-20">
+<section class="bg-white text-black py-16 px-6 md:px-20">
   <div class="max-w-5xl mx-auto text-center">
     <h2 class="text-3xl md:text-4xl font-extrabold mb-4 flex items-center justify-center gap-3">
-      <svg class="w-8 h-8 text-yellow-300 inline-block animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/></svg>
+      <svg class="w-8 h-8 text-blue-500 inline-block animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/></svg>
       Did You Know?
     </h2>
     <p class="text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-      IyonicPay is designed for global reach, but did you know you can <span class="font-semibold text-yellow-200">customize your payment links</span> with your brand name? Stand out and build trust with every transaction!
+      IyonicPay is designed for global reach, but did you know you can <span class="font-semibold text-blue-500">customize your payment links</span> with your brand name? Stand out and build trust with every transaction!
     </p>
     <div class="grid md:grid-cols-3 gap-8 text-left">
       <div class="bg-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition">
-        <h4 class="font-semibold text-yellow-200 text-lg mb-2">Multi-Currency Support</h4>
-        <p class="text-indigo-100 text-sm">Accept and hold balances in multiple currencies. Perfect for freelancers and businesses with international clients.</p>
+        <h4 class="font-semibold text-blue-500 text-lg mb-2">Multi-Currency Support</h4>
+        <p class="text-black text-sm">Accept and hold balances in multiple currencies. Perfect for freelancers and businesses with international clients.</p>
       </div>
       <div class="bg-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition">
-        <h4 class="font-semibold text-yellow-200 text-lg mb-2">Instant Refunds</h4>
-        <p class="text-indigo-100 text-sm">Refunds are processed instantly to your wallet—no waiting, no hassle, and no extra fees within 24 hours.</p>
+        <h4 class="font-semibold text-blue-500 text-lg mb-2">Instant Refunds</h4>
+        <p class="text-black text-sm">Refunds are processed instantly to your wallet—no waiting, no hassle, and no extra fees within 24 hours.</p>
       </div>
       <div class="bg-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition">
-        <h4 class="font-semibold text-yellow-200 text-lg mb-2">API Integrations</h4>
-        <p class="text-indigo-100 text-sm">Developers can connect IyonicPay to websites, apps, or SaaS platforms with our easy-to-use APIs and webhooks.</p>
+        <h4 class="font-semibold text-blue-500 text-lg mb-2">API Integrations</h4>
+        <p class="text-black text-sm">Developers can connect IyonicPay to websites, apps, or SaaS platforms with our easy-to-use APIs and webhooks.</p>
       </div>
     </div>
     <div class="mt-10">
-      <a href="./signup" class="inline-block bg-yellow-400 hover:bg-yellow-300 text-indigo-900 font-bold px-8 py-3 rounded-full shadow-lg transition transform hover:scale-105">
+      <a href="./signup" class="inline-block bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-3 rounded-full shadow-lg transition transform hover:scale-105">
         Try These Features Now
       </a>
     </div>
   </div>
 </section>
 
-<footer class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-900 text-white mt-20 pt-12 pb-8 px-6 md:px-20 shadow-2xl relative z-20">
+<footer class="bg-gradient-to-r from-black via-indigo-800 to-black text-white mt-20 pt-12 pb-8 px-6 md:px-20 shadow-2xl relative z-20">
   <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
     <!-- Logo & About -->
@@ -542,7 +557,7 @@ function openPaymentPopup() {
         <input type="email" id="newsletterEmail" required placeholder="Your email"
                class="rounded-full px-4 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400" />
         <button type="submit" id="newsletterBtn"
-                class="bg-yellow-400 text-indigo-900 font-bold px-5 py-2 rounded-full hover:bg-yellow-300 transition">
+                class="bg-yellow-400 text-black font-bold px-5 py-2 rounded-full hover:bg-yellow-300 transition">
           Subscribe
         </button>
       </form>

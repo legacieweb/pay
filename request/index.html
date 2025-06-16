@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="https://i.imgur.com/YAPRefp.png" type="image/x-icon">
   <script src="https://js.paystack.co/v1/inline.js"></script>
+  
   <!-- PayPal SDK -->
 <script src="https://www.paypal.com/sdk/js?client-id=AQfodkoomosQ13KijZWjc4nDi5p6zbaOVznCSMgu2rPDoZqTy_pNIJoQWu-YZwLU03QJgrFQkowIBC4T&currency=USD"></script>
   <style>
@@ -213,7 +214,7 @@ async function loadUser() {
   if (!nameSlug) return showError("Invalid request link.");
 
   try {
-    const userRes = await fetch(`https://pay-y3bt.onrender.com/api/public/user-by-name?user=${nameSlug}`);
+    const userRes = await fetch(`http://localhost:5000/api/public/user-by-name?user=${nameSlug}`);
     const userData = await userRes.json();
 
     if (!userRes.ok || !userData?.email || !userData?.id) throw new Error("Invalid user data");
@@ -271,7 +272,7 @@ async function loadDefaultAmount(userId) {
 
   // Step 2: Load default from backend
   try {
-    const res = await fetch(`https://pay-y3bt.onrender.com/api/public/default-amount?userId=${userId}`);
+    const res = await fetch(`http://localhost:5000/api/public/default-amount?userId=${userId}`);
     const config = await res.json();
 
     const currentAmount = config?.defaultAmount;
@@ -339,7 +340,7 @@ async function saveDefaultAmount() {
       return;
     }
 
-    const response = await fetch('https://pay-y3bt.onrender.com/api/user/default-amount', {
+    const response = await fetch('http://localhost:5000/api/user/default-amount', {
       method: 'POST',
       headers: {
       'Content-Type': 'application/json',
@@ -492,7 +493,7 @@ function payUser() {
 
   async function handlePaymentSuccess(amountUSD, reference, payerEmail, payerName) {
     try {
-      const res = await fetch('https://pay-y3bt.onrender.com/api/public/request-payment', {
+      const res = await fetch('http://localhost:5000/api/public/request-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
