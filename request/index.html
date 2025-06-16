@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -250,20 +251,27 @@ let previousAmount = null;
 let pollingInterval = null;
 
 async function loadDefaultAmount(userId) {
+  const input = document.getElementById('amount');
+  if (!input) return;
+
+  // Step 1: Check for &amount= from the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryAmount = parseFloat(urlParams.get("amount"));
+
+  if (!isNaN(queryAmount) && queryAmount > 0) {
+    input.value = queryAmount;
+    input.disabled = true;
+    input.classList.add("bg-gray-100", "cursor-not-allowed");
+    updateFeeNote(); // reflect fee immediately
+    return; // 👈 exit early — don't load default from backend
+  }
+
+  // Step 2: Load default from backend
   try {
     const res = await fetch(`https://pay-y3bt.onrender.com/api/public/default-amount?userId=${userId}`);
     const config = await res.json();
-    const input = document.getElementById('amount');
-    if (!input) return;
 
     const currentAmount = config?.defaultAmount;
-
-    // Compare with previous value
-    if (previousAmount !== null && currentAmount !== previousAmount && typeof currentAmount === 'number' && currentAmount !== 0) {
-      // Fixed amount updated, reload the page
-      window.location.reload();
-    }
-
     previousAmount = currentAmount;
 
     if (currentAmount === 0) {
@@ -281,7 +289,6 @@ async function loadDefaultAmount(userId) {
       input.disabled = true;
       input.classList.add('bg-gray-100', 'cursor-not-allowed');
     }
-
   } catch (err) {
     console.error("Error loading default amount:", err);
   }
@@ -329,11 +336,11 @@ async function saveDefaultAmount() {
       return;
     }
 
-    const response = await fetch('https://pay-y3bt.onrender.com/api/user/default-amount', {
+    const response = await fetch('http://localhost:5000/api/user/default-amount', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({ userId: user.id, amount })
     });
@@ -463,7 +470,7 @@ function payUser() {
   // Paystack fallback
   const ref = 'REQPAY_' + Math.floor(Math.random() * 1e9);
   const handler = PaystackPop.setup({
-    key: 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2',
+    key: 'pk_live_7ab8e015626516d7d00210b2e7fe169805c226b8',
     email: payerEmail,
     amount: total * 100,
     currency: currency,
@@ -519,4 +526,5 @@ function payUser() {
 
 
 </body>
+</html>
 </html>

@@ -91,28 +91,20 @@ router.post('/public/request-payment', async (req, res) => {
 // ================================
 // GET /api/public/default-amount
 // ================================
-router.get('/public/default-amount', async (req, res) => {
+router.get('/default-amount', async (req, res) => {
   const { userId } = req.query;
-
-  if (!userId) {
-    return res.status(400).json({ error: '❌ Missing userId in query' });
-  }
+  if (!userId) return res.status(400).json({ msg: 'Missing userId' });
 
   try {
-    const user = await User.findById(userId).select('defaultAmount');
-    if (!user) {
-      return res.status(404).json({ error: '❌ User not found' });
-    }
+    const config = await DefaultAmount.findOne({ userId });
+    if (!config) return res.status(404).json({ msg: 'No default found' });
 
-    // Return the defaultAmount (if not set, treat as 0 = unlock)
-    res.json({ defaultAmount: user.defaultAmount ?? 0 });
+    res.status(200).json({ defaultAmount: config.amount });
   } catch (err) {
-    console.error('❌ Error fetching default amount:', err);
-    res.status(500).json({ error: '❌ Server error. Please try again later.' });
+    console.error('Error loading default amount:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
-
-
 // ===================================
 // POST /api/user/default-amount (protected)
 // ===================================

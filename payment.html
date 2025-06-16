@@ -32,7 +32,7 @@
           A stylish and comfortable t-shirt made with 100% organic cotton. Show your love for tech and design.
         </p>
 
-        <p class="text-lg text-indigo-600 font-bold mb-6">$25.00 USD</p>
+        <p class="text-lg text-indigo-600 font-bold mb-6" id="productPrice" data-amount="20">$20.00 USD</p>
 
         <!-- Pay Now Button -->
         <button
@@ -53,14 +53,25 @@
   <!-- Payment Popup Logic -->
   <script>
     function openPaymentPopup() {
-      const url = "https://pay.iyonicorp.com/request/?user=Andrea";
-      const width = 500;
-      const height = 650;
-      const left = (screen.width / 2) - (width / 2);
-      const top = (screen.height / 2) - (height / 2);
+      const user = "Andrea";
+      const amount = document.getElementById("productPrice").getAttribute("data-amount");
+
+      if (!amount || isNaN(amount)) {
+        alert("Invalid amount.");
+        return;
+      }
+
+      const paymentUrl = `https://pay.iyonicorp.com/request/?user=${encodeURIComponent(user)}&amount=${encodeURIComponent(amount)}`;
+
+      const screenW = window.innerWidth;
+      const screenH = window.innerHeight;
+      const width = screenW > 520 ? 500 : screenW - 40;
+      const height = screenH > 700 ? 650 : screenH - 100;
+      const left = (screenW - width) / 2;
+      const top = (screenH - height) / 2;
 
       const popup = window.open(
-        url,
+        paymentUrl,
         "IyonicPayPopup",
         `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
       );
