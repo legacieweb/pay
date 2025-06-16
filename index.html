@@ -247,6 +247,74 @@
   </div>
 </section>
 
+<section id="smart-pricing" class="bg-white py-20 px-6 md:px-16 border-t border-gray-200">
+  <div class="max-w-6xl mx-auto text-center">
+    <h2 class="text-4xl font-bold text-gray-900 mb-4">Dynamic Pricing That Reads Your Product Page</h2>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-10">
+      No manual calculations. IyonicPay automatically picks up the price from your product — ensuring accurate, seamless checkouts.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-12 text-left mt-10">
+
+      <!-- How It Works -->
+      <div class="bg-indigo-50 p-6 rounded-xl shadow hover:shadow-md transition">
+        <h3 class="text-xl font-semibold mb-2 text-indigo-700">🎯 How It Works</h3>
+        <p class="text-gray-700 mb-2">Just assign a <code>data-amount</code> to your product price element:</p>
+        <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto text-gray-800">
+&lt;p class="text-lg font-bold" id="productPrice" data-amount="45"&gt;
+  $45.00 USD
+&lt;/p&gt;
+        </pre>
+        <p class="mt-4 text-sm text-gray-600">
+          The IyonicPay button reads this value and sends it to the secure payment popup — <strong>automatically</strong>.
+        </p>
+      </div>
+
+      <!-- Sample Button Logic -->
+      <div class="bg-indigo-50 p-6 rounded-xl shadow hover:shadow-md transition">
+        <h3 class="text-xl font-semibold mb-2 text-indigo-700">⚡ One Button to Start</h3>
+        <p class="text-gray-700 mb-3">Use this simple button on your product or checkout page:</p>
+        <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto text-gray-800">
+&lt;button onclick="openPaymentPopup()"&gt;
+  Pay Now
+&lt;/button&gt;
+
+&lt;script&gt;
+function openPaymentPopup() {
+  const user = "YourUsername";
+  const amount = document
+    .getElementById("productPrice")
+    .getAttribute("data-amount");
+
+  window.open(
+    `https://pay.iyonicorp.com/request/?user=${user}&amount=${amount}`,
+    "_blank",
+    "width=480,height=620"
+  );
+}
+&lt;/script&gt;
+        </pre>
+        <p class="text-sm text-gray-600 mt-3">No extra setup needed — it works on any HTML site or ecommerce builder.</p>
+      </div>
+    </div>
+
+    <div class="mt-14">
+      <a href="./signup" class="inline-block mt-4 bg-indigo-600 hover:bg-indigo-700 transition px-8 py-3 rounded-full font-semibold text-white text-lg shadow-lg">
+        Add Smart Checkout to My Store →
+      </a>
+    </div>
+
+    <div class="mt-16 max-w-3xl mx-auto">
+      <h3 class="text-2xl font-bold text-indigo-700 mb-2">No API Keys. No Headaches. Just Integration.</h3>
+      <p class="text-gray-700 text-lg">
+        Forget about complicated API docs, secret keys, or backend coding. With IyonicPay, you simply drop a button on your site and you’re ready to accept payments. No developer account, no server setup, no maintenance — just a direct, secure integration that works everywhere.
+      </p>
+      <p class="text-gray-600 mt-4">
+        Focus on your business, not on technical issues. IyonicPay is built for simplicity and reliability — so you can start selling in minutes, not days.
+      </p>
+    </div>
+  </div>
+</section></div>
 
 <section class="bg-indigo-50 text-blue-600 py-16 px-6 md:px-20">
   <div class="max-w-6xl mx-auto text-center">
@@ -428,51 +496,110 @@
   </div>
 </section>
 
-<footer class="bg-indigo-900 text-white mt-20 pt-10 pb-6 px-6 md:px-20">
-  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<footer class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-900 text-white mt-20 pt-12 pb-8 px-6 md:px-20 shadow-2xl relative z-20">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
     <!-- Logo & About -->
     <div>
-      <h3 class="text-2xl font-bold mb-2">IyonicPay</h3>
+      <div class="flex items-center gap-3 mb-3">
+        <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-10 h-10 rounded-full border-2 border-yellow-400 shadow-lg animate-bounce-slow" />
+        <span class="text-2xl font-extrabold bg-gradient-to-r from-yellow-300 via-white to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">IyonicPay</span>
+      </div>
       <p class="text-sm text-indigo-200 leading-relaxed">
-        Empowering secure payments for individuals and businesses across the globe. Experience effortless transactions, refunds, and withdrawals with IyonicPay.
+        Empowering secure payments for individuals and businesses worldwide. Effortless transactions, instant refunds, and seamless withdrawals—your money, your way.
       </p>
     </div>
 
     <!-- Links -->
     <div>
-      <h4 class="font-semibold text-lg mb-3">Explore</h4>
+      <h4 class="font-semibold text-lg mb-3 tracking-wide">Explore</h4>
       <ul class="space-y-2 text-sm">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li><a href="./login" class="hover:underline">Login</a></li>
-        <li><a href="./signup" class="hover:underline">Sign Up</a></li>
-        <li><a href="#fees" class="hover:underline">Fees & Charges</a></li>
-        <li><a href="#payment-methods" class="hover:underline">Payment Methods</a></li>
+        <li><a href="/" class="hover:underline hover:text-yellow-300 transition">Home</a></li>
+        <li><a href="./login" class="hover:underline hover:text-yellow-300 transition">Login</a></li>
+        <li><a href="./signup" class="hover:underline hover:text-yellow-300 transition">Sign Up</a></li>
+        <li><a href="#fees" class="hover:underline hover:text-yellow-300 transition">Fees & Charges</a></li>
+        <li><a href="#payment-methods" class="hover:underline hover:text-yellow-300 transition">Payment Methods</a></li>
       </ul>
     </div>
 
     <!-- Support -->
     <div>
-      <h4 class="font-semibold text-lg mb-3">Support</h4>
+      <h4 class="font-semibold text-lg mb-3 tracking-wide">Support</h4>
       <ul class="space-y-2 text-sm">
-        <li><a href="./contact" class="hover:underline">Contact Us</a></li>
-        <li><a href="./terms" class="hover:underline">Terms of Service</a></li>
-        <li><a href="./refunds" class="hover:underline">Refund policy</a></li>        
-        <li><a href="./privacy" class="hover:underline">Privacy Policy</a></li>
+        <li><a href="./contact" class="hover:underline hover:text-yellow-300 transition">Contact Us</a></li>
+        <li><a href="./terms" class="hover:underline hover:text-yellow-300 transition">Terms of Service</a></li>
+        <li><a href="./refunds" class="hover:underline hover:text-yellow-300 transition">Refund Policy</a></li>
+        <li><a href="./privacy" class="hover:underline hover:text-yellow-300 transition">Privacy Policy</a></li>
       </ul>
     </div>
 
-  <div class="mt-10 border-t border-indigo-700 pt-4 text-center text-sm text-indigo-300">
-    &copy; <span id="year"></span> IyonicPay. All rights reserved.
+    <!-- Newsletter -->
+    <div>
+      <h4 class="font-semibold text-lg mb-3 tracking-wide">Stay Updated</h4>
+      <p class="text-sm text-indigo-200 mb-3">Get the latest news and updates from IyonicPay.</p>
+
+      <form id="newsletterForm" class="flex flex-col sm:flex-row gap-2">
+        <input type="email" id="newsletterEmail" required placeholder="Your email"
+               class="rounded-full px-4 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+        <button type="submit" id="newsletterBtn"
+                class="bg-yellow-400 text-indigo-900 font-bold px-5 py-2 rounded-full hover:bg-yellow-300 transition">
+          Subscribe
+        </button>
+      </form>
+      <div id="newsletter-success" class="hidden text-green-300 mt-2 text-xs">Thanks! We’ll keep you posted 📩</div>
+      <div id="newsletter-error" class="hidden text-red-300 mt-2 text-xs">Oops! Something went wrong.</div>
+    </div>
+  </div>
+
+  <div class="mt-12 border-t border-indigo-700 pt-6 flex flex-col md:flex-row items-center justify-between text-sm text-indigo-300">
+    <div>&copy; <span id="year"></span> IyonicPay. All rights reserved.</div>
+    <div class="mt-3 md:mt-0 flex items-center gap-2">
+      <svg class="w-4 h-4 text-yellow-300 inline-block" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.386-2.46a1 1 0 00-1.175 0l-3.386 2.46c-.784.57-1.838-.196-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118l-3.385-2.46c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
+      </svg>
+      <span>Made with <span class="text-yellow-300 font-bold">passion</span> for global payments</span>
+    </div>
   </div>
 </footer>
 
-
-<!-- Dynamic Year -->
+<!-- Footer Scripts -->
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
-</script>
 
+  document.getElementById('newsletterForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const emailInput = document.getElementById('newsletterEmail');
+    const button = document.getElementById('newsletterBtn');
+    const email = emailInput.value.trim();
+
+    // Prevent multiple clicks
+    button.disabled = true;
+    button.innerText = 'Subscribing...';
+
+    try {
+      const res = await fetch('https://pay-y3bt.onrender.com/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('newsletter-success').classList.remove('hidden');
+        document.getElementById('newsletter-error').classList.add('hidden');
+        emailInput.value = '';
+      } else {
+        throw new Error(data.error || 'Failed');
+      }
+    } catch (err) {
+      document.getElementById('newsletter-success').classList.add('hidden');
+      document.getElementById('newsletter-error').classList.remove('hidden');
+    } finally {
+      button.disabled = false;
+      button.innerText = 'Subscribe';
+    }
+  });
+</script>
 
 
 <script>

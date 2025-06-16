@@ -34,7 +34,7 @@ router.post('/pay/:userId', async (req, res) => {
     // Send email notification to recipient
     await sendEmail({
       to: user.email,
-      subject: '💰 You Received a Payment',
+      subject: 'You Received a Payment',
       html: `
         <p>Hi ${user.name},</p>
         <p>You just received <strong>$${amount.toFixed(2)}</strong> from <strong>${senderEmail}</strong> via your payment link.</p>

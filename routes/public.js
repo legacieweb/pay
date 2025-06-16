@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const DefaultAmount = require('../models/DefaultAmount'); // ✅ REQUIRED
 const authMiddleware = require('../middleware/authMiddleware');
 
 // ==============================
@@ -60,7 +61,7 @@ router.post('/public/request-payment', async (req, res) => {
     // Notify user
     await sendEmail({
       to: user.email,
-      subject: '✅ Payment Received',
+      subject: 'Payment Received',
       html: `
         <p>Hi ${user.name},</p>
         <p>You received <strong>$${amount.toFixed(2)}</strong> from ${payerEmail} via your IyonicPay request link.</p>
@@ -71,7 +72,7 @@ router.post('/public/request-payment', async (req, res) => {
     // Confirm payer
     await sendEmail({
       to: payerEmail,
-      subject: '💸 Payment Confirmation - IyonicPay',
+      subject: 'Payment Confirmation - IyonicPay',
       html: `
         <p>Hello,</p>
         <p>Your payment of <strong>$${amount.toFixed(2)}</strong> to ${user.name} was successful.</p>
@@ -91,7 +92,7 @@ router.post('/public/request-payment', async (req, res) => {
 // ================================
 // GET /api/public/default-amount
 // ================================
-router.get('/default-amount', async (req, res) => {
+router.get('/public/default-amount', async (req, res) => {
   const { userId } = req.query;
   if (!userId) return res.status(400).json({ msg: 'Missing userId' });
 
@@ -111,40 +112,33 @@ router.get('/default-amount', async (req, res) => {
 router.post('/user/default-amount', authMiddleware, async (req, res) => {
   const { userId, amount } = req.body;
 
-  // Basic validation
-  if (!userId || amount == null) {
-    return res.status(400).json({ error: '❌ Missing userId or amount' });
+  if (!userId || amount == null || typeof amount !== 'number' || amount < 0) {
+    return res.status(400).json({ error: '❌ Invalid input: userId and amount ≥ 0 required' });
   }
 
-  if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
-    return res.status(400).json({ error: '❌ Invalid amount. Must be a number ≥ 0' });
+  if (req.user?.id !== userId) {
+    return res.status(403).json({ error: '❌ Unauthorized: Cannot modify another user' });
   }
 
   try {
-    // Ensure the user updating matches the token user
-    if (req.user?.id !== userId) {
-      return res.status(403).json({ error: '❌ Unauthorized: Cannot update another user' });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: '❌ User not found' });
-    }
-
-    user.defaultAmount = amount;
-    await user.save();
+    await DefaultAmount.findOneAndUpdate(
+      { userId },
+      { amount },
+      { upsert: true, new: true }
+    );
 
     res.json({
-      msg: amount === 0 
+      msg: amount === 0
         ? '✅ Default amount set to 0 (payer can enter any amount)'
-        : '✅ Default amount updated successfully',
-      defaultAmount: user.defaultAmount
+        : '✅ Default amount saved',
+      defaultAmount: amount
     });
   } catch (err) {
     console.error('❌ Error updating default amount:', err);
-    res.status(500).json({ error: '❌ Server error. Please try again later.' });
+    res.status(500).json({ error: '❌ Server error. Try again later.' });
   }
 });
+
 
 
 module.exports = router;

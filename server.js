@@ -10,6 +10,7 @@ const publicRoutes = require('./routes/public'); // or wherever the file is
 const adminRoutes = require('./routes/admin');
 const nodemailer = require('nodemailer');
 
+const newsletterRoutes = require('./routes/newsletter');
 
 
 dotenv.config();
@@ -17,6 +18,7 @@ require('./config/db')(); // connect to MongoDB
 
 app.use(express.json());
 app.use('/api', publicRoutes);
+app.use('/api', newsletterRoutes);
 
 // Routes
 app.use('/api/auth', authRoutes);
