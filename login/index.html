@@ -1,67 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Required Meta Tags -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | IyonicPay - Secure Account Access</title>
-  
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="Login to your IyonicPay account for secure and seamless access to online payment solutions. Manage your transactions, billing, and payment integrations with confidence.">
-  <meta name="keywords" content="IyonicPay login, account access, secure login, payment gateway login, online payments, digital wallet login, merchant login, payment dashboard, user authentication, fintech login, payment processor, account security, login portal, payment management, transaction history, invoicing login, subscription management, PCI compliant login, secure checkout, payment platform login, financial services login">
-  <meta name="author" content="Iyonic Corporation">
-  <meta name="robots" content="index, follow">
-
-  <!-- Open Graph Meta Tags for Social Sharing -->
-  <meta property="og:title" content="Login | IyonicPay - Secure Account Access">
-  <meta property="og:description" content="Access your IyonicPay account securely. Manage payments, transactions, and more with our trusted platform.">
-  <meta property="og:url" content="https://pay.iyonicorp.com/login">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://images.pexels.com/photos/7680637/pexels-photo-7680637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1">
-
-  <!-- Twitter Card Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Login | IyonicPay - Secure Account Access">
-  <meta name="twitter:description" content="Sign in to your IyonicPay account for secure and seamless payment management.">
-  <meta name="twitter:image" content="https://images.pexels.com/photos/7680637/pexels-photo-7680637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1">
-
-  <!-- Canonical Tag -->
-  <link rel="canonical" href="https://pay.iyonicorp.com/login">
-
-  <!-- Favicon -->
-  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" type="image/x-icon">
-
+  <title>Login | IyonicPay</title>
+  <meta name="description" content="Login to your IyonicPay account for secure access and manage your payments confidently." />
+  <meta name="keywords" content="IyonicPay login, payment platform, secure login, fintech dashboard" />
+  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="w-full max-w-sm bg-white p-8 rounded shadow">
-    <h2 class="text-2xl font-bold text-center mb-6">Login to IyonicPay</h2>
 
-    <form id="loginForm">
-      <input id="email" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded" required>
-      <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded" required>
-      <button id="loginBtn" type="submit" class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">Login</button>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-100 min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-md bg-white bg-opacity-90 backdrop-blur p-8 rounded-2xl shadow-lg space-y-6">
+    <div class="text-center">
+      <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-24 mx-auto mb-4" />
+      <h2 class="text-3xl font-bold text-gray-800">Login to IyonicPay</h2>
+      <p class="text-gray-500 text-sm mt-1">Secure access to your dashboard</p>
+    </div>
+
+    <form id="loginForm" class="space-y-4">
+      <input id="email" type="email" placeholder="Email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500" required>
+      <input id="password" type="password" placeholder="Password" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500" required>
+      <button id="loginBtn" type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition">
+        Login
+      </button>
     </form>
 
-    <p class="text-center text-sm text-indigo-600 mt-4 cursor-pointer" onclick="document.getElementById('resetSection').classList.remove('hidden')">Forgot Password?</p>
+    <div class="text-sm text-center text-indigo-600 cursor-pointer font-medium hover:underline" onclick="document.getElementById('resetSection').classList.remove('hidden')">
+      Forgot Password?
+    </div>
 
     <!-- Reset Password Section -->
-    <div id="resetSection" class="hidden mt-6 border-t pt-4">
-      <h3 class="text-center font-semibold mb-2">Reset Password</h3>
-      <input id="resetEmail" type="email" placeholder="Your Email" class="w-full p-2 mb-2 border rounded">
-      <button onclick="requestReset()" class="w-full bg-yellow-400 py-2 rounded hover:bg-yellow-300">Send Code</button>
+    <div id="resetSection" class="hidden mt-6 border-t pt-6 space-y-4">
+      <h3 class="text-center font-semibold text-gray-700">Reset Your Password</h3>
+      <input id="resetEmail" type="email" placeholder="Your Email" class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+      <button onclick="requestReset()" class="w-full bg-yellow-400 text-black font-semibold py-2 rounded-lg hover:bg-yellow-300 transition">Send Code</button>
 
-      <input id="resetCode" type="text" placeholder="Enter Code" class="w-full p-2 mt-4 border rounded">
-      <input id="newPassword" type="password" placeholder="New Password" class="w-full p-2 mt-2 border rounded">
-      <button onclick="confirmReset()" class="w-full bg-green-500 text-white py-2 mt-2 rounded hover:bg-green-400">Reset Password</button>
+      <input id="resetCode" type="text" placeholder="Verification Code" class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+      <input id="newPassword" type="password" placeholder="New Password" class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+      <button onclick="confirmReset()" class="w-full bg-green-500 text-white font-semibold py-2 rounded-lg hover:bg-green-400 transition">Reset Password</button>
     </div>
 
     <p class="text-center text-sm text-gray-600 mt-4">
-      Don't have an account? <a href="../signup" class="text-indigo-600">Sign Up</a>
+      Don’t have an account? <a href="../signup" class="text-indigo-600 font-medium hover:underline">Sign Up</a>
     </p>
   </div>
 
-  <!-- Logging In Modal -->
+  <!-- Modal -->
   <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
     <div class="bg-white px-6 py-4 rounded shadow-lg text-center animate-pulse">
       <p class="text-lg font-semibold text-indigo-600">🔐 Logging you in...</p>
@@ -97,55 +89,60 @@
           window.location.href = '../dashboard';
         } else {
           alert(data.msg || 'Login failed');
-          loginBtn.disabled = false;
-          loginBtn.textContent = 'Login';
-          loadingModal.classList.add('hidden');
         }
       } catch (err) {
-        alert('Error connecting to server');
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Login';
-        loadingModal.classList.add('hidden');
+        alert('Server error. Try again later.');
       }
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+      loadingModal.classList.add('hidden');
     });
 
     async function requestReset() {
-      const email = document.getElementById('resetEmail').value;
-      if (!email) return alert('Enter your email');
+      const email = document.getElementById('resetEmail').value.trim();
+      if (!email) return alert('Please enter your email.');
 
-      const res = await fetch('https://pay-y3bt.onrender.com/api/auth/request-reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
+      try {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/request-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
 
-      const data = await res.json();
-      alert(data.msg || 'Check your email for reset code');
+        const data = await res.json();
+        alert(data.msg || 'Check your email for the reset code.');
+      } catch (err) {
+        alert('Failed to send reset code.');
+      }
     }
 
     async function confirmReset() {
-      const email = document.getElementById('resetEmail').value;
-      const code = document.getElementById('resetCode').value;
-      const newPassword = document.getElementById('newPassword').value;
+      const email = document.getElementById('resetEmail').value.trim();
+      const code = document.getElementById('resetCode').value.trim();
+      const newPassword = document.getElementById('newPassword').value.trim();
 
-      if (!email || !code || !newPassword) return alert('All fields are required');
+      if (!email || !code || !newPassword) return alert('All fields are required.');
 
-      const res = await fetch('https://pay-y3bt.onrender.com/api/auth/confirm-reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code, newPassword })
-      });
+      try {
+        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/confirm-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code, newPassword })
+        });
 
-      const data = await res.json();
-      if (res.ok) {
-        alert('Password reset. Please login.');
-        location.reload();
-      } else {
-        alert(data.msg || 'Reset failed');
+        const data = await res.json();
+        if (res.ok) {
+          alert('Password reset successful. Please log in.');
+          location.reload();
+        } else {
+          alert(data.msg || 'Reset failed.');
+        }
+      } catch (err) {
+        alert('Error during password reset.');
       }
     }
   </script>
-
   
 <script>
     setInterval(() => {
@@ -230,5 +227,6 @@
  
    })();
  </script>
+ 
 </body>
 </html>

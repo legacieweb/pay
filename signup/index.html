@@ -1,62 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Required Meta Tags -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up | IyonicPay - Create Your Secure Payment Account</title>
-  
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="Create your IyonicPay account to access secure, seamless online payments. Sign up in seconds and start accepting payments with confidence.">
-  <meta name="keywords" content="IyonicPay signup, create account, register, payment gateway signup, secure payments, online payments, merchant registration, payment platform, digital wallet signup, business payments, fintech signup, payment processor registration, seamless onboarding, payment integration, e-commerce signup, SaaS payments, subscription payments, PCI compliant signup, instant account creation, payment security, IyonicPay registration">
+  <title>Sign Up | IyonicPay</title>
+  <meta name="description" content="Create your IyonicPay account to access secure, seamless online payments.">
+  <meta name="keywords" content="IyonicPay signup, payment platform, secure fintech onboarding">
   <meta name="author" content="Iyonic Corporation">
-  <meta name="robots" content="index, follow">
-
-  <!-- Open Graph Meta Tags for Social Sharing -->
-  <meta property="og:title" content="Sign Up | IyonicPay - Create Your Secure Payment Account">
-  <meta property="og:description" content="Join IyonicPay and experience secure, fast, and seamless online payments. Create your account today.">
-  <meta property="og:url" content="https://pay.iyonicorp.com/signup">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://images.pexels.com/photos/7680637/pexels-photo-7680637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1">
-
-  <!-- Twitter Card Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sign Up | IyonicPay - Create Your Secure Payment Account">
-  <meta name="twitter:description" content="Sign up for IyonicPay and start accepting secure online payments for your business or personal use.">
-  <meta name="twitter:image" content="https://images.pexels.com/photos/7680637/pexels-photo-7680637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1">
-
-  <!-- Canonical Tag -->
-  <link rel="canonical" href="https://pay.iyonicorp.com/signup">
-
-  <!-- Favicon -->
-  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" type="image/x-icon">
-
+  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
 
-  <div class="w-full max-w-md bg-white p-8 rounded shadow">
-    <h2 class="text-2xl font-bold text-center mb-6">Create an Account</h2>
-    <form id="signupForm">
-      <input id="name" type="text" placeholder="Payment name/ company name" class="w-full p-3 mb-4 border rounded" required>
-      <input id="email" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded" required>
-      <button id="sendCodeBtn" type="button" class="w-full bg-blue-500 text-white py-3 rounded mb-4 hover:bg-blue-600">Send Code</button>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-100 min-h-screen flex items-center justify-center">
+
+  <div class="w-full max-w-xl mx-auto px-4 md:px-10 py-10">
+    <div class="flex flex-col items-center mb-8">
+      <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-24 md:w-32 mb-4" />
+      <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800">Create Your IyonicPay Account</h1>
+      <p class="text-center text-gray-600 mt-2 text-sm md:text-base">Secure. Seamless. Instant.</p>
+    </div>
+
+    <form id="signupForm" class="bg-white bg-opacity-90 backdrop-blur p-8 md:p-12 rounded-2xl shadow-xl space-y-5">
+      <input id="name" type="text" placeholder="Business/Account Name" required
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input id="email" type="email" placeholder="Email address" required
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
       
-      <input id="verifyCode" type="text" placeholder="Enter verification code" class="w-full p-3 mb-4 border rounded hidden">
-      
-      <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded hidden" required>
-      <input id="confirm" type="password" placeholder="Confirm Password" class="w-full p-3 mb-4 border rounded hidden" required>
-      <button id="signupBtn" type="submit" class="w-full bg-yellow-400 text-black py-3 rounded hover:bg-yellow-300 hidden">Sign Up</button>
+      <button id="sendCodeBtn" type="button"
+        class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">
+        Send Verification Code
+      </button>
+
+      <input id="verifyCode" type="text" placeholder="Enter Code" 
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 hidden focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input id="password" type="password" placeholder="Create Password" required
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 hidden focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input id="confirm" type="password" placeholder="Confirm Password" required
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 hidden focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+      <button id="signupBtn" type="submit"
+        class="w-full bg-yellow-400 text-black font-semibold py-3 rounded-lg hover:bg-yellow-300 transition hidden">
+        Sign Up
+      </button>
     </form>
-    <p class="text-center text-sm text-gray-600 mt-4">
-      Already have an account? <a href="../login" class="text-indigo-600">Login</a>
+
+    <p class="text-center text-sm text-gray-600 mt-6">
+      Already have an account?
+      <a href="../login" class="text-indigo-600 hover:underline font-medium">Login</a>
     </p>
   </div>
 
-  <!-- Signing Up Modal -->
+  <!-- Modal -->
   <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
     <div class="bg-white px-6 py-4 rounded shadow-lg text-center animate-pulse">
-      <p class="text-lg font-semibold text-yellow-500">🛠️ Creating your account...</p>
+      <p class="text-lg font-semibold text-yellow-500">🔐 Creating your secure account...</p>
     </div>
   </div>
 
@@ -82,7 +85,7 @@
       if (!name || !email) return alert("Please enter both name and email.");
 
       const nameTaken = await isNameTaken(name);
-      if (nameTaken) return alert("🚫 This name is already taken. Choose a different one.");
+      if (nameTaken) return alert("🚫 This name is already taken.");
 
       sendCodeBtn.disabled = true;
       sendCodeBtn.textContent = "Sending...";
@@ -96,13 +99,13 @@
 
         const data = await res.json();
         if (res.ok) {
-          alert("✅ Code sent to your email. Please enter it to continue.");
+          alert("✅ Code sent to your email.");
           verifyCodeInput.classList.remove('hidden');
           passwordInput.classList.remove('hidden');
           confirmInput.classList.remove('hidden');
           signupBtn.classList.remove('hidden');
         } else {
-          alert(data.msg || "Failed to send verification code.");
+          alert(data.msg || "Failed to send code.");
         }
       } catch (err) {
         console.error(err);
@@ -110,7 +113,7 @@
       }
 
       sendCodeBtn.disabled = false;
-      sendCodeBtn.textContent = "Send Code";
+      sendCodeBtn.textContent = "Send Verification Code";
     });
 
     signupForm.addEventListener('submit', async function (e) {
@@ -152,7 +155,7 @@
         }
       } catch (err) {
         console.error('Signup error:', err);
-        alert('❌ Server error. Please try again later.');
+        alert('❌ Server error. Try again later.');
       }
 
       signupBtn.disabled = false;
@@ -160,7 +163,7 @@
       loadingModal.classList.add('hidden');
     });
   </script>
-
+  
 <script>
     setInterval(() => {
       console.clear();
@@ -244,5 +247,6 @@
  
    })();
  </script>
+ 
 </body>
 </html>
