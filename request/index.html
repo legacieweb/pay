@@ -207,7 +207,8 @@ button:disabled {
     note.classList.remove('hidden');
   }
 async function loadUser() {
-  const nameSlug = new URLSearchParams(window.location.search).get('user');
+  const params = new URLSearchParams(window.location.search);
+  const nameSlug = params.get('user');
   if (!nameSlug) return showError("Invalid request link.");
 
   try {
@@ -240,6 +241,28 @@ async function loadUser() {
 
       // Hide the Switch to PayPal button for logged-in users
       document.getElementById('switchToPaypal')?.classList.add('hidden');
+    } else {
+      // ⬇️ Auto-fill payer name/email for non-logged-in users via URL
+      const prefillName = params.get('name');
+      const prefillEmail = params.get('email');
+
+      if (prefillName) {
+        const nameInput = document.getElementById('payerName');
+        if (nameInput) {
+          nameInput.value = decodeURIComponent(prefillName);
+          nameInput.readOnly = true;
+          nameInput.classList.add("bg-gray-100", "cursor-not-allowed");
+        }
+      }
+
+      if (prefillEmail) {
+        const emailInput = document.getElementById('payerEmail');
+        if (emailInput) {
+          emailInput.value = decodeURIComponent(prefillEmail);
+          emailInput.readOnly = true;
+          emailInput.classList.add("bg-gray-100", "cursor-not-allowed");
+        }
+      }
     }
 
   } catch (err) {
