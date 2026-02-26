@@ -17,13 +17,24 @@ router.post('/pay/:userId', async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ msg: 'Recipient not found' });
 
+    // Calculate fee (paid by payer) which will be awarded as credits to the merchant
+    let feeEarned = 0;
+    if (user.chargeFee && user.feePercentage > 0) {
+      feeEarned = amount * (user.feePercentage / 100);
+    }
+    
     // Record the transaction
     user.balance += amount;
+    user.credits += feeEarned;
+
     user.transactions.push({
       type: 'receive',
       amount,
       status: 'completed',
-      description: `Payment via public link`,
+      creditsEarned: feeEarned,
+      description: feeEarned > 0 
+        ? `Payment via public link (Earned $${feeEarned.toFixed(2)} credits)`
+        : 'Payment via public link',
       from: senderEmail,
       reference,
       date: new Date()

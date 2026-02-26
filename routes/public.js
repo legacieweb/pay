@@ -6,10 +6,10 @@ const DefaultAmount = require('../models/DefaultAmount'); // ✅ REQUIRED
 const authMiddleware = require('../middleware/authMiddleware');
 
 // ==============================
-// GET /api/public/user-by-name
+// GET /api/public/user-by-username
 // ==============================
-router.get('/public/user-by-name', async (req, res) => {
-  const username = req.query.user;
+router.get('/user-by-username', async (req, res) => {
+  const username = req.query.username;
   if (!username) return res.status(400).json({ msg: 'Username required' });
 
   try {
@@ -20,10 +20,18 @@ router.get('/public/user-by-name', async (req, res) => {
 
     if (!match) return res.status(404).json({ msg: 'User not found' });
 
+    const config = await DefaultAmount.findOne({ userId: match._id });
+
     res.json({
-      id: match._id,
-      name: match.name,
-      email: match.email
+      user: {
+        id: match._id,
+        name: match.name,
+        email: match.email,
+        defaultAmount: config ? config.amount : null,
+        chargeFee: match.chargeFee,
+        feePercentage: match.feePercentage,
+        paystackPublicKey: match.paystackPublicKey || process.env.PAYSTACK_PUBLIC_KEY
+      }
     });
   } catch (err) {
     console.error('Error fetching user:', err);
@@ -34,24 +42,39 @@ router.get('/public/user-by-name', async (req, res) => {
 // ==================================
 // POST /api/public/request-payment
 // ==================================
-router.post('/public/request-payment', async (req, res) => {
-  const { userId, amount, reference, payerEmail } = req.body;
+router.post('/request-payment', async (req, res) => {
+  let { userId, amount, reference, payerEmail, payerName } = req.body;
 
   if (!userId || !amount || !reference || !payerEmail) {
     return res.status(400).json({ msg: 'Missing required fields' });
   }
 
+  // Ensure amount is a number
+  amount = parseFloat(amount);
+
   try {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
+    // Calculate fee (paid by payer) which will be awarded as credits to the merchant
+    let feeEarned = 0;
+    if (user.chargeFee && user.feePercentage > 0) {
+      feeEarned = amount * (user.feePercentage / 100);
+    }
+
     user.balance += amount;
+    user.credits += feeEarned;
+
     user.transactions.push({
       type: 'requested',
       amount,
       reference,
-      description: 'Received via public Paystack payment',
+      creditsEarned: feeEarned,
+      description: feeEarned > 0 
+        ? `Received via public request payment (Earned $${feeEarned.toFixed(2)} credits)`
+        : 'Received via public request payment',
       customerEmail: payerEmail,
+      customerName: payerName,
       status: 'completed',
       date: new Date()
     });
@@ -61,11 +84,17 @@ router.post('/public/request-payment', async (req, res) => {
     // Notify user
     await sendEmail({
       to: user.email,
-      subject: 'Payment Received',
+      subject: 'Payment Received - IyonicPay',
       html: `
-        <p>Hi ${user.name},</p>
-        <p>You received <strong>$${amount.toFixed(2)}</strong> from ${payerEmail} via your IyonicPay request link.</p>
-        <p>New balance: <strong>$${user.balance.toFixed(2)}</strong>.</p>
+        <div style="font-family: sans-serif; color: #333;">
+          <h2 style="color: #4f46e5;">Payment Received!</h2>
+          <p>Hi ${user.name},</p>
+          <p>You have received a payment of <strong>$${amount.toFixed(2)}</strong> from <strong>${payerName || payerEmail}</strong>.</p>
+          <p>Transaction Reference: <code>${reference}</code></p>
+          <p>Your new balance is <strong>$${user.balance.toFixed(2)}</strong>.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #666;">This is an automated notification from IyonicPay.</p>
+        </div>
       `
     });
 
@@ -74,9 +103,15 @@ router.post('/public/request-payment', async (req, res) => {
       to: payerEmail,
       subject: 'Payment Confirmation - IyonicPay',
       html: `
-        <p>Hello,</p>
-        <p>Your payment of <strong>$${amount.toFixed(2)}</strong> to ${user.name} was successful.</p>
-        <p>Thank you for using IyonicPay!</p>
+        <div style="font-family: sans-serif; color: #333;">
+          <h2 style="color: #4f46e5;">Payment Successful</h2>
+          <p>Hello ${payerName || 'there'},</p>
+          <p>Your payment of <strong>$${amount.toFixed(2)}</strong> to <strong>${user.name}</strong> was successful.</p>
+          <p>Transaction Reference: <code>${reference}</code></p>
+          <p>Thank you for using IyonicPay!</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #666;">IyonicPay - Seamless Global Payments</p>
+        </div>
       `
     });
 
@@ -90,17 +125,18 @@ router.post('/public/request-payment', async (req, res) => {
 
 
 // ================================
-// GET /api/public/default-amount
+// GET /api/public/default-amount/:userId
 // ================================
-router.get('/public/default-amount', async (req, res) => {
-  const { userId } = req.query;
+router.get('/default-amount/:userId', async (req, res) => {
+  const { userId } = req.params;
   if (!userId) return res.status(400).json({ msg: 'Missing userId' });
 
   try {
     const config = await DefaultAmount.findOne({ userId });
-    if (!config) return res.status(404).json({ msg: 'No default found' });
+    // If no config found, return 0 instead of 404 to avoid frontend errors
+    if (!config) return res.status(200).json({ amount: 0 });
 
-    res.status(200).json({ defaultAmount: config.amount });
+    res.status(200).json({ amount: config.amount });
   } catch (err) {
     console.error('Error loading default amount:', err.message);
     res.status(500).json({ msg: 'Server error' });
@@ -112,8 +148,13 @@ router.get('/public/default-amount', async (req, res) => {
 router.post('/user/default-amount', authMiddleware, async (req, res) => {
   const { userId, amount } = req.body;
 
-  if (!userId || amount == null || typeof amount !== 'number' || amount < 0) {
-    return res.status(400).json({ error: '❌ Invalid input: userId and amount ≥ 0 required' });
+  if (!userId) {
+    return res.status(400).json({ error: '❌ userId required' });
+  }
+
+  // Allow null to clear the default amount
+  if (amount !== null && (typeof amount !== 'number' || amount < 0)) {
+    return res.status(400).json({ error: '❌ Invalid input: amount must be a number ≥ 0 or null' });
   }
 
   if (req.user?.id !== userId) {
@@ -121,15 +162,27 @@ router.post('/user/default-amount', authMiddleware, async (req, res) => {
   }
 
   try {
-    await DefaultAmount.findOneAndUpdate(
-      { userId },
-      { amount },
-      { upsert: true, new: true }
-    );
+    // If it's a separate model "DefaultAmount"
+    if (amount === null) {
+      await DefaultAmount.findOneAndDelete({ userId });
+    } else {
+      await DefaultAmount.findOneAndUpdate(
+        { userId },
+        { amount },
+        { upsert: true, new: true }
+      );
+    }
+
+    // Also update User model if redundant or if that's where we read it from?
+    // User model has "defaultAmount" as well. Let's keep them in sync or check which one we use.
+    // In "user-by-username" we use the config from DefaultAmount.
+    // But we also have "defaultAmount" in User model?
+    // Let's update both just in case.
+    await User.findByIdAndUpdate(userId, { defaultAmount: amount });
 
     res.json({
-      msg: amount === 0
-        ? '✅ Default amount set to 0 (payer can enter any amount)'
+      msg: amount === null
+        ? '✅ Default amount cleared'
         : '✅ Default amount saved',
       defaultAmount: amount
     });
@@ -140,5 +193,32 @@ router.post('/user/default-amount', authMiddleware, async (req, res) => {
 });
 
 
+
+// ===================================
+// POST /api/public/user/fee-settings (protected)
+// ===================================
+router.post('/user/fee-settings', authMiddleware, async (req, res) => {
+  const { userId, chargeFee, feePercentage } = req.body;
+
+  if (!userId || chargeFee === undefined || feePercentage === undefined) {
+    return res.status(400).json({ error: '❌ Missing required fields' });
+  }
+
+  if (req.user?.id !== userId) {
+    return res.status(403).json({ error: '❌ Unauthorized' });
+  }
+
+  if (feePercentage < 0 || feePercentage > 5) {
+    return res.status(400).json({ error: '❌ Fee percentage must be between 0 and 5%' });
+  }
+
+  try {
+    await User.findByIdAndUpdate(userId, { chargeFee, feePercentage });
+    res.json({ msg: '✅ Fee settings updated successfully' });
+  } catch (err) {
+    console.error('❌ Error updating fee settings:', err);
+    res.status(500).json({ error: '❌ Server error' });
+  }
+});
 
 module.exports = router;

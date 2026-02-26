@@ -23,60 +23,128 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at bottom left, #e0e7ff, #ffffff, #fdf2f8);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .input-field {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1.5px solid #e2e8f0;
+    }
+    .input-field:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+      transform: translateY(-1px);
+    }
+    /* Modern Preloader */
+    .loader-wrapper {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .loader {
+      width: 56px;
+      height: 56px;
+      border: 4px solid #f59e0b;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      animation: rotation 1s linear infinite;
+    }
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .step-badge {
+      @apply w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all;
     }
   </style>
 </head>
 
-<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-100 min-h-screen flex items-center justify-center">
+<body class="min-h-screen flex items-center justify-center px-4 py-16">
 
-  <div class="w-full max-w-xl mx-auto px-4 md:px-10 py-10">
-    <div class="flex flex-col items-center mb-8">
-      <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-24 md:w-32 mb-4" />
-      <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800">Create Your IyonicPay Account</h1>
-      <p class="text-center text-gray-600 mt-2 text-sm md:text-base">Secure. Seamless. Instant.</p>
+  <div class="w-full max-w-[520px] glass-card p-12 rounded-[2.5rem] shadow-2xl space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div class="text-center space-y-3">
+      <div class="inline-block p-4 bg-white rounded-3xl shadow-sm mb-4">
+        <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-16 h-16" />
+      </div>
+      <h1 class="text-4xl font-black text-slate-900 tracking-tight leading-tight">Join the Future <br/>of Payments</h1>
+      <p class="text-slate-500 font-medium text-lg">Create your IyonicPay account today</p>
     </div>
 
-    <form id="signupForm" class="bg-white bg-opacity-90 backdrop-blur p-8 md:p-12 rounded-2xl shadow-xl space-y-5">
-      <input id="name" type="text" placeholder="Business/Account Name" required
-        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input id="email" type="email" placeholder="Email address" required
-        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      
-      <button id="sendCodeBtn" type="button"
-        class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">
-        Send Verification Code
-      </button>
+    <form id="signupForm" class="space-y-6">
+      <div class="space-y-5">
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Account Name</label>
+          <input id="name" type="text" placeholder="e.g. Acme Corp" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium" required>
+        </div>
+        
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+          <input id="email" type="email" placeholder="you@example.com" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium" required>
+        </div>
 
-      <input id="verifyCode" type="text" placeholder="Enter Code" 
-        class="w-full border border-gray-300 rounded-lg px-4 py-3 hidden focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input id="password" type="password" placeholder="Create Password" required
-        class="w-full border border-gray-300 rounded-lg px-4 py-3 hidden focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input id="confirm" type="password" placeholder="Confirm Password" required
-        class="w-full border border-gray-300 rounded-lg px-4 py-3 hidden focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <button id="sendCodeBtn" type="button" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98]">
+          Send Verification Code
+        </button>
 
-      <button id="signupBtn" type="submit"
-        class="w-full bg-yellow-400 text-black font-semibold py-3 rounded-lg hover:bg-yellow-300 transition hidden">
-        Sign Up
-      </button>
+        <div id="extendedFields" class="space-y-5 hidden animate-in fade-in duration-500">
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Verification Code</label>
+            <input id="verifyCode" type="text" placeholder="Enter 6-digit code" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium uppercase tracking-[0.2em] text-center">
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
+              <input id="password" type="password" placeholder="••••••••" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium">
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Confirm</label>
+              <input id="confirm" type="password" placeholder="••••••••" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium">
+            </div>
+          </div>
+
+          <button id="signupBtn" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-[0.98]">
+            Complete Registration
+          </button>
+        </div>
+      </div>
     </form>
 
-    <p class="text-center text-sm text-gray-600 mt-6">
-      Already have an account?
-      <a href="../login" class="text-indigo-600 hover:underline font-medium">Login</a>
-    </p>
+    <div class="text-center pt-2">
+      <p class="text-sm text-slate-500 font-medium">
+        Already have an account? <a href="../login" class="text-indigo-600 font-bold hover:underline underline-offset-4">Sign In</a>
+      </p>
+    </div>
   </div>
 
-  <!-- Modal -->
-  <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
-    <div class="bg-white px-6 py-4 rounded shadow-lg text-center animate-pulse">
-      <p class="text-lg font-semibold text-yellow-500">🔐 Creating your secure account...</p>
+  <!-- Modern Preloader -->
+  <div id="loadingModal" class="loader-wrapper hidden">
+    <div class="relative">
+      <span class="loader"></span>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <img src="https://i.imgur.com/YAPRefp.png" class="w-6 h-6 opacity-50" />
+      </div>
     </div>
+    <p class="mt-8 text-slate-900 font-bold tracking-tight text-xl">Building your vault...</p>
+    <p class="text-slate-400 font-medium mt-1">Deploying secure infrastructure</p>
   </div>
 
   <script>
     const signupForm = document.getElementById('signupForm');
     const signupBtn = document.getElementById('signupBtn');
     const sendCodeBtn = document.getElementById('sendCodeBtn');
+    const extendedFields = document.getElementById('extendedFields');
     const verifyCodeInput = document.getElementById('verifyCode');
     const loadingModal = document.getElementById('loadingModal');
     const passwordInput = document.getElementById('password');
@@ -98,7 +166,7 @@
       if (nameTaken) return alert("🚫 This name is already taken.");
 
       sendCodeBtn.disabled = true;
-      sendCodeBtn.textContent = "Sending...";
+      sendCodeBtn.textContent = "Requesting code...";
 
       try {
         const res = await fetch('https://pay-y3bt.onrender.com/api/auth/signup/send-code', {
@@ -109,11 +177,9 @@
 
         const data = await res.json();
         if (res.ok) {
-          alert("✅ Code sent to your email.");
-          verifyCodeInput.classList.remove('hidden');
-          passwordInput.classList.remove('hidden');
-          confirmInput.classList.remove('hidden');
-          signupBtn.classList.remove('hidden');
+          alert("✅ Verification code has been sent to your email.");
+          sendCodeBtn.classList.add('hidden');
+          extendedFields.classList.remove('hidden');
         } else {
           alert(data.msg || "Failed to send code.");
         }
@@ -190,73 +256,6 @@
     })();
   </script>
 
-<script>
-  (function() {
-     // 🔥 Disable Right-Click
-     document.addEventListener("contextmenu", function(event) {
-       event.preventDefault();
-     });
- 
-     // 🔒 Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-     document.addEventListener("keydown", function(event) {
-       if (event.keyCode == 123) { // F12
-         event.preventDefault();
-       }
-       if (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74)) { // Ctrl+Shift+I / J
-         event.preventDefault();
-       }
-       if (event.ctrlKey && event.keyCode == 85) { // Ctrl+U
-         event.preventDefault();
-       }
-     });
- 
-     // 🚨 Detect DevTools Opened
-     function detectDevTools() {
-       let devtoolsOpen = false;
- 
-       const before = new Date();
-       debugger;
-       const after = new Date();
- 
-       if (after - before > 100) {
-         devtoolsOpen = true;
-       }
- 
-       if (devtoolsOpen) {
-         document.body.innerHTML = `<div style="text-align:center; font-size:24px; font-weight:bold; color:red; margin-top:50px;">
-           🚨 ERROR: DevTools Detected! Please close DevTools to access this website. 🚨
-         </div>`;
-       }
-     }
- 
-     setInterval(detectDevTools, 1000);
-         // ❌ Prevent XSS Attacks (Sanitize Input Fields)
-         document.querySelectorAll("input, textarea").forEach((element) => {
-       element.addEventListener("input", function() {
-         this.value = this.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-       });
-     });
- 
-     // 🌍 Detect VPN or Proxy Usage
-     async function detectVPN() {
-       try {
-         const response = await fetch("https://vpnapi.io/api/?key=564239f58fd7438d8cbbbb1c0960ff07");
-         const data = await response.json();
- 
-         if (data.security.vpn || data.security.proxy || data.security.tor) {
-           document.body.innerHTML = `<div style="text-align:center; font-size:24px; font-weight:bold; color:red; margin-top:50px;">
-             🚨 ERROR: VPN/Proxy Detected! Please disable VPN to access this website. 🚨
-           </div>`;
-         }
-       } catch (error) {
-         console.log("VPN detection error:", error);
-       }
-     }
- 
-     detectVPN();
- 
-   })();
- </script>
- 
+
 </body>
 </html>

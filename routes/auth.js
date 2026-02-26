@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
 const sendEmail = require('../utils/sendEmail');
@@ -42,7 +43,7 @@ router.post('/signup/send-code', async (req, res) => {
 
 // @route POST /api/auth/signup
 router.post('/signup', async (req, res) => {
-  const { name, email, password, code } = req.body;
+  const { name, email, password, code, referralCode } = req.body;
   if (!name || !email || !password || !code) {
     return res.status(400).json({ msg: 'All fields including verification code are required' });
   }
@@ -61,7 +62,51 @@ router.post('/signup', async (req, res) => {
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hash });
+    
+    // Generate a simple referral code if needed, but we'll use _id as the primary identifier
+    const newUserReferralCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+    const user = new User({ 
+      name, 
+      email, 
+      password: hash,
+      referralCode: newUserReferralCode
+    });
+
+    // Handle referral
+    if (referralCode) {
+      const referrer = await User.findOne({ 
+        $or: [
+          { referralCode: referralCode },
+          { _id: mongoose.Types.ObjectId.isValid(referralCode) ? referralCode : null }
+        ]
+      });
+
+      if (referrer) {
+        user.referredBy = referrer._id;
+        user.credits += 10;
+        referrer.credits += 10;
+        
+        referrer.transactions.push({
+          type: 'receive',
+          amount: 10,
+          status: 'completed',
+          description: `Referral reward for inviting ${name}`,
+          date: new Date()
+        });
+        
+        await referrer.save();
+
+        user.transactions.push({
+          type: 'receive',
+          amount: 10,
+          status: 'completed',
+          description: `Referral signup bonus`,
+          date: new Date()
+        });
+      }
+    }
+
     await user.save();
 
     delete verificationCodes[email]; // Clean up after success
@@ -81,7 +126,7 @@ html: `
     <ul style="line-height: 1.6;">
       <li>✅ <strong>Send & receive money</strong> instantly to anyone using email.</li>
       <li>✅ <strong>Request payments</strong> with unique, shareable links.</li>
-      <li>✅ <strong>Withdraw funds</strong> via bank transfer, M-Pesa, PayPal, and more.</li>
+      <li>✅ <strong>Withdraw funds</strong> via bank transfer, M-Pesa, and more.</li>
       <li>✅ <strong>Track your transactions</strong> and balances in real time.</li>
       <li>✅ <strong>Request refunds</strong> within 24 hours of sending money.</li>
     </ul>
@@ -163,9 +208,14 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
         name: user.name,
         email: user.email,
         balance: user.balance || 0,
-        transactions: user.transactions || [], // ✅ must include this
-        spendToday: 0,                         // optional
-        weeklyTransactions: (user.transactions || []).length
+        credits: user.credits || 0,
+        savingsBalance: user.savingsBalance || 0,
+        referralCode: user.referralCode || user._id,
+        transactions: user.transactions || [],
+        spendToday: 0,
+        weeklyTransactions: (user.transactions || []).length,
+        withdrawalDetails: user.withdrawalDetails || null,
+        paystackPublicKey: user.paystackPublicKey || null
       }
     });
   } catch (err) {
@@ -266,6 +316,19 @@ router.post('/change-password', authMiddleware, async (req, res) => {
     });
 
     res.json({ msg: 'Password updated and email sent.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+router.post('/update-paystack-key', authMiddleware, async (req, res) => {
+  const { paystackPublicKey } = req.body;
+  try {
+    const user = await User.findById(req.user.id);
+    user.paystackPublicKey = paystackPublicKey;
+    await user.save();
+    res.json({ msg: 'Paystack key updated successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });

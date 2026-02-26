@@ -4,6 +4,59 @@ const authMiddleware = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
+const wiseCurrencyData = {
+  AED: { name: 'United Arab Emirates Dirham', rate: 3.67 },
+  ARS: { name: 'Argentine Peso', rate: 900 },
+  AUD: { name: 'Australian Dollar', rate: 1.52 },
+  BDT: { name: 'Bangladeshi Taka', rate: 110 },
+  BGN: { name: 'Bulgarian Lev', rate: 1.77 },
+  BRL: { name: 'Brazilian Real', rate: 5.45 },
+  CAD: { name: 'Canadian Dollar', rate: 1.36 },
+  CHF: { name: 'Swiss Franc', rate: 0.9 },
+  CLP: { name: 'Chilean Peso', rate: 920 },
+  CNY: { name: 'Chinese Yuan', rate: 7.2 },
+  COP: { name: 'Colombian Peso', rate: 3900 },
+  CRC: { name: 'Costa Rican Colón', rate: 515 },
+  CZK: { name: 'Czech Koruna', rate: 23.4 },
+  DKK: { name: 'Danish Krone', rate: 6.85 },
+  EGP: { name: 'Egyptian Pound', rate: 48 },
+  EUR: { name: 'Euro', rate: 0.8471 },
+  GBP: { name: 'British Pound', rate: 0.7378 },
+  GEL: { name: 'Georgian Lari', rate: 2.8 },
+  HKD: { name: 'Hong Kong Dollar', rate: 7.8 },
+  HUF: { name: 'Hungarian Forint', rate: 365 },
+  IDR: { name: 'Indonesian Rupiah', rate: 15600 },
+  ILS: { name: 'Israeli Shekel', rate: 3.75 },
+  INR: { name: 'Indian Rupee', rate: 84 },
+  JPY: { name: 'Japanese Yen', rate: 151 },
+  KES: { name: 'Kenyan Shilling', rate: 129.00 },
+  KRW: { name: 'South Korean Won', rate: 1350 },
+  LKR: { name: 'Sri Lankan Rupee', rate: 305 },
+  MAD: { name: 'Moroccan Dirham', rate: 10.1 },
+  MXN: { name: 'Mexican Peso', rate: 18.2 },
+  MYR: { name: 'Malaysian Ringgit', rate: 4.7 },
+  NGN: { name: 'Nigerian Naira', rate: 1400 },
+  NOK: { name: 'Norwegian Krone', rate: 10.7 },
+  NPR: { name: 'Nepalese Rupee', rate: 134 },
+  NZD: { name: 'New Zealand Dollar', rate: 1.7 },
+  PEN: { name: 'Peruvian Sol', rate: 3.8 },
+  PHP: { name: 'Philippine Peso', rate: 56 },
+  PKR: { name: 'Pakistani Rupee', rate: 278 },
+  PLN: { name: 'Polish Złoty', rate: 4.1 },
+  RON: { name: 'Romanian Leu', rate: 4.6 },
+  SEK: { name: 'Swedish Krona', rate: 10.8 },
+  SGD: { name: 'Singapore Dollar', rate: 1.35 },
+  THB: { name: 'Thai Baht', rate: 37 },
+  TRY: { name: 'Turkish Lira', rate: 34 },
+  TZS: { name: 'Tanzanian Shilling', rate: 2500 },
+  UAH: { name: 'Ukrainian Hryvnia', rate: 40 },
+  UGX: { name: 'Ugandan Shilling', rate: 3800 },
+  USD: { name: 'US Dollar', rate: 1 },
+  UYU: { name: 'Uruguayan Peso', rate: 42 },
+  VND: { name: 'Vietnamese Dong', rate: 24800 },
+  ZAR: { name: 'South African Rand', rate: 18.5 }
+};
+
 // POST /api/wallet/deposit
 router.post('/deposit', authMiddleware, async (req, res) => {
   const { amount, reference } = req.body;
@@ -107,94 +160,179 @@ router.post('/send', authMiddleware, async (req, res) => {
 });
 
 router.post('/withdraw', authMiddleware, async (req, res) => {
-  const { amount, method, country, accountDetails, saveAccount } = req.body;
+  const { amount, method, country, currency, accountDetails, payoutDetails, saveAccount } = req.body;
 
-  if (!amount || amount <= 0 || !method || !country || !accountDetails) {
+  if (!amount || amount <= 0 || !method) {
     return res.status(400).json({ msg: 'Please provide all withdrawal details.' });
+  }
+
+  const rawCurrencyInput = ((currency || country || '') + '').trim();
+  if (!rawCurrencyInput) {
+    return res.status(400).json({ msg: 'Please provide all withdrawal details.' });
+  }
+
+  const normalizedMethod = method.toString().trim();
+  if (!normalizedMethod) {
+    return res.status(400).json({ msg: 'Please provide all withdrawal details.' });
+  }
+
+  let structuredDetails = null;
+  let formattedAccountDetails = '';
+
+  const detailsToUse = payoutDetails || accountDetails;
+  if (!detailsToUse) {
+    return res.status(400).json({ msg: 'Please provide all withdrawal details.' });
+  }
+
+  if (typeof detailsToUse === 'object' && detailsToUse !== null) {
+    structuredDetails = {};
+    for (const [key, value] of Object.entries(detailsToUse)) {
+      const detailKey = key.toString().trim();
+      const detailValue = typeof value === 'string' ? value.trim() : String(value ?? '').trim();
+      if (!detailKey || !detailValue) {
+        return res.status(400).json({ msg: 'Please provide all withdrawal details.' });
+      }
+      structuredDetails[detailKey] = detailValue;
+    }
+    if (!Object.keys(structuredDetails).length) {
+      return res.status(400).json({ msg: 'Please provide all withdrawal details.' });
+    }
+    formattedAccountDetails = Object.entries(structuredDetails).map(([k, v]) => `${k}: ${v}`).join(', ');
+  } else {
+    const trimmedDetails = detailsToUse.toString().trim();
+    if (!trimmedDetails) {
+      return res.status(400).json({ msg: 'Please provide all withdrawal details.' });
+    }
+    formattedAccountDetails = trimmedDetails;
   }
 
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    // Calculate fee and total
-    const fee = amount * 0.04;
-    const totalDeducted = amount + fee;
+    const feeRate = 0.05;
+    const totalFee = amount * feeRate;
+    
+    let creditsUsed = 0;
+    let remainingFee = totalFee;
 
-    // Exchange rates per country
-    const exchangeRates = {
-      Nigeria: 1400,
-      Kenya: 120,
-      USA: 1,
-      UK: 0.79
-    };
+    if (user.credits > 0) {
+      if (user.credits >= totalFee) {
+        creditsUsed = totalFee;
+        remainingFee = 0;
+      } else {
+        creditsUsed = user.credits;
+        remainingFee = totalFee - user.credits;
+      }
+    }
 
-    const rate = exchangeRates[country] || 1;
-    const amountUserWillReceiveLocal = amount * rate;
+    // Amount deducted from balance is the full requested amount
+    const totalDeducted = amount;
+    // Amount the user actually gets after remaining fee is deducted
+    const amountToReceive = amount - remainingFee;
+
+    const rawCurrency = rawCurrencyInput;
+    let currencyCode = rawCurrency.toUpperCase();
+    let currencyInfo = wiseCurrencyData[currencyCode];
+
+    if (!currencyInfo) {
+      const matched = Object.entries(wiseCurrencyData).find(([, data]) => data.name.toLowerCase() === rawCurrency.toLowerCase());
+      if (matched) {
+        currencyCode = matched[0];
+        currencyInfo = matched[1];
+      }
+    }
+
+    if (!currencyInfo) {
+      currencyInfo = { name: rawCurrency, rate: 1 };
+    }
+
+    const rate = currencyInfo.rate || 1;
+    const amountUserWillReceiveLocal = amountToReceive * rate;
+    const currencyDisplay = currencyInfo.name && currencyInfo.name !== currencyCode
+      ? `${currencyInfo.name} (${currencyCode})`
+      : currencyCode;
 
     if (user.balance < totalDeducted) {
-      return res.status(400).json({ msg: `Insufficient balance. Total needed is $${totalDeducted.toFixed(2)} including 8% fee.` });
+      return res.status(400).json({ msg: `Insufficient balance. You need $${totalDeducted.toFixed(2)} in your balance.` });
     }
 
-    // Save withdrawal details if needed
     if (saveAccount) {
-      user.withdrawalDetails = { method, country, accountDetails };
+      user.withdrawalDetails = { method: normalizedMethod, country: currencyCode, accountDetails: structuredDetails || { details: formattedAccountDetails } };
     }
 
-    // Deduct full amount including fee
     user.balance -= totalDeducted;
+    user.credits -= creditsUsed;
 
     user.transactions.push({
       type: 'withdraw',
-      amount,
-      fee,
+      amount: amountToReceive,
+      fee: totalFee,
+      creditsUsed,
+      remainingFee,
       total: totalDeducted,
       status: 'pending',
-      method,
-      country,
-      to: accountDetails,
-      description: `Withdrawal via ${method} (${country}) - Fee: $${fee.toFixed(2)}`,
+      method: normalizedMethod,
+      country: currencyCode,
+      to: formattedAccountDetails,
+      description: `Withdrawal via ${normalizedMethod} (${currencyInfo.name || currencyCode}) - Fee: $${totalFee.toFixed(2)} (Used $${creditsUsed.toFixed(2)} credits)`,
+      expectedPayoutEtaHours: 12,
       date: new Date()
     });
 
     await user.save();
 
-    // Email to user
     await sendEmail({
       to: user.email,
       subject: '🧾 Withdrawal Request Submitted',
       html: `
         <p>Hi ${user.name},</p>
-        <p>Your withdrawal of <strong>$${amount.toFixed(2)}</strong> has been received.</p>
-        <p><strong>Fee Charged:</strong> $${fee.toFixed(2)}<br/>
-        <strong>Total Deducted:</strong> $${totalDeducted.toFixed(2)}</p>
-        <p><strong>Method:</strong> ${method}<br/>
-        <strong>Country:</strong> ${country}<br/>
-        <strong>Account Info:</strong> ${accountDetails}</p>
-        <p>Status: <strong>Pending</strong></p>
+        <p>Your withdrawal of <strong>$${amountToReceive.toFixed(2)}</strong> (after fees) has been received.</p>
+        <p><strong>Total Fee (5%):</strong> $${totalFee.toFixed(2)}<br/>
+        <strong>Credits Used:</strong> $${creditsUsed.toFixed(2)}<br/>
+        <strong>Remaining Fee Deducted:</strong> $${remainingFee.toFixed(2)}</p>
+        <p><strong>Total Balance Deducted:</strong> $${totalDeducted.toFixed(2)}</p>
+        <p><strong>Method:</strong> ${normalizedMethod}<br/>
+        <strong>Currency:</strong> ${currencyDisplay}<br/>
+        <strong>Account Info:</strong> ${formattedAccountDetails}</p>
+        <p>Status: <strong>Processing</strong></p>
+        <p>We guarantee your payout will be completed in under 12 hours.</p>
       `
     });
 
-    // Email to admin
     await sendEmail({
-      to: process.env.ADMIN_EMAIL,
-      subject: '⚠️ New Withdrawal Request with Fee',
+      to: 'iyonicpay@gmail.com',
+      subject: '⚠️ New Withdrawal Request (5% Fee)',
       html: `
         <h3>New Withdrawal Alert</h3>
         <p><strong>User:</strong> ${user.name} (${user.email})</p>
-        <p><strong>Requested Amount (USD):</strong> $${amount.toFixed(2)}</p>
-        <p><strong>Fee Charged (8%):</strong> $${fee.toFixed(2)}</p>
-        <p><strong>Total Deducted from Wallet:</strong> $${totalDeducted.toFixed(2)}</p>
-        <p><strong>Expected Payout:</strong> ${amountUserWillReceiveLocal.toLocaleString()} in ${country} currency</p>
+        <p><strong>Gross Requested Amount (USD):</strong> $${amount.toFixed(2)}</p>
+        <p><strong>Total Fee (5%):</strong> $${totalFee.toFixed(2)}</p>
+        <p><strong>Credits Used:</strong> $${creditsUsed.toFixed(2)}</p>
+        <p><strong>Remaining Fee Deducted:</strong> $${remainingFee.toFixed(2)}</p>
+        <p><strong>Net Amount to Send (USD):</strong> $${amountToReceive.toFixed(2)}</p>
+        <p><strong>Expected Payout:</strong> ${amountUserWillReceiveLocal.toLocaleString()} ${currencyDisplay}</p>
+        <p><strong>Payout Guarantee:</strong> Under 12 hours</p>
         <hr>
-        <p><strong>Method:</strong> ${method}</p>
-        <p><strong>Country:</strong> ${country}</p>
-        <p><strong>Account Details:</strong> ${accountDetails}</p>
+        <p><strong>Method:</strong> ${normalizedMethod}</p>
+        <p><strong>Currency:</strong> ${currencyDisplay}</p>
+        <p><strong>Account Details:</strong> ${formattedAccountDetails}</p>
         <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
       `
     });
 
-    res.json({ msg: 'Withdrawal request submitted', fee, totalDeducted });
+    res.json({ 
+      msg: 'Withdrawal request submitted', 
+      fee: totalFee, 
+      creditsUsed, 
+      remainingFee, 
+      totalDeducted, 
+      amountToReceive,
+      payoutEtaHours: 12, 
+      currency: currencyCode, 
+      currencyName: currencyInfo.name, 
+      accountDetails: structuredDetails || { details: formattedAccountDetails } 
+    });
 
   } catch (err) {
     console.error('Withdraw error:', err);
@@ -202,6 +340,85 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/withdrawal-details', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('withdrawalDetails');
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    res.json({ withdrawalDetails: user.withdrawalDetails || null });
+  } catch (err) {
+    console.error('Fetch withdrawal details error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+router.post('/withdrawal-details', authMiddleware, async (req, res) => {
+  try {
+    const { currency: currencyInput, method, details } = req.body;
+    const normalizedCurrency = ((currencyInput || '') + '').trim().toUpperCase();
+    const normalizedMethod = ((method || '') + '').trim();
+
+    if (!normalizedCurrency || !normalizedMethod || !details || typeof details !== 'object') {
+      return res.status(400).json({ msg: 'Please provide all payout details.' });
+    }
+
+    const sanitizedDetails = {};
+    for (const [key, value] of Object.entries(details)) {
+      const detailKey = key.toString().trim();
+      const detailValue = typeof value === 'string' ? value.trim() : String(value ?? '').trim();
+      if (!detailKey || !detailValue) {
+        return res.status(400).json({ msg: 'Please provide all payout details.' });
+      }
+      sanitizedDetails[detailKey] = detailValue;
+    }
+
+    if (!Object.keys(sanitizedDetails).length) {
+      return res.status(400).json({ msg: 'Please provide all payout details.' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    user.withdrawalDetails = { method: normalizedMethod, country: normalizedCurrency, accountDetails: sanitizedDetails };
+    await user.save();
+
+    res.json({ msg: 'Saved payout details', withdrawalDetails: user.withdrawalDetails });
+  } catch (err) {
+    console.error('Save withdrawal details error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+router.post('/save-payout-details', authMiddleware, async (req, res) => {
+  try {
+    const { method, currency, payoutDetails } = req.body;
+    
+    if (!method || !currency || !payoutDetails || typeof payoutDetails !== 'object') {
+      return res.status(400).json({ msg: 'Please provide all payout details.' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    user.payoutDetails = { method, currency, payoutDetails };
+    await user.save();
+
+    res.json({ msg: 'Payout details saved successfully', payoutDetails: user.payoutDetails });
+  } catch (err) {
+    console.error('Save payout details error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+router.get('/payout-details', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('payoutDetails');
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    res.json({ payoutDetails: user.payoutDetails || null });
+  } catch (err) {
+    console.error('Fetch payout details error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
 
 // === REFUND REQUEST ===
 router.post('/refund-request-by-index/:index', authMiddleware, async (req, res) => {
@@ -424,6 +641,61 @@ router.post('/reject-refund-by-index/:index', authMiddleware, async (req, res) =
     });
 
     res.json({ msg: 'Refund rejected.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// === SAVINGS / EARNING ===
+router.post('/savings/deposit', authMiddleware, async (req, res) => {
+  const { amount } = req.body;
+  if (!amount || amount <= 0) return res.status(400).json({ msg: 'Invalid amount' });
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (user.balance < amount) return res.status(400).json({ msg: 'Insufficient balance' });
+
+    user.balance -= amount;
+    user.savingsBalance += amount;
+
+    user.transactions.push({
+      type: 'send',
+      amount,
+      status: 'completed',
+      description: 'Transfer to Savings (Earning)',
+      date: new Date()
+    });
+
+    await user.save();
+    res.json({ msg: 'Successfully deposited to savings', balance: user.balance, savingsBalance: user.savingsBalance });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+router.post('/savings/withdraw', authMiddleware, async (req, res) => {
+  const { amount } = req.body;
+  if (!amount || amount <= 0) return res.status(400).json({ msg: 'Invalid amount' });
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (user.savingsBalance < amount) return res.status(400).json({ msg: 'Insufficient savings balance' });
+
+    user.savingsBalance -= amount;
+    user.balance += amount;
+
+    user.transactions.push({
+      type: 'receive',
+      amount,
+      status: 'completed',
+      description: 'Transfer from Savings (Earning)',
+      date: new Date()
+    });
+
+    await user.save();
+    res.json({ msg: 'Successfully withdrawn from savings', balance: user.balance, savingsBalance: user.savingsBalance });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });

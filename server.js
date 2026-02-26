@@ -18,9 +18,20 @@ dotenv.config();
 require('./config/db')(); // connect to MongoDB
 
 app.use(express.json());
-app.use('/api', publicRoutes);
+const path = require('path');
+app.use('/request', express.static(path.join(__dirname, 'request')));
+app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
+
+app.get('/api/config/paystack', (req, res) => {
+  res.json({ publicKey: process.env.PAYSTACK_PUBLIC_KEY || '' });
+});
+app.use('/api/public', publicRoutes);
 app.use('/api', newsletterRoutes);
-app.use(helmet());
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false, // Disabling CSP for now to ensure all external scripts like Paystack load
+}));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', require('./routes/wallet'));
