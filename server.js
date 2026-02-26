@@ -21,6 +21,14 @@ app.use(express.json());
 const path = require('path');
 app.use('/request', express.static(path.join(__dirname, 'request')));
 app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
+app.use('/signup', express.static(path.join(__dirname, 'signup')));
+app.use('/login', express.static(path.join(__dirname, 'login')));
+
+// Explicit routes for common pages to avoid trailing slash issues
+app.get('/request', (req, res) => res.sendFile(path.join(__dirname, 'request', 'index.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard', 'index.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'signup', 'index.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login', 'index.html')));
 
 app.get('/api/config/paystack', (req, res) => {
   res.json({ publicKey: process.env.PAYSTACK_PUBLIC_KEY || '' });

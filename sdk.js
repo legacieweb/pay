@@ -1,13 +1,13 @@
 (function() {
     window.IyonicPay = {
         pay: function(config) {
-            const { userId, amount, description, onSuccess, onCancel } = config;
+            const { username, amount, description, onSuccess, onCancel } = config;
             
             // Base URL of your application
             const baseUrl = window.location.origin.includes('localhost') ? 'http://localhost:5000' : 'https://pay.iyonicorp.com';
             
             // Build the URL
-            let url = `${baseUrl}/request?user=${userId}`;
+            let url = `${baseUrl}/request?user=${username}`;
             if (amount) url += `&amount=${amount}`;
             if (description) url += `&desc=${encodeURIComponent(description)}`;
             

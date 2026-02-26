@@ -544,7 +544,7 @@
         <section id="embed-code" class="dashboard-section animate-show">
           <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Embed Payment Button</h1>
-            <p class="text-gray-500 mt-1">Accept payments directly on your website using your Unique User ID as an API Key.</p>
+            <p class="text-gray-500 mt-1">Accept payments directly on your website using your Business Name as your identifier.</p>
           </div>
 
           <div class="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl">
@@ -565,7 +565,7 @@
 &lt;script&gt;
 function payForProduct(productPrice, productName) {
   IyonicPay.pay({
-    userId: '<span class="userIdDisplay text-white font-bold">...</span>',
+    username: '<span class="userIdDisplay text-white font-bold">...</span>',
     amount: productPrice,
     description: productName,
     onSuccess: (ref) => {
@@ -830,7 +830,8 @@ function payForProduct(productPrice, productName) {
         }
         document.getElementById('savingsBalance').textContent = `$${(user.savingsBalance || 0).toFixed(2)}`;
         document.getElementById('referralLink').value = `https://pay.iyonicorp.com/signup?ref=${user.referralCode || user.id}`;
-        document.querySelectorAll('.userIdDisplay').forEach(el => el.textContent = user.id);
+        const username = user.name.replace(/\s+/g, '').toLowerCase();
+        document.querySelectorAll('.userIdDisplay').forEach(el => el.textContent = username);
         
         document.getElementById('weeklyTx').textContent = user.transactions.length;
 
