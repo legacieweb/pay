@@ -262,6 +262,57 @@
                             <button onclick="copyShareLink()" class="px-8 py-3 bg-slate-900 text-white rounded-2xl font-extrabold hover:bg-black transition-all">Copy Link</button>
                         </div>
                     </div>
+
+                    <!-- Embed Code Section -->
+                    <div class="pt-10 border-t border-slate-100 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-extrabold text-slate-700">Embed Payment Button</h4>
+                            <div class="flex gap-2">
+                                <button onclick="switchEmbedCurrency('USD')" id="embedUSD" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-100 transition-all">USD Code</button>
+                                <button onclick="switchEmbedCurrency('KES')" id="embedKES" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all">KES Code</button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-500">Copy this code to add a secure payment button to your website. You can toggle between USD and KES above.</p>
+                        
+                        <div class="relative group">
+                            <pre class="bg-slate-900 p-6 rounded-[2rem] text-indigo-300 text-xs overflow-x-auto border border-white/10 shadow-2xl leading-relaxed"><code id="embedScriptPreview">
+<!-- IyonicPay Integration -->
+&lt;script src="https://pay.iyonicorp.com/sdk.js"&gt;&lt;/script&gt;
+
+&lt;!-- Example: A dynamic payment function --&gt;
+&lt;script&gt;
+function payNow() {
+  IyonicPay.pay({
+    username: '<span class="merchantUsername text-white font-bold">...</span>',
+    amount: 10.00,
+    currency: '<span class="embedCurrency text-white font-bold">USD</span>',
+    description: 'Product Purchase',
+    onSuccess: (ref) => alert('Paid! Ref: ' + ref),
+    onCancel: () => console.log('Cancelled')
+  });
+}
+&lt;/script&gt;
+
+&lt;!-- Button --&gt;
+&lt;button onclick="payNow()" style="background:#4f46e5;color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:bold;cursor:pointer;"&gt;
+  Pay with IyonicPay
+&lt;/button&gt;</code></pre>
+                            <button onclick="copyEmbedScript()" class="absolute top-4 right-4 p-2.5 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all backdrop-blur-md border border-white/10">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="testEmbedPopup('USD')" class="py-4 rounded-2xl bg-indigo-50 text-indigo-600 font-bold text-xs uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                Preview USD Popup
+                            </button>
+                            <button onclick="testEmbedPopup('KES')" class="py-4 rounded-2xl bg-emerald-50 text-emerald-600 font-bold text-xs uppercase tracking-widest hover:bg-emerald-100 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                Preview KES Popup
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -405,6 +456,9 @@
         document.getElementById('ownerView').classList.remove('hidden');
         document.getElementById('shareLink').value = window.location.href;
         
+        // Update merchant username in embed preview
+        document.querySelectorAll('.merchantUsername').forEach(el => el.textContent = username);
+
         // Hide fee settings if default amount is set
         const feeSection = document.getElementById('feeSettingsSection');
         if (merchantData.defaultAmount) {
@@ -684,6 +738,42 @@
       input.select();
       document.execCommand('copy');
       showToast('Link copied to clipboard!', 'success');
+    }
+
+    function switchEmbedCurrency(curr) {
+        const usdBtn = document.getElementById('embedUSD');
+        const kesBtn = document.getElementById('embedKES');
+        
+        if (curr === 'USD') {
+            usdBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-100 transition-all';
+            kesBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all';
+        } else {
+            kesBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-600 text-white shadow-lg shadow-emerald-100 transition-all';
+            usdBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all';
+        }
+        
+        document.querySelectorAll('.embedCurrency').forEach(el => el.textContent = curr);
+    }
+    
+    function copyEmbedScript() {
+        const code = document.getElementById('embedScriptPreview').innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            showToast('Embed code copied!', 'success');
+        });
+    }
+
+    function testEmbedPopup(curr) {
+        const username = merchantData.name.replace(/\s+/g, '').toLowerCase();
+        // Use current origin to ensure it works in both dev and prod
+        const baseUrl = window.location.origin;
+        const url = `${baseUrl}/request?user=${username}&amount=10.00&currency=${curr}&desc=Test%20Payment`;
+        
+        const width = 500;
+        const height = 800;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+        
+        window.open(url, 'IyonicPayTest', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
     }
 
     init();
