@@ -151,7 +151,7 @@
     const confirmInput = document.getElementById('confirm');
 
     async function isNameTaken(name) {
-      const res = await fetch(`https://pay-y3bt.onrender.com/api/auth/check-name?name=${encodeURIComponent(name)}`);
+      const res = await fetch(`https://pay-xsn4.onrender.com/api/auth/check-name?name=${encodeURIComponent(name)}`);
       const data = await res.json();
       return data.exists;
     }
@@ -169,7 +169,7 @@
       sendCodeBtn.textContent = "Requesting code...";
 
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/signup/send-code', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/signup/send-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email })
@@ -214,7 +214,7 @@
       loadingModal.classList.remove('hidden');
 
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/signup', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, password, code })

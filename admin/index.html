@@ -338,7 +338,7 @@
       const loginError = document.getElementById('loginError');
       
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/admin/login', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password })
@@ -389,7 +389,7 @@
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Unauthorized');
 
-      const res = await fetch('https://pay-y3bt.onrender.com/api/admin/transactions', {
+      const res = await fetch('https://pay-xsn4.onrender.com/api/admin/transactions', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -485,7 +485,7 @@
       if(!email) return;
 
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/admin/user?email=${email}`, {
+        const res = await fetch(`https://pay-xsn4.onrender.com/api/admin/user?email=${email}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -510,7 +510,7 @@
       const txBody = document.getElementById('userTxTableBody');
       
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/admin/user-transactions?userId=${selectedUserId}`, {
+        const res = await fetch(`https://pay-xsn4.onrender.com/api/admin/user-transactions?userId=${selectedUserId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -551,7 +551,7 @@
       
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/admin/withdraw-status', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/admin/withdraw-status', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

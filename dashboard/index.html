@@ -782,7 +782,7 @@ function payForProduct(productPrice, productName) {
 
     async function loadPaystackKey() {
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/config/paystack');
+        const res = await fetch('https://pay-xsn4.onrender.com/api/config/paystack');
         if (!res.ok) throw new Error('Failed to load Paystack key');
         const data = await res.json();
         paystackPublicKey = data.publicKey || '';
@@ -796,7 +796,7 @@ function payForProduct(productPrice, productName) {
       if (!token) return logout();
 
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/dashboard', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/dashboard', {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1030,7 +1030,7 @@ function payForProduct(productPrice, productName) {
 
     async function handleDepositSuccess(response, amount, token) {
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/deposit', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/deposit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ amount, reference: response.reference })
@@ -1057,7 +1057,7 @@ function payForProduct(productPrice, productName) {
       if (email.toLowerCase() === currentUserEmail.toLowerCase()) return alert("You cannot send money to yourself.");
 
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
+        const res = await fetch(`https://pay-xsn4.onrender.com/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -1081,7 +1081,7 @@ function payForProduct(productPrice, productName) {
       const token = localStorage.getItem('token');
 
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/send', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/send', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ toEmail: pendingSendDetails.email, amount: pendingSendDetails.amount })
@@ -1156,7 +1156,7 @@ function payForProduct(productPrice, productName) {
       }
 
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/withdraw', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/withdraw', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount, method, currency, payoutDetails })
@@ -1191,7 +1191,7 @@ function payForProduct(productPrice, productName) {
       }
 
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/wallet/save-payout-details', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/save-payout-details', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ method, currency, payoutDetails })
@@ -1355,7 +1355,7 @@ function payForProduct(productPrice, productName) {
       const endpoint = currentSavingsAction === 'deposit' ? 'deposit' : 'withdraw';
       
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/wallet/savings/${endpoint}`, {
+        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/savings/${endpoint}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount })
@@ -1486,7 +1486,7 @@ function payForProduct(productPrice, productName) {
     async function approveRefundByIndex(index) {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/wallet/approve-refund-by-index/${index}`, {
+        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/approve-refund-by-index/${index}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) { alert('✅ Refund approved.'); fetchUserData(); }
@@ -1498,7 +1498,7 @@ function payForProduct(productPrice, productName) {
       if (!reason) return;
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/wallet/reject-refund-by-index/${index}`, {
+        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/reject-refund-by-index/${index}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
@@ -1515,7 +1515,7 @@ function payForProduct(productPrice, productName) {
     async function requestRefundByIndex(index, reason) {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`https://pay-y3bt.onrender.com/api/wallet/refund-request-by-index/${index}`, {
+        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/refund-request-by-index/${index}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
@@ -1527,7 +1527,7 @@ function payForProduct(productPrice, productName) {
       const paystackPublicKey = document.getElementById('paystackKeyInput').value.trim();
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/update-paystack-key', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/update-paystack-key', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ paystackPublicKey })
@@ -1546,7 +1546,7 @@ function payForProduct(productPrice, productName) {
       if (newPassword !== confirm) return alert("Passwords don't match.");
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('https://pay-y3bt.onrender.com/api/auth/change-password', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/change-password', {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentPassword, newPassword })
         });
