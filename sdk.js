@@ -1,15 +1,52 @@
 (function() {
+    function detectCurrency() {
+        const selectors = [
+            'meta[property="og:price:currency"]',
+            'meta[name="currency"]',
+            'meta[property="product:price:currency"]'
+        ];
+        for (const selector of selectors) {
+            const meta = document.querySelector(selector);
+            if (meta && meta.content) return meta.content.toUpperCase();
+        }
+
+        const jsonLd = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of jsonLd) {
+            try {
+                const data = JSON.parse(script.innerText);
+                const findCurrency = (obj) => {
+                    if (obj.priceCurrency) return obj.priceCurrency;
+                    if (obj.offers) {
+                        if (Array.isArray(obj.offers)) {
+                            for (const offer of obj.offers) if (offer.priceCurrency) return offer.priceCurrency;
+                        } else if (obj.offers.priceCurrency) {
+                            return obj.offers.priceCurrency;
+                        }
+                    }
+                    return null;
+                };
+                const res = Array.isArray(data) ? (data.map ? data.map(findCurrency).find(c => c) : findCurrency(data)) : findCurrency(data);
+                if (res) return res.toUpperCase();
+            } catch (e) {}
+        }
+        return null;
+    }
+
     window.IyonicPay = {
+        detectCurrency: detectCurrency,
         pay: function(config) {
-            const { username, amount, description, onSuccess, onCancel } = config;
+            const { username, amount, description, currency, onSuccess, onCancel } = config;
             
             // Base URL of your application
             const baseUrl = window.location.origin.includes('localhost') ? 'http://localhost:5000' : 'https://pay.iyonicorp.com';
             
+            const detectedCurrency = currency || detectCurrency() || 'USD';
+
             // Build the URL
             let url = `${baseUrl}/request?user=${username}`;
             if (amount) url += `&amount=${amount}`;
             if (description) url += `&desc=${encodeURIComponent(description)}`;
+            url += `&currency=${detectedCurrency}`;
             
             // Open a popup
             const width = 500;

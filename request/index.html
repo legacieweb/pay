@@ -100,9 +100,9 @@
                         <input type="email" id="payerEmail" placeholder="john@example.com" class="w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 outline-none transition-all font-medium">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Amount (USD)</label>
+                        <label class="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Amount</label>
                         <div class="relative group">
-                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl">$</span>
+                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl currency-symbol">$</span>
                             <input type="number" id="amount" placeholder="0.00" class="w-full bg-slate-50/50 border border-slate-200 rounded-2xl pl-10 pr-5 py-5 text-2xl font-extrabold focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div id="feeBreakdown" class="hidden bg-indigo-50/50 rounded-2xl p-4 space-y-2 mt-4 border border-indigo-100/50 animate-show">
@@ -225,7 +225,7 @@
                         <p class="text-sm text-slate-500 mb-4">Set a default amount to lock the payment for your customers. Leave empty if you want them to enter it manually.</p>
                         <div class="flex gap-4">
                             <div class="relative flex-1">
-                                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold currency-symbol">$</span>
                                 <input type="number" id="defaultAmountInput" placeholder="0.00" class="w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-10 py-5 text-xl font-extrabold focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 outline-none transition-all">
                             </div>
                             <button onclick="saveDefaultAmount()" class="px-8 bg-indigo-600 text-white rounded-2xl font-extrabold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">Save</button>
@@ -319,9 +319,29 @@
   </div>
 
   <script>
-    const API_URL = window.location.origin + 'https://pay-xsn4.onrender.com/api/public';
+    const API_URL = 'https://pay-xsn4.onrender.com/api/public';
     let merchantData = null;
     let isOwner = false;
+    let currentCurrency = 'USD';
+
+    const currencySymbols = {
+        'USD': '$',
+        'NGN': '₦',
+        'GHS': 'GH₵',
+        'ZAR': 'R',
+        'KES': 'KSh',
+        'GBP': '£',
+        'EUR': '€'
+    };
+
+    const getSymbol = (curr) => currencySymbols[curr.toUpperCase()] || curr;
+
+    function updateSymbols() {
+        const symbol = getSymbol(currentCurrency);
+        document.querySelectorAll('.currency-symbol').forEach(el => {
+            el.textContent = symbol;
+        });
+    }
 
     // Get username from URL: ?user=username
     const urlParams = new URLSearchParams(window.location.search);
@@ -415,10 +435,11 @@
             const fee = amount * (perc / 100);
             const total = amount + fee;
 
-            document.getElementById('subtotalDisplay').textContent = `$${amount.toFixed(2)}`;
+            const symbol = getSymbol(currentCurrency);
+            document.getElementById('subtotalDisplay').textContent = `${symbol}${amount.toFixed(2)}`;
             document.getElementById('feePercDisplay').textContent = perc;
-            document.getElementById('feeAmountDisplay').textContent = `$${fee.toFixed(2)}`;
-            document.getElementById('totalDisplay').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('feeAmountDisplay').textContent = `${symbol}${fee.toFixed(2)}`;
+            document.getElementById('totalDisplay').textContent = `${symbol}${total.toFixed(2)}`;
             
             feeBreakdown.classList.remove('hidden');
             feeNote.classList.add('hidden');
@@ -432,8 +453,14 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlAmount = urlParams.get('amount');
       const urlDesc = urlParams.get('desc');
+      const urlCurrency = urlParams.get('currency');
       const amountInput = document.getElementById('amount');
       const defaultAmountInput = document.getElementById('defaultAmountInput');
+
+      if (urlCurrency) {
+        currentCurrency = urlCurrency.toUpperCase();
+        updateSymbols();
+      }
 
       if (merchantData.defaultAmount) {
         amountInput.value = merchantData.defaultAmount;
@@ -483,7 +510,7 @@
           key: merchantData.paystackPublicKey,
           email: payerEmail,
           amount: Math.round(chargeAmount * 100),
-          currency: 'USD',
+          currency: currentCurrency,
           ref: 'IYP_' + Math.floor((Math.random() * 1000000000) + 1),
           metadata: {
             custom_fields: [
