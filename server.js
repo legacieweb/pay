@@ -1,55 +1,55 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const authRoutes = require('./routes/auth');
-const app = express();
 const cors = require('cors');
-app.use(cors());
-const walletRoutes = require('./routes/wallet');
-const publicRoutes = require('./routes/public'); // or wherever the file is
-const adminRoutes = require('./routes/admin');
+const helmet = require('helmet');
+const path = require('path');
 const nodemailer = require('nodemailer');
 
-const newsletterRoutes = require('./routes/newsletter');
-
-const helmet = require('helmet');
-
 dotenv.config();
-require('./config/db')(); // connect to MongoDB
 
+const app = express();
+
+// Global Middleware
+app.use(cors());
 app.use(express.json());
-const path = require('path');
-app.use('/request', express.static(path.join(__dirname, 'request')));
-app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
-app.use('/signup', express.static(path.join(__dirname, 'signup')));
-app.use('/login', express.static(path.join(__dirname, 'login')));
-
-// Explicit routes for common pages to avoid trailing slash issues
-app.get('/request', (req, res) => res.sendFile(path.join(__dirname, 'request', 'index.html')));
-app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard', 'index.html')));
-app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'signup', 'index.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login', 'index.html')));
-
-app.get('/api/config/paystack', (req, res) => {
-  res.json({ publicKey: process.env.PAYSTACK_PUBLIC_KEY || '' });
-});
-app.use('/api/public', publicRoutes);
-app.use('/api', newsletterRoutes);
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: false,
   contentSecurityPolicy: false, // Disabling CSP for now to ensure all external scripts like Paystack load
 }));
-// Routes
-app.use('/api/auth', authRoutes);
+
+// Connect to MongoDB
+require('./config/db')(); 
+
+// Page Routes (before static)
+app.get('/request', (req, res) => res.sendFile(path.join(__dirname, 'request', 'index.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard', 'index.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'signup', 'index.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login', 'index.html')));
+
+// Static Files
+app.use('/request', express.static(path.join(__dirname, 'request')));
+app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
+app.use('/signup', express.static(path.join(__dirname, 'signup')));
+app.use('/login', express.static(path.join(__dirname, 'login')));
+app.use(express.static(path.join(__dirname))); // Root static for index.html, etc.
+
+// API Routes
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/wallet', require('./routes/wallet'));
+app.use('/api/public', require('./routes/public'));
+app.use('/api', require('./routes/newsletter'));
+app.use('/api/admin', require('./routes/admin'));
 
-app.use('/api/admin', adminRoutes);
-// Protected example
-app.get('/', (req, res) => res.send('IyonicPay API Running'));
+app.get('/api/config/paystack', (req, res) => {
+  res.json({ publicKey: process.env.PAYSTACK_PUBLIC_KEY || '' });
+});
 
+// Home Route
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-    app.post('/send-email', async (req, res) => {
+app.post('/api/send-email', async (req, res) => {
   const { name, email, message } = req.body;
 
   try {

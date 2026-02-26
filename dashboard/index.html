@@ -1547,7 +1547,7 @@ function payForProduct(productPrice, productName) {
       if (newPassword !== confirm) return alert("Passwords don't match.");
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/change-password', {
+        const res = await fetch('/api/auth/change-password', {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentPassword, newPassword })
         });

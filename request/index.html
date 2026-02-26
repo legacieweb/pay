@@ -319,7 +319,7 @@
   </div>
 
   <script>
-    const API_URL = window.location.origin + '/api/public';
+    const API_URL = window.location.origin + 'https://pay-xsn4.onrender.com/api/public';
     let merchantData = null;
     let isOwner = false;
 
@@ -365,7 +365,7 @@
       if (!token) return;
 
       try {
-        const res = await fetch('http://localhost:5000/api/auth/dashboard', {
+        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/dashboard', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
