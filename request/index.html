@@ -283,35 +283,39 @@
                         <div class="flex items-center justify-between">
                             <h4 class="text-sm font-extrabold text-slate-700">Embed Payment Button</h4>
                             <div class="flex gap-2">
-                                <button onclick="switchEmbedCurrency('USD')" id="embedUSD" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-100 transition-all">USD Code</button>
-                                <button onclick="switchEmbedCurrency('KES')" id="embedKES" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all">KES Code</button>
+                                <button id="unifiedCodeBtn" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-100 transition-all">Unified Code (USD/KES)</button>
                             </div>
                         </div>
-                        <p class="text-sm text-slate-500">Copy this code to add a secure payment button to your website. You can toggle between USD and KES above.</p>
+                        <p class="text-sm text-slate-500">Copy this code to add secure payment buttons to your website. This snippet handles both USD and KES.</p>
                         
                         <div class="relative group">
                             <pre class="bg-slate-900 p-6 rounded-[2rem] text-indigo-300 text-xs overflow-x-auto border border-white/10 shadow-2xl leading-relaxed"><code id="embedScriptPreview">
 <!-- IyonicPay Integration -->
 &lt;script src="https://pay.iyonicorp.com/sdk.js"&gt;&lt;/script&gt;
 
-&lt;!-- Example: A dynamic payment function --&gt;
 &lt;script&gt;
-function payNow() {
+function payNow(amount, currency) {
   IyonicPay.pay({
     username: '<span class="merchantUsername text-white font-bold">...</span>',
-    amount: 10.00,
-    currency: '<span class="embedCurrency text-white font-bold">USD</span>',
+    amount: amount,
+    currency: currency, // 'USD' or 'KES'
     description: 'Product Purchase',
-    onSuccess: (ref) => alert('Paid! Ref: ' + ref),
-    onCancel: () => console.log('Cancelled')
+    onSuccess: (ref) => alert('Payment Successful! Ref: ' + ref),
+    onCancel: () => console.log('Payment Cancelled')
   });
 }
 &lt;/script&gt;
 
-&lt;!-- Button --&gt;
-&lt;button onclick="payNow()" style="background:#4f46e5;color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:bold;cursor:pointer;"&gt;
-  Pay with IyonicPay
-&lt;/button&gt;</code></pre>
+&lt;!-- Example Buttons --&gt;
+&lt;div style="display: flex; gap: 10px;"&gt;
+  &lt;button onclick="payNow(10.00, 'USD')" style="background:#4f46e5;color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:bold;cursor:pointer;"&gt;
+    Pay $10.00
+  &lt;/button&gt;
+  
+  &lt;button onclick="payNow(1500, 'KES')" style="background:#10b981;color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:bold;cursor:pointer;"&gt;
+    Pay KSh 1,500
+  &lt;/button&gt;
+&lt;/div&gt;</code></pre>
                             <button onclick="copyEmbedScript()" class="absolute top-4 right-4 p-2.5 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all backdrop-blur-md border border-white/10">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                             </button>
@@ -782,21 +786,6 @@ function payNow() {
       showToast('Link copied to clipboard!', 'success');
     }
 
-    function switchEmbedCurrency(curr) {
-        const usdBtn = document.getElementById('embedUSD');
-        const kesBtn = document.getElementById('embedKES');
-        
-        if (curr === 'USD') {
-            usdBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-100 transition-all';
-            kesBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all';
-        } else {
-            kesBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-600 text-white shadow-lg shadow-emerald-100 transition-all';
-            usdBtn.className = 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all';
-        }
-        
-        document.querySelectorAll('.embedCurrency').forEach(el => el.textContent = curr);
-    }
-    
     function copyEmbedScript() {
         const code = document.getElementById('embedScriptPreview').innerText;
         navigator.clipboard.writeText(code).then(() => {
@@ -805,17 +794,14 @@ function payNow() {
     }
 
     function testEmbedPopup(curr) {
-        const username = merchantData.name.replace(/\s+/g, '').toLowerCase();
-        // Use current origin to ensure it works in both dev and prod
-        const baseUrl = window.location.origin;
-        const url = `${baseUrl}/request?user=${username}&amount=10.00&currency=${curr}&desc=Test%20Payment`;
-        
-        const width = 500;
-        const height = 800;
-        const left = (screen.width - width) / 2;
-        const top = (screen.height - height) / 2;
-        
-        window.open(url, 'IyonicPayTest', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+        // We use the SDK itself for the preview to show the actual modal
+        const amount = curr === 'KES' ? 1500 : 10.00;
+        IyonicPay.pay({
+            username: username,
+            amount: amount,
+            currency: curr,
+            description: 'Test Payment'
+        });
     }
 
     init();
