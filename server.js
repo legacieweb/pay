@@ -16,8 +16,17 @@ app.use(express.json());
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: false,
-  contentSecurityPolicy: false, // Disabling CSP for now to ensure all external scripts like Paystack load
+  contentSecurityPolicy: false,
+  frameguard: false, // Allow embedding in iframes for all websites
 }));
+
+// CORS already set to allow all origins via app.use(cors())
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 // Connect to MongoDB
 require('./config/db')(); 
