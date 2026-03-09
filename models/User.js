@@ -37,6 +37,7 @@ const UserSchema = new mongoose.Schema({
   credits: { type: Number, default: 0 },
   savingsBalance: { type: Number, default: 0 },
   defaultAmount: { type: Number, default: null },
+  defaultCurrency: { type: String, default: 'USD' },
   chargeFee: { type: Boolean, default: true },
   feePercentage: { type: Number, default: 2, min: 0, max: 5 },
   paystackPublicKey: { type: String, default: null },

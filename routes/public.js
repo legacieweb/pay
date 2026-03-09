@@ -28,6 +28,7 @@ router.get('/user-by-username', async (req, res) => {
         name: match.name,
         email: match.email,
         defaultAmount: config ? config.amount : null,
+        defaultCurrency: match.defaultCurrency || 'USD',
         chargeFee: match.chargeFee,
         feePercentage: match.feePercentage,
         paystackPublicKey: match.paystackPublicKey || process.env.PAYSTACK_PUBLIC_KEY
@@ -192,6 +193,31 @@ router.post('/user/default-amount', authMiddleware, async (req, res) => {
   }
 });
 
+// ===================================
+// POST /api/user/default-currency (protected)
+// ===================================
+router.post('/user/default-currency', authMiddleware, async (req, res) => {
+  const { userId, currency } = req.body;
+
+  if (!userId || !currency) {
+    return res.status(400).json({ error: '❌ userId and currency required' });
+  }
+
+  if (req.user?.id !== userId) {
+    return res.status(403).json({ error: '❌ Unauthorized' });
+  }
+
+  try {
+    await User.findByIdAndUpdate(userId, { defaultCurrency: currency });
+    res.json({
+      msg: `✅ Default currency set to ${currency}`,
+      defaultCurrency: currency
+    });
+  } catch (err) {
+    console.error('❌ Error updating default currency:', err);
+    res.status(500).json({ error: '❌ Server error' });
+  }
+});
 
 
 // ===================================
