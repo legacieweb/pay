@@ -1,8 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const User = require('../models/User');
+const { User, Transaction } = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
 const sendEmail = require('../utils/sendEmail');
 
@@ -169,51 +168,82 @@ router.get('/check-name', async (req, res) => {
 
 // @route   POST /api/auth/login
 router.post('/login', async (req, res) => {
+  console.log('Login attempt - Email:', req.body.email);
   const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ msg: 'Email and password are required' });
+  }
+  
   try {
     const user = await User.findOne({ email });
+    console.log('Login - User found:', user ? user.name : 'NO');
     if (!user) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Login - Password match:', isMatch);
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const userId = user._id ? user._id.toString() : (user.id ? user.id.toString() : null);
+    if (!userId) {
+      console.error('ERROR: No user ID found! user._id:', user._id, 'user.id:', user.id);
+      return res.status(500).json({ msg: 'User ID not found' });
+    }
+    
+    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    console.log('Login - Token generated for user:', user.name, '| UserId:', userId);
 
-    // Send login notification email
-    sendEmail({
-      to: email,
-      subject: 'Login Notification - IyonicPay',
-      html: `
-        <p>Hello ${user.name},</p>
-        <p>Your account was just logged in. If this wasn't you, please <a href="#">reset your password</a> immediately.</p>
-        <p>Login Time: ${new Date().toLocaleString()}</p>
-      `
-    });
+    // Skip email notification for now to test if that's causing issues
+    // sendEmail will be called separately
 
-    res.json({ token, user: { id: user._id, name: user.name } });
+    console.log('Sending response with userId:', userId);
+    res.json({ token, user: { id: userId, name: user.name } });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error('Login error:', err);
+    res.status(500).json({ msg: 'Server error: ' + err.message });
   }
 });
 
 router.get('/dashboard', authMiddleware, async (req, res) => {
+  console.log('Dashboard route - req.user.id:', req.user?.id);
   try {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) return res.status(404).json({ msg: 'User not found' });
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ msg: 'Unauthorized: No user ID' });
+    }
+    console.log('Looking for user with id:', userId);
+    
+    const user = await User.findOne({ 
+      where: { id: userId },
+      include: [Transaction]
+    }).then(u => {
+      if (!u) return User.findByPk(userId, { include: [Transaction] });
+      return u;
+    });
+    
+    if (!user) {
+      console.log('User not found for id:', userId);
+      return res.status(404).json({ msg: 'User not found' });
+    }
 
+    console.log('User found:', user.name);
+    console.log('User keys:', Object.keys(user.toJSON()));
+    const foundUserId = user._id ? user._id.toString() : user.id.toString();
+    const txs = user.Transactions || user.transactions || [];
+    console.log('Transactions count:', txs.length);
+    
     res.json({
       user: {
-        id: user._id,
+        id: foundUserId,
         name: user.name,
         email: user.email,
         balance: user.balance || 0,
         credits: user.credits || 0,
         savingsBalance: user.savingsBalance || 0,
         referralCode: user.referralCode || user._id,
-        transactions: user.transactions || [],
+        transactions: txs,
         spendToday: 0,
-        weeklyTransactions: (user.transactions || []).length,
+        weeklyTransactions: txs.length,
         withdrawalDetails: user.withdrawalDetails || null,
         paystackPublicKey: user.paystackPublicKey || null
       }

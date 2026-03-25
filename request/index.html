@@ -81,7 +81,7 @@
   <!-- Navigation -->
   <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-slate-200/50">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      <div class="flex items-center gap-3 group cursor-pointer" onclick="window.location.href='/'">
+      <div class="flex items-center gap-3 group cursor-pointer" onclick="window.location.href='../'">
         <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -375,7 +375,8 @@
   </div>
 
   <script>
-    const API_URL = 'https://pay-xsn4.onrender.com/api/public';
+    const API_URL = 'http://localhost:4000/api/public';
+    const AUTH_URL = 'http://localhost:4000/api/auth';
     let merchantData = null;
     let isOwner = false;
     let currentCurrency = 'USD';
@@ -412,9 +413,14 @@
       }
       
       try {
+        console.log('Fetching user data for:', username);
         const res = await fetch(`${API_URL}/user-by-username?username=${username}`);
-        if (!res.ok) throw new Error('User not found');
         const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.msg || 'User not found');
+        }
+        
         merchantData = data.user;
         console.log('Merchant Data Loaded:', merchantData);
         
@@ -463,7 +469,7 @@
       if (!token) return;
 
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/dashboard', {
+        const res = await fetch(`${AUTH_URL}/dashboard`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {

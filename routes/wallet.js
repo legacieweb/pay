@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
-const User = require('../models/User');
+const { User, Transaction } = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
 const wiseCurrencyData = {
@@ -63,10 +63,11 @@ router.post('/deposit', authMiddleware, async (req, res) => {
   if (!amount || amount <= 0) return res.status(400).json({ msg: 'Invalid amount' });
 
   try {
-    const user = await User.findById(req.user.id);
-    user.balance += amount;
+    const user = await User.findByPk(req.user.id);
+    user.balance = parseFloat(user.balance || 0) + parseFloat(amount);
 
-    user.transactions.push({
+    await Transaction.create({
+      userId: user.id,
       type: 'deposit',
       amount,
       status: 'completed',
@@ -82,8 +83,8 @@ router.post('/deposit', authMiddleware, async (req, res) => {
       to: user.email,
       subject: '💰 Deposit Received',
       html: `<p>Hi ${user.name},</p>
-             <p>Your deposit of <strong>$${amount.toFixed(2)}</strong> was successful.</p>
-             <p>Your new balance is <strong>$${user.balance.toFixed(2)}</strong>.</p>
+             <p>Your deposit of <strong>$${parseFloat(amount || 0).toFixed(2)}</strong> was successful.</p>
+             <p>Your new balance is <strong>$${parseFloat(user.balance || 0).toFixed(2)}</strong>.</p>
              <p>Ref: ${reference}</p>`
     });
 
@@ -98,19 +99,21 @@ router.post('/deposit', authMiddleware, async (req, res) => {
 router.post('/send', authMiddleware, async (req, res) => {
   const { toEmail, amount } = req.body;
   if (!toEmail || !amount || amount <= 0) {
-    return res.status(400).json({ msg: 'Missing or invalid inputs' });
+    return res.status(400).json({ msg: 'Email and amount are required' });
   }
 
   try {
-    const sender = await User.findById(req.user.id);
-    const receiver = await User.findOne({ email: toEmail });
+    const sender = await User.findByPk(req.user.id);
+    const receiver = await User.findOne({ where: { email: toEmail } });
 
     if (!receiver) return res.status(404).json({ msg: 'Recipient not found' });
-    if (sender.balance < amount) return res.status(400).json({ msg: 'Insufficient balance' });
+    if (parseFloat(sender.balance) < parseFloat(amount)) return res.status(400).json({ msg: 'Insufficient balance' });
 
     // Update sender
-    sender.balance -= amount;
-    sender.transactions.push({
+    sender.balance = parseFloat(sender.balance) - parseFloat(amount);
+    
+    await Transaction.create({
+      userId: sender.id,
       type: 'send',
       amount,
       status: 'completed',
@@ -139,8 +142,8 @@ router.post('/send', authMiddleware, async (req, res) => {
       to: sender.email,
       subject: '💸 You Sent Money',
       html: `<p>Hi ${sender.name},</p>
-             <p>You successfully sent <strong>$${amount.toFixed(2)}</strong> to ${receiver.email}.</p>
-             <p>Your new balance is <strong>$${sender.balance.toFixed(2)}</strong>.</p>`
+             <p>You successfully sent <strong>$${parseFloat(amount || 0).toFixed(2)}</strong> to ${receiver.email}.</p>
+             <p>Your new balance is <strong>$${parseFloat(sender.balance || 0).toFixed(2)}</strong>.</p>`
     });
 
     // ✅ Send email to receiver
@@ -148,8 +151,8 @@ router.post('/send', authMiddleware, async (req, res) => {
       to: receiver.email,
       subject: '💰 You Received Money',
       html: `<p>Hi ${receiver.name},</p>
-             <p>You received <strong>$${amount.toFixed(2)}</strong> from ${sender.email}.</p>
-             <p>Your new balance is <strong>$${receiver.balance.toFixed(2)}</strong>.</p>`
+             <p>You received <strong>$${parseFloat(amount || 0).toFixed(2)}</strong> from ${sender.email}.</p>
+             <p>Your new balance is <strong>$${parseFloat(receiver.balance || 0).toFixed(2)}</strong>.</p>`
     });
 
     res.json({ msg: 'Transfer successful' });
@@ -254,11 +257,14 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
       : currencyCode;
 
     if (user.balance < totalDeducted) {
-      return res.status(400).json({ msg: `Insufficient balance. You need $${totalDeducted.toFixed(2)} in your balance.` });
+      return res.status(400).json({ msg: `Insufficient balance. You need $${parseFloat(totalDeducted || 0).toFixed(2)} in your balance.` });
     }
 
     if (saveAccount) {
-      user.withdrawalDetails = { method: normalizedMethod, country: currencyCode, accountDetails: structuredDetails || { details: formattedAccountDetails } };
+      user.withdrawalMethod = normalizedMethod;
+      user.withdrawalMethodLabel = normalizedMethod;
+      user.withdrawalCountry = currencyCode;
+      user.withdrawalAccountDetails = structuredDetails || { details: formattedAccountDetails };
     }
 
     user.balance -= totalDeducted;
@@ -275,7 +281,7 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
       method: normalizedMethod,
       country: currencyCode,
       to: formattedAccountDetails,
-      description: `Withdrawal via ${normalizedMethod} (${currencyInfo.name || currencyCode}) - Fee: $${totalFee.toFixed(2)} (Used $${creditsUsed.toFixed(2)} credits)`,
+      description: `Withdrawal via ${normalizedMethod} (${currencyInfo.name || currencyCode}) - Fee: $${parseFloat(totalFee || 0).toFixed(2)} (Used $${parseFloat(creditsUsed || 0).toFixed(2)} credits)`,
       expectedPayoutEtaHours: 12,
       date: new Date()
     });
@@ -287,11 +293,11 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
       subject: '🧾 Withdrawal Request Submitted',
       html: `
         <p>Hi ${user.name},</p>
-        <p>Your withdrawal of <strong>$${amountToReceive.toFixed(2)}</strong> (after fees) has been received.</p>
-        <p><strong>Total Fee (5%):</strong> $${totalFee.toFixed(2)}<br/>
-        <strong>Credits Used:</strong> $${creditsUsed.toFixed(2)}<br/>
-        <strong>Remaining Fee Deducted:</strong> $${remainingFee.toFixed(2)}</p>
-        <p><strong>Total Balance Deducted:</strong> $${totalDeducted.toFixed(2)}</p>
+        <p>Your withdrawal of <strong>$${parseFloat(amountToReceive || 0).toFixed(2)}</strong> (after fees) has been received.</p>
+        <p><strong>Total Fee (5%):</strong> $${parseFloat(totalFee || 0).toFixed(2)}<br/>
+        <strong>Credits Used:</strong> $${parseFloat(creditsUsed || 0).toFixed(2)}<br/>
+        <strong>Remaining Fee Deducted:</strong> $${parseFloat(remainingFee || 0).toFixed(2)}</p>
+        <p><strong>Total Balance Deducted:</strong> $${parseFloat(totalDeducted || 0).toFixed(2)}</p>
         <p><strong>Method:</strong> ${normalizedMethod}<br/>
         <strong>Currency:</strong> ${currencyDisplay}<br/>
         <strong>Account Info:</strong> ${formattedAccountDetails}</p>
@@ -306,11 +312,11 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
       html: `
         <h3>New Withdrawal Alert</h3>
         <p><strong>User:</strong> ${user.name} (${user.email})</p>
-        <p><strong>Gross Requested Amount (USD):</strong> $${amount.toFixed(2)}</p>
-        <p><strong>Total Fee (5%):</strong> $${totalFee.toFixed(2)}</p>
-        <p><strong>Credits Used:</strong> $${creditsUsed.toFixed(2)}</p>
-        <p><strong>Remaining Fee Deducted:</strong> $${remainingFee.toFixed(2)}</p>
-        <p><strong>Net Amount to Send (USD):</strong> $${amountToReceive.toFixed(2)}</p>
+        <p><strong>Gross Requested Amount (USD):</strong> $${parseFloat(amount || 0).toFixed(2)}</p>
+        <p><strong>Total Fee (5%):</strong> $${parseFloat(totalFee || 0).toFixed(2)}</p>
+        <p><strong>Credits Used:</strong> $${parseFloat(creditsUsed || 0).toFixed(2)}</p>
+        <p><strong>Remaining Fee Deducted:</strong> $${parseFloat(remainingFee || 0).toFixed(2)}</p>
+        <p><strong>Net Amount to Send (USD):</strong> $${parseFloat(amountToReceive || 0).toFixed(2)}</p>
         <p><strong>Expected Payout:</strong> ${amountUserWillReceiveLocal.toLocaleString()} ${currencyDisplay}</p>
         <p><strong>Payout Guarantee:</strong> Under 12 hours</p>
         <hr>
@@ -342,9 +348,14 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
 
 router.get('/withdrawal-details', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('withdrawalDetails');
+    const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
-    res.json({ withdrawalDetails: user.withdrawalDetails || null });
+    res.json({ withdrawalDetails: {
+      method: user.withdrawalMethod,
+      methodLabel: user.withdrawalMethodLabel,
+      country: user.withdrawalCountry,
+      accountDetails: user.withdrawalAccountDetails
+    } });
   } catch (err) {
     console.error('Fetch withdrawal details error:', err);
     res.status(500).json({ msg: 'Server error' });
@@ -399,10 +410,12 @@ router.post('/save-payout-details', authMiddleware, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    user.payoutDetails = { method, currency, payoutDetails };
+    user.payoutMethod = method;
+    user.payoutCurrency = currency;
+    user.payoutDetails = payoutDetails;
     await user.save();
 
-    res.json({ msg: 'Payout details saved successfully', payoutDetails: user.payoutDetails });
+    res.json({ msg: 'Payout details saved successfully', payoutDetails: { method: user.payoutMethod, currency: user.payoutCurrency, payoutDetails: user.payoutDetails } });
   } catch (err) {
     console.error('Save payout details error:', err);
     res.status(500).json({ msg: 'Server error' });
@@ -411,9 +424,13 @@ router.post('/save-payout-details', authMiddleware, async (req, res) => {
 
 router.get('/payout-details', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('payoutDetails');
+    const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
-    res.json({ payoutDetails: user.payoutDetails || null });
+    res.json({ payoutDetails: {
+      method: user.payoutMethod,
+      currency: user.payoutCurrency,
+      payoutDetails: user.payoutDetails
+    } });
   } catch (err) {
     console.error('Fetch payout details error:', err);
     res.status(500).json({ msg: 'Server error' });

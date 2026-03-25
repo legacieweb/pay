@@ -10,22 +10,37 @@ router.post('/newsletter', async (req, res) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: "mail.privateemail.com", // Correct host for Namecheap Private Email
+      port: 465,                     // SSL port
+      secure: true,                  // true for 465, false for 587
       auth: {
-        user: process.env.EMAIL_USER, // example: 'support@iyonicorp.com'
-        pass: process.env.EMAIL_PASS
+        user: "hello@iyonicorp.com", // Your full email address
+        pass: "@7Switched"        // Your email account password
+      },
+      tls: {
+        // Helps avoid connection issues on some servers
+        rejectUnauthorized: false
+      }
+    });
+
+    // Verify connection configuration
+    transporter.verify(function (error, success) {
+      if (error) {
+        console.log("Email service error:", error);
+      } else {
+        console.log("Email service is ready to send messages");
       }
     });
 
     const adminMail = {
       from: email,
-      to: process.env.EMAIL_USER,
+      to: "hello@iyonicorp.com",
       subject: 'New Newsletter Subscriber',
       html: `<p><strong>Email:</strong> ${email}</p>`
     };
 
     const userMail = {
-      from: process.env.EMAIL_USER,
+      from: "hello@iyonicorp.com",
       to: email,
       subject: 'Welcome to IyonicPay Updates!',
       html: `

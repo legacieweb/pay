@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const { User, Transaction } = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 // ✅ Middleware to verify admin token
@@ -32,23 +32,31 @@ router.post('/login', (req, res) => {
 // ✅ Get all transactions across users
 router.get('/transactions', verifyAdmin, async (req, res) => {
   try {
-    const users = await User.find({}, 'name email transactions');
+    const users = await User.findAll({ attributes: ['id', 'name', 'email'] });
     const allTransactions = [];
 
-    users.forEach(user => {
-      user.transactions.forEach(tx => {
+    for (const user of users) {
+      const transactions = await Transaction.findAll({
+        where: { userId: user.id },
+        order: [['date', 'DESC']]
+      });
+      
+      transactions.forEach(tx => {
         allTransactions.push({
           userName: user.name,
           email: user.email,
           type: tx.type,
-          amount: tx.amount || 0,
+          amount: parseFloat(tx.amount) || 0,
           to: tx.to,
           from: tx.from,
           status: tx.status || 'completed',
           date: tx.date || new Date(),
         });
       });
-    });
+    }
+
+    // Sort by date descending
+    allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.json(allTransactions);
   } catch (err) {
@@ -57,27 +65,79 @@ router.get('/transactions', verifyAdmin, async (req, res) => {
   }
 });
 
-
 router.get('/user', verifyAdmin, async (req, res) => {
-  const user = await User.findOne({ email: req.query.email });
-  if (!user) return res.status(404).json({ msg: 'User not found' });
-  res.json(user);
+  try {
+    const search = req.query.email; // named email in query but can be username
+    if (!search) {
+      return res.status(400).json({ msg: 'Email or username is required' });
+    }
+
+    // 1. Try exact email match
+    let user = await User.findOne({ where: { email: search } });
+    
+    // 2. If not found, try exact name match
+    if (!user) {
+      user = await User.findOne({ where: { name: search } });
+    }
+
+    // 3. If still not found, try the "username" logic (cleaned name)
+    if (!user) {
+      const allUsers = await User.findAll({ attributes: ['id', 'name', 'email'] });
+      const found = allUsers.find(u => 
+        u.name && u.name.replace(/\s+/g, '').toLowerCase() === search.toLowerCase()
+      );
+      if (found) {
+        user = await User.findByPk(found.id);
+      }
+    }
+
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    console.error('Admin user fetch error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 });
 
 router.get('/user-transactions', verifyAdmin, async (req, res) => {
-  const user = await User.findById(req.query.userId);
-  if (!user) return res.status(404).json({ msg: 'User not found' });
-  res.json(user.transactions);
-});
+  const { userId } = req.query;
+  if (!userId || userId === 'undefined') {
+    return res.status(400).json({ msg: 'Valid User ID is required' });
+  }
 
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    
+    const transactions = await Transaction.findAll({
+      where: { userId: user.id },
+      order: [['date', 'DESC']]
+    });
+    
+    res.json(transactions);
+  } catch (err) {
+    console.error('Admin user-transactions error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
 
 router.patch('/withdraw-status', verifyAdmin, async (req, res) => {
-  const user = await User.findOne({ 'transactions._id': req.body.txId });
-  const tx = user.transactions.id(req.body.txId);
-  tx.status = 'Processed';
-  await user.save();
-  res.json({ msg: 'Withdrawal status updated' });
+  const { txId, status } = req.body;
+  
+  try {
+    const transaction = await Transaction.findByPk(txId);
+    if (!transaction) {
+      return res.status(404).json({ msg: 'Transaction not found' });
+    }
+    
+    transaction.status = status || 'Processed';
+    await transaction.save();
+    
+    res.json({ msg: 'Withdrawal status updated' });
+  } catch (err) {
+    console.error('Admin withdraw-status error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 });
-
 
 module.exports = router;

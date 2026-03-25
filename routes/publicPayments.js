@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const { User, Transaction } = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
 // @route   POST /api/public/pay/:userId
@@ -14,20 +14,22 @@ router.post('/pay/:userId', async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId);
+    const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ msg: 'Recipient not found' });
 
     // Calculate fee (paid by payer) which will be awarded as credits to the merchant
     let feeEarned = 0;
     if (user.chargeFee && user.feePercentage > 0) {
-      feeEarned = amount * (user.feePercentage / 100);
+      feeEarned = parseFloat(amount) * (parseFloat(user.feePercentage) / 100);
     }
     
-    // Record the transaction
-    user.balance += amount;
-    user.credits += feeEarned;
+    // Update user balance
+    user.balance = parseFloat(user.balance || 0) + parseFloat(amount);
+    user.credits = parseFloat(user.credits || 0) + feeEarned;
 
-    user.transactions.push({
+    // Record the transaction
+    await Transaction.create({
+      userId: user.id,
       type: 'receive',
       amount,
       status: 'completed',
@@ -48,8 +50,8 @@ router.post('/pay/:userId', async (req, res) => {
       subject: 'You Received a Payment',
       html: `
         <p>Hi ${user.name},</p>
-        <p>You just received <strong>$${amount.toFixed(2)}</strong> from <strong>${senderEmail}</strong> via your payment link.</p>
-        <p>Your new balance is <strong>$${user.balance.toFixed(2)}</strong>.</p>
+        <p>You just received <strong>$${parseFloat(amount).toFixed(2)}</strong> from <strong>${senderEmail}</strong> via your payment link.</p>
+        <p>Your new balance is <strong>$${parseFloat(user.balance).toFixed(2)}</strong>.</p>
         <p>Ref: ${reference}</p>
       `
     });

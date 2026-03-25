@@ -19,32 +19,150 @@
   <link rel="canonical" href="https://iyonicpay.com/signup" />
   <link rel="icon" href="https://i.imgur.com/YAPRefp.png" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow-x: hidden; }
     body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at bottom left, #e0e7ff, #ffffff, #fdf2f8);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0a0a0f;
     }
+    /* Animated mesh gradient background */
+    .mesh-bg {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(217, 119, 6, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 10%, rgba(251, 191, 36, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 10% 90%, rgba(245, 158, 11, 0.1) 0%, transparent 40%),
+        linear-gradient(180deg, #0a0a0f 0%, #111827 50%, #0a0a0f 100%);
+      z-index: -2;
+    }
+    /* Animated orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: float-orb 20s ease-in-out infinite;
+      z-index: -1;
+    }
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+      top: -200px;
+      left: -200px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.25) 0%, transparent 70%);
+      bottom: -150px;
+      right: -150px;
+      animation-delay: -7s;
+    }
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -14s;
+    }
+    @keyframes float-orb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    /* Grid pattern overlay */
+    .grid-pattern {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: -1;
+    }
+    /* Glass card */
     .glass-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
-    .input-field {
+    .glass-card-inner {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    /* Input styling */
+    .input-modern {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1.5px solid #e2e8f0;
     }
-    .input-field:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-      transform: translateY(-1px);
+    .input-modern:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15), 0 0 30px rgba(245, 158, 11, 0.1);
     }
-    /* Modern Preloader */
+    .input-modern::placeholder { color: rgba(255, 255, 255, 0.3); }
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover::before { opacity: 1; }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(245, 158, 11, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    /* Floating elements */
+    .float {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+    .float-delay-1 { animation-delay: -2s; }
+    .float-delay-2 { animation-delay: -4s; }
+    /* Glow effects */
+    .glow-sm { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+    .glow-text { text-shadow: 0 0 30px rgba(245, 158, 11, 0.5); }
+    /* Loader */
     .loader-wrapper {
       position: fixed;
       inset: 0;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -52,92 +170,202 @@
       z-index: 100;
     }
     .loader {
-      width: 56px;
-      height: 56px;
-      border: 4px solid #f59e0b;
-      border-bottom-color: transparent;
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(245, 158, 11, 0.2);
+      border-bottom-color: #f59e0b;
       border-radius: 50%;
-      display: inline-block;
-      animation: rotation 1s linear infinite;
+      animation: spin 1s linear infinite;
     }
-    @keyframes rotation {
+    @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .step-badge {
-      @apply w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all;
+    /* Noise overlay */
+    .noise {
+      position: fixed;
+      inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Logo pulse */
+    .logo-pulse {
+      position: relative;
+    }
+    .logo-pulse::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 0; }
     }
   </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center px-4 py-16">
+<body class="min-h-screen relative">
+  <!-- Background elements -->
+  <div class="mesh-bg"></div>
+  <div class="grid-pattern"></div>
+  <div class="noise"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
 
-  <div class="w-full max-w-[520px] glass-card p-12 rounded-[2.5rem] shadow-2xl space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-    <div class="text-center space-y-3">
-      <div class="inline-block p-4 bg-white rounded-3xl shadow-sm mb-4">
-        <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay Logo" class="w-16 h-16" />
-      </div>
-      <h1 class="text-4xl font-black text-slate-900 tracking-tight leading-tight">Join the Future <br/>of Payments</h1>
-      <p class="text-slate-500 font-medium text-lg">Create your IyonicPay account today</p>
-    </div>
-
-    <form id="signupForm" class="space-y-6">
-      <div class="space-y-5">
-        <div class="space-y-1.5">
-          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Account Name</label>
-          <input id="name" type="text" placeholder="e.g. Acme Corp" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium" required>
-        </div>
-        
-        <div class="space-y-1.5">
-          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
-          <input id="email" type="email" placeholder="you@example.com" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium" required>
-        </div>
-
-        <button id="sendCodeBtn" type="button" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98]">
-          Send Verification Code
-        </button>
-
-        <div id="extendedFields" class="space-y-5 hidden animate-in fade-in duration-500">
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Verification Code</label>
-            <input id="verifyCode" type="text" placeholder="Enter 6-digit code" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium uppercase tracking-[0.2em] text-center">
+  <!-- Main Container -->
+  <div class="min-h-screen flex items-center justify-center p-4 md:p-8 relative z-10">
+    <div class="w-full max-w-6xl">
+      
+      <!-- Header Logo -->
+      <div class="flex justify-center mb-8">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="logo-pulse">
+            <img src="https://i.imgur.com/YAPRefp.png" alt="IyonicPay" class="w-14 h-14 rounded-2xl" />
           </div>
+          <span class="text-3xl font-extrabold text-white">Iyonic<span class="text-amber-500">Pay</span></span>
+        </a>
+      </div>
+
+      <!-- Main Glass Card -->
+      <div class="glass-card rounded-3xl overflow-hidden">
+        <div class="grid lg:grid-cols-5 gap-0">
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
-              <input id="password" type="password" placeholder="••••••••" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium">
-            </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Confirm</label>
-              <input id="confirm" type="password" placeholder="••••••••" class="w-full input-field rounded-2xl px-5 py-4 outline-none text-slate-700 font-medium">
+          <!-- Left Side - Visual -->
+          <div class="lg:col-span-2 bg-gradient-to-br from-amber-500/10 to-transparent p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
+            <!-- Decorative elements -->
+            <div class="absolute top-10 left-10 w-20 h-20 border border-amber-500/20 rounded-full float"></div>
+            <div class="absolute bottom-20 right-10 w-16 h-16 border border-amber-400/20 rounded-full float float-delay-1"></div>
+            <div class="absolute top-1/2 right-1/4 w-12 h-12 bg-amber-500/10 rounded-lg rotate-45 float float-delay-2"></div>
+            
+            <div class="relative z-10">
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 glass-card-inner rounded-full mb-6">
+                <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                <span class="text-amber-400 text-sm font-medium">Join 50,000+ Users</span>
+              </div>
+              
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Start Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Financial Journey</span>
+              </h2>
+              
+              <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+                Experience the future of seamless digital payments. Instant transfers, global reach, and enterprise-grade security.
+              </p>
+
+              <!-- Feature pills -->
+              <div class="space-y-3">
+                <div class="flex items-center gap-3 glass-card-inner p-3 rounded-xl">
+                  <div class="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-bolt text-emerald-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-white font-semibold text-sm">Instant Transfers</p>
+                    <p class="text-slate-500 text-xs">Real-time processing</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 glass-card-inner p-3 rounded-xl">
+                  <div class="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-amber-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-white font-semibold text-sm">Bank-Grade Security</p>
+                    <p class="text-slate-500 text-xs">256-bit encryption</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 glass-card-inner p-3 rounded-xl">
+                  <div class="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-globe text-indigo-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-white font-semibold text-sm">Global Reach</p>
+                    <p class="text-slate-500 text-xs">150+ countries</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <button id="signupBtn" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-[0.98]">
-            Complete Registration
-          </button>
+          <!-- Right Side - Form -->
+          <div class="lg:col-span-3 p-8 lg:p-12">
+            <div class="max-w-md mx-auto">
+              <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Create Account</h1>
+                <p class="text-slate-400">Enter your details to get started</p>
+              </div>
+
+              <form id="signupForm" class="space-y-5">
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Account Name</label>
+                  <input id="name" type="text" placeholder="e.g. Acme Corp" 
+                    class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium" required>
+                </div>
+                
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
+                  <input id="email" type="email" placeholder="you@example.com" 
+                    class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium" required>
+                </div>
+
+                <button id="sendCodeBtn" type="button" class="w-full btn-primary text-slate-900 font-bold py-4 rounded-xl shadow-lg">
+                  <i class="fas fa-paper-plane mr-2"></i> Send Verification Code
+                </button>
+
+                <div id="extendedFields" class="space-y-5 hidden animate-in fade-in slide-in-from-top duration-500">
+                  <div class="space-y-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Verification Code</label>
+                    <input id="verifyCode" type="text" placeholder="Enter 6-digit code" 
+                      class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium text-center uppercase tracking-[0.2em]">
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                      <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Password</label>
+                      <input id="password" type="password" placeholder="••••••••" 
+                        class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium">
+                    </div>
+                    <div class="space-y-2">
+                      <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Confirm</label>
+                      <input id="confirm" type="password" placeholder="••••••••" 
+                        class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium">
+                    </div>
+                  </div>
+
+                  <button id="signupBtn" type="submit" class="w-full btn-secondary text-white font-bold py-4 rounded-xl">
+                    <i class="fas fa-user-plus mr-2"></i> Complete Registration
+                  </button>
+                </div>
+              </form>
+
+              <div class="text-center pt-6">
+                <p class="text-slate-400">
+                  Already have an account? <a href="../login" class="text-amber-400 font-semibold hover:text-amber-300 transition-colors">Sign In</a>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </form>
 
-    <div class="text-center pt-2">
-      <p class="text-sm text-slate-500 font-medium">
-        Already have an account? <a href="../login" class="text-indigo-600 font-bold hover:underline underline-offset-4">Sign In</a>
-      </p>
+      <!-- Footer -->
+      <div class="text-center mt-8">
+        <p class="text-slate-500 text-sm">© 2024 IyonicPay. All rights reserved.</p>
+      </div>
     </div>
   </div>
 
-  <!-- Modern Preloader -->
+  <!-- Loading Modal -->
   <div id="loadingModal" class="loader-wrapper hidden">
     <div class="relative">
       <span class="loader"></span>
-      <div class="absolute inset-0 flex items-center justify-center">
-        <img src="https://i.imgur.com/YAPRefp.png" class="w-6 h-6 opacity-50" />
-      </div>
+      <img src="https://i.imgur.com/YAPRefp.png" class="absolute inset-0 m-auto w-8 h-8 opacity-50 animate-pulse" />
     </div>
-    <p class="mt-8 text-slate-900 font-bold tracking-tight text-xl">Building your vault...</p>
-    <p class="text-slate-400 font-medium mt-1">Deploying secure infrastructure</p>
+    <p class="mt-8 text-white font-bold tracking-tight text-xl">Creating your account...</p>
+    <p class="text-slate-400 font-medium mt-2">Setting up secure vault</p>
   </div>
 
   <script>
@@ -151,9 +379,15 @@
     const confirmInput = document.getElementById('confirm');
 
     async function isNameTaken(name) {
-      const res = await fetch(`https://pay-xsn4.onrender.com/api/auth/check-name?name=${encodeURIComponent(name)}`);
-      const data = await res.json();
-      return data.exists;
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/check-name?name=' + encodeURIComponent(name));
+        if (!res.ok) return false;
+        const data = await res.json();
+        return data.exists;
+      } catch (err) {
+        console.error("Error checking name:", err);
+        return false;
+      }
     }
 
     sendCodeBtn.addEventListener('click', async () => {
@@ -166,10 +400,10 @@
       if (nameTaken) return alert("🚫 This name is already taken.");
 
       sendCodeBtn.disabled = true;
-      sendCodeBtn.textContent = "Requesting code...";
+      sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending code...';
 
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/signup/send-code', {
+        const res = await fetch('http://localhost:4000/api/auth/signup/send-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email })
@@ -189,7 +423,7 @@
       }
 
       sendCodeBtn.disabled = false;
-      sendCodeBtn.textContent = "Send Verification Code";
+      sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Send Verification Code';
     });
 
     signupForm.addEventListener('submit', async function (e) {
@@ -210,11 +444,11 @@
       }
 
       signupBtn.disabled = true;
-      signupBtn.textContent = 'Creating...';
+      signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
       loadingModal.classList.remove('hidden');
 
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/signup', {
+        const res = await fetch('http://localhost:4000/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, password, code })
@@ -235,27 +469,9 @@
       }
 
       signupBtn.disabled = false;
-      signupBtn.textContent = 'Sign Up';
+      signupBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Complete Registration';
       loadingModal.classList.add('hidden');
     });
   </script>
-  
-<script>
-    setInterval(() => {
-      console.clear();
-    }, 100);
-  
-    (function() {
-      const devtools = /./;
-      devtools.toString = function() {
-        console.clear();
-        console.log("DevTools detection activated!");
-        return "";
-      };
-      console.log("%c", devtools);
-    })();
-  </script>
-
-
 </body>
 </html>

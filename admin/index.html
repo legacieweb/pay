@@ -205,7 +205,7 @@
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
                   <i data-lucide="mail" class="w-5 h-5"></i>
                 </span>
-                <input type="email" id="searchEmail" placeholder="Search by email address..." 
+                <input type="text" id="searchEmail" placeholder="Search by email or username..." 
                   class="w-full border border-slate-200 pl-11 pr-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
               <button onclick="searchUser()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
@@ -338,7 +338,7 @@
       const loginError = document.getElementById('loginError');
       
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/admin/login', {
+        const res = await fetch('http://localhost:4000/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password })
@@ -389,7 +389,7 @@
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Unauthorized');
 
-      const res = await fetch('https://pay-xsn4.onrender.com/api/admin/transactions', {
+      const res = await fetch('http://localhost:4000/api/admin/transactions', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -485,14 +485,14 @@
       if(!email) return;
 
       try {
-        const res = await fetch(`https://pay-xsn4.onrender.com/api/admin/user?email=${email}`, {
+        const res = await fetch(`http://localhost:4000/api/admin/user?email=${email}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         const data = await res.json();
         if (!res.ok) return alert(data.msg || 'User not found');
 
-        selectedUserId = data._id;
+        selectedUserId = data.id || data._id;
         document.getElementById('userDetails').classList.remove('hidden');
         document.getElementById('userNameField').textContent = data.name;
         document.getElementById('userEmailField').textContent = data.email;
@@ -510,7 +510,7 @@
       const txBody = document.getElementById('userTxTableBody');
       
       try {
-        const res = await fetch(`https://pay-xsn4.onrender.com/api/admin/user-transactions?userId=${selectedUserId}`, {
+        const res = await fetch(`http://localhost:4000/api/admin/user-transactions?userId=${selectedUserId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -531,7 +531,7 @@
               <td class="px-4 py-4 text-xs text-slate-400 font-medium">${new Date(tx.date).toLocaleString()}</td>
               <td class="px-4 py-4">
                 ${tx.type === 'withdraw' && tx.status.toLowerCase() !== 'done' && tx.status.toLowerCase() !== 'completed' ? 
-                  `<button onclick="updateWithdrawStatus('${tx._id}')" class="text-xs font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-all shadow-sm">Process</button>` : 
+                  `<button onclick="updateWithdrawStatus('${tx.id || tx._id}')" class="text-xs font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-all shadow-sm">Process</button>` : 
                   '<span class="text-[10px] font-bold text-slate-300 uppercase">No Action</span>'
                 }
               </td>
@@ -551,7 +551,7 @@
       
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/admin/withdraw-status', {
+        const res = await fetch('http://localhost:4000/api/admin/withdraw-status', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

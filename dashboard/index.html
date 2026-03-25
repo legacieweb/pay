@@ -102,13 +102,13 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v10m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
         </svg>
-        <span class="font-medium">Withdraw & Credits</span>
+        <span class="font-medium">Withdraw</span>
       </button>
       <button onclick="showSection('earning-rewards', this)" class="w-full nav-btn group">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span class="font-medium">Earning & Rewards</span>
+        <span class="font-medium">Earning</span>
       </button>
       <button onclick="showSection('embed-code', this)" class="w-full nav-btn group">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -860,7 +860,7 @@ function payNow(amount, currency) {
 
     async function loadPaystackKey() {
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/config/paystack');
+        const res = await fetch('/api/config/paystack');
         if (!res.ok) throw new Error('Failed to load Paystack key');
         const data = await res.json();
         paystackPublicKey = data.publicKey || '';
@@ -871,20 +871,50 @@ function payNow(amount, currency) {
 
     async function fetchUserData() {
       const token = localStorage.getItem('token');
-      if (!token) return logout();
+      console.log('=== FETCH USER DATA ===');
+      console.log('Token from localStorage:', token ? token.substring(0, 20) + '...' : 'NOT FOUND');
+      if (!token) {
+        console.log('No token found, redirecting to login');
+        return logout();
+      }
 
+      console.log('Fetching from /api/auth/dashboard...');
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/dashboard', {
+        const res = await fetch('/api/auth/dashboard', {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (!res.ok) throw new Error('Invalid session');
+        console.log('Dashboard API response status:', res.status);
+        
+        if (!res.ok) {
+          console.log('Response not OK, checking status...');
+          if (res.status === 401 || res.status === 404) {
+            console.error('Auth error (' + res.status + '), logging out');
+            localStorage.removeItem('token');
+            window.location.href = '../login';
+            return;
+          }
+          const errorData = await res.json().catch(() => ({}));
+          console.error('Dashboard API error:', errorData);
+          alert('Failed to load dashboard data. Please refresh the page.');
+          return;
+        }
+        
         const data = await res.json();
+        console.log('Dashboard response received:', data);
+        
+        if (!data || !data.user) {
+          console.error('No user data in response! Data:', data);
+          localStorage.removeItem('token');
+          window.location.href = '../login';
+          return;
+        }
+        
+        console.log('User data found:', data.user.name);
         const user = data.user;
-        globalTransactions = user.transactions || [];
-
-        currentUserEmail = user.email;
+        globalTransactions = user.transactions || user.Transactions || [];
+        console.log('Global transactions populated:', globalTransactions.length);
 
         // Set User Info
         document.getElementById('userName').textContent = user.name;
@@ -900,13 +930,13 @@ function payNow(amount, currency) {
         const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
         document.getElementById('userInitials').textContent = initials.substring(0, 2);
 
-        document.getElementById('balanceAmount').textContent = `$${(user.balance || 0).toFixed(2)}`;
-        const credits = (user.credits || 0).toFixed(2);
+        document.getElementById('balanceAmount').textContent = `$${parseFloat(user.balance || 0).toFixed(2)}`;
+        const credits = parseFloat(user.credits || 0).toFixed(2);
         document.getElementById('creditBalance').textContent = `$${credits}`;
         if (document.getElementById('withdrawCreditBalance')) {
             document.getElementById('withdrawCreditBalance').textContent = `$${credits}`;
         }
-        document.getElementById('savingsBalance').textContent = `$${(user.savingsBalance || 0).toFixed(2)}`;
+        document.getElementById('savingsBalance').textContent = `$${parseFloat(user.savingsBalance || 0).toFixed(2)}`;
         document.getElementById('referralLink').value = `https://pay.iyonicorp.com/signup?ref=${user.referralCode || user.id}`;
         const username = user.name.replace(/\s+/g, '').toLowerCase();
         document.querySelectorAll('.userIdDisplay').forEach(el => el.textContent = username);
@@ -926,7 +956,7 @@ function payNow(amount, currency) {
                 creditHistoryList.innerHTML = '<p class="text-[10px] text-gray-400 text-center italic">No credits earned yet</p>';
             } else {
                 creditTxs.forEach(tx => {
-                    const amount = tx.creditsEarned || tx.amount;
+                    const amount = parseFloat(tx.creditsEarned || tx.amount || 0);
                     const div = document.createElement('div');
                     div.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg text-[10px]';
                     div.innerHTML = `
@@ -946,7 +976,7 @@ function payNow(amount, currency) {
         const spendToday = user.transactions
           .filter(tx => ['send', 'withdraw'].includes(tx.type))
           .filter(tx => new Date(tx.date).toISOString().split('T')[0] === today)
-          .reduce((sum, tx) => sum + tx.amount, 0);
+          .reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
         document.getElementById('todaysSpend').textContent = `-$${spendToday.toFixed(2)}`;
 
         // Latest Transactions (for Overview)
@@ -971,7 +1001,7 @@ function payNow(amount, currency) {
                   <p class="text-xs text-gray-400">${new Date(tx.date).toLocaleDateString()}</p>
                 </div>
               </div>
-              <span class="font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${tx.amount.toFixed(2)}</span>
+              <span class="font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${parseFloat(tx.amount || 0).toFixed(2)}</span>
             `;
             txList.appendChild(div);
           });
@@ -989,7 +1019,7 @@ function payNow(amount, currency) {
           tr.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tx.date).toLocaleDateString()}</td>
             <td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${tx.type}</span></td>
-            <td class="px-6 py-4 whitespace-nowrap font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${tx.amount.toFixed(2)}</td>
+            <td class="px-6 py-4 whitespace-nowrap font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${parseFloat(tx.amount || 0).toFixed(2)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${tx.from || tx.to || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <button onclick="event.stopPropagation(); showTxDetails(${originalIdx})" class="text-indigo-600 hover:text-indigo-900 font-bold text-xs uppercase tracking-wider">Details</button>
@@ -1003,7 +1033,10 @@ function payNow(amount, currency) {
 
       } catch (err) {
         console.error('Dashboard load error:', err);
-        logout();
+        // Logout only on authentication errors
+        if (err.message === 'Invalid session') {
+          logout();
+        }
       }
     }
 
@@ -1025,7 +1058,7 @@ function payNow(amount, currency) {
           div.innerHTML = `
             <div class="flex justify-between items-start">
               <div>
-                <p class="font-bold text-gray-800">Sent $${tx.amount.toFixed(2)}</p>
+                <p class="font-bold text-gray-800">Sent $${parseFloat(tx.amount || 0).toFixed(2)}</p>
                 <p class="text-xs text-gray-400">To: ${tx.to}</p>
               </div>
               <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${Math.max(0, (24 - hoursPassed)).toFixed(1)}h left</span>
@@ -1039,7 +1072,7 @@ function payNow(amount, currency) {
           const div = document.createElement('div');
           div.className = 'bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4';
           div.innerHTML = `
-            <p class="text-sm text-gray-600"><strong>${tx.from}</strong> requested a refund of <span class="font-bold text-rose-500">$${tx.amount.toFixed(2)}</span></p>
+            <p class="text-sm text-gray-600"><strong>${tx.from}</strong> requested a refund of <span class="font-bold text-rose-500">$${parseFloat(tx.amount || 0).toFixed(2)}</span></p>
             <div class="grid grid-cols-2 gap-2">
               <button onclick="approveRefundByIndex(${txIndex})" class="bg-emerald-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-emerald-700">Approve</button>
               <button onclick="rejectRefundByIndex(${txIndex})" class="bg-rose-100 text-rose-600 text-xs font-bold py-2 rounded-lg hover:bg-rose-200">Reject</button>
@@ -1109,7 +1142,7 @@ function payNow(amount, currency) {
 
     async function handleDepositSuccess(response, amount, token) {
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/deposit', {
+        const res = await fetch('/api/wallet/deposit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ amount, reference: response.reference })
@@ -1136,7 +1169,7 @@ function payNow(amount, currency) {
       if (email.toLowerCase() === currentUserEmail.toLowerCase()) return alert("You cannot send money to yourself.");
 
       try {
-        const res = await fetch(`https://pay-xsn4.onrender.com/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
+        const res = await fetch(`/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -1160,7 +1193,7 @@ function payNow(amount, currency) {
       const token = localStorage.getItem('token');
 
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/send', {
+        const res = await fetch('/api/wallet/send', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ toEmail: pendingSendDetails.email, amount: pendingSendDetails.amount })
@@ -1235,7 +1268,7 @@ function payNow(amount, currency) {
       }
 
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/withdraw', {
+        const res = await fetch('/api/wallet/withdraw', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount, method, currency, payoutDetails })
@@ -1270,7 +1303,7 @@ function payNow(amount, currency) {
       }
 
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/wallet/save-payout-details', {
+        const res = await fetch('/api/wallet/save-payout-details', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ method, currency, payoutDetails })
@@ -1464,7 +1497,7 @@ function payNow(amount, currency) {
       const endpoint = currentSavingsAction === 'deposit' ? 'deposit' : 'withdraw';
       
       try {
-        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/savings/${endpoint}`, {
+        const res = await fetch(`/api/wallet/savings/${endpoint}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount })
@@ -1493,7 +1526,7 @@ function payNow(amount, currency) {
         <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
           <div>
             <p class="text-xs font-bold text-slate-400 uppercase">Amount</p>
-            <p class="text-2xl font-black ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${tx.amount.toFixed(2)}</p>
+            <p class="text-2xl font-black ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${parseFloat(tx.amount || 0).toFixed(2)}</p>
           </div>
           <div class="text-right">
             <p class="text-xs font-bold text-slate-400 uppercase">Status</p>
@@ -1563,25 +1596,25 @@ function payNow(amount, currency) {
             ${tx.fee !== undefined ? `
             <div class="flex justify-between text-xs mb-1">
               <span class="text-slate-500 font-bold uppercase">Transaction Fee</span>
-              <span class="font-bold text-indigo-600">$${tx.fee.toFixed(2)}</span>
+              <span class="font-bold text-indigo-600">$${parseFloat(tx.fee || 0).toFixed(2)}</span>
             </div>
             ` : ''}
             ${tx.creditsUsed ? `
             <div class="flex justify-between text-xs mb-1">
               <span class="text-slate-500 font-bold uppercase">Credits Used</span>
-              <span class="font-bold text-emerald-600">-$${tx.creditsUsed.toFixed(2)}</span>
+              <span class="font-bold text-emerald-600">-$${parseFloat(tx.creditsUsed || 0).toFixed(2)}</span>
             </div>
             ` : ''}
             ${tx.remainingFee ? `
             <div class="flex justify-between text-xs font-bold pt-1 border-t border-indigo-100 mt-1">
               <span class="text-slate-700 uppercase">Net Deducted</span>
-              <span class="text-slate-900">$${tx.remainingFee.toFixed(2)}</span>
+              <span class="text-slate-900">$${parseFloat(tx.remainingFee || 0).toFixed(2)}</span>
             </div>
             ` : ''}
             ${tx.creditsEarned ? `
             <div class="flex justify-between text-xs font-bold">
               <span class="text-emerald-600 uppercase">Credits Earned</span>
-              <span class="text-emerald-700">+$${tx.creditsEarned.toFixed(2)}</span>
+              <span class="text-emerald-700">+$${parseFloat(tx.creditsEarned || 0).toFixed(2)}</span>
             </div>
             ` : ''}
           </div>
@@ -1595,7 +1628,7 @@ function payNow(amount, currency) {
     async function approveRefundByIndex(index) {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/approve-refund-by-index/${index}`, {
+        const res = await fetch(`/api/wallet/approve-refund-by-index/${index}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) { alert('✅ Refund approved.'); fetchUserData(); }
@@ -1607,7 +1640,7 @@ function payNow(amount, currency) {
       if (!reason) return;
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/reject-refund-by-index/${index}`, {
+        const res = await fetch(`/api/wallet/reject-refund-by-index/${index}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
@@ -1624,7 +1657,7 @@ function payNow(amount, currency) {
     async function requestRefundByIndex(index, reason) {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`https://pay-xsn4.onrender.com/api/wallet/refund-request-by-index/${index}`, {
+        const res = await fetch(`/api/wallet/refund-request-by-index/${index}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
@@ -1636,7 +1669,7 @@ function payNow(amount, currency) {
       const paystackPublicKey = document.getElementById('paystackKeyInput').value.trim();
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/update-paystack-key', {
+        const res = await fetch('/api/auth/update-paystack-key', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ paystackPublicKey })
@@ -1655,7 +1688,7 @@ function payNow(amount, currency) {
       if (newPassword !== confirm) return alert("Passwords don't match.");
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('https://pay-xsn4.onrender.com/api/auth/change-password', {
+        const res = await fetch('/api/auth/change-password', {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentPassword, newPassword })
         });
