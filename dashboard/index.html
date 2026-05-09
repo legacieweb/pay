@@ -860,7 +860,7 @@ function payNow(amount, currency) {
 
     async function loadPaystackKey() {
       try {
-        const res = await fetch('/api/config/paystack');
+        const res = await fetch('https://iyonicpay.onrender.com/api/config/paystack');
         if (!res.ok) throw new Error('Failed to load Paystack key');
         const data = await res.json();
         paystackPublicKey = data.publicKey || '';
@@ -878,9 +878,9 @@ function payNow(amount, currency) {
         return logout();
       }
 
-      console.log('Fetching from /api/auth/dashboard...');
+      console.log('Fetching from https://iyonicpay.onrender.com/api/auth/dashboard...');
       try {
-        const res = await fetch('/api/auth/dashboard', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/auth/dashboard', {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1047,7 +1047,7 @@ function payNow(amount, currency) {
       incomingRefunds.innerHTML = '';
 
       let refundablesFound = false;
-      transactions.forEach((tx, txIndex) => {
+      transactions.forEach((tx) => {
         const txDate = new Date(tx.date);
         const hoursPassed = (new Date() - txDate) / (1000 * 60 * 60);
 
@@ -1063,7 +1063,7 @@ function payNow(amount, currency) {
               </div>
               <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${Math.max(0, (24 - hoursPassed)).toFixed(1)}h left</span>
             </div>
-            <button onclick="askRefundReason(${txIndex})" class="w-full bg-slate-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-slate-800">Request Refund</button>
+            <button onclick="askRefundReason(${tx.id})" class="w-full bg-slate-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-slate-800">Request Refund</button>
           `;
           yourRefundables.appendChild(div);
         }
@@ -1074,8 +1074,8 @@ function payNow(amount, currency) {
           div.innerHTML = `
             <p class="text-sm text-gray-600"><strong>${tx.from}</strong> requested a refund of <span class="font-bold text-rose-500">$${parseFloat(tx.amount || 0).toFixed(2)}</span></p>
             <div class="grid grid-cols-2 gap-2">
-              <button onclick="approveRefundByIndex(${txIndex})" class="bg-emerald-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-emerald-700">Approve</button>
-              <button onclick="rejectRefundByIndex(${txIndex})" class="bg-rose-100 text-rose-600 text-xs font-bold py-2 rounded-lg hover:bg-rose-200">Reject</button>
+              <button onclick="approveRefund(${tx.id})" class="bg-emerald-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-emerald-700">Approve</button>
+              <button onclick="rejectRefund(${tx.id})" class="bg-rose-100 text-rose-600 text-xs font-bold py-2 rounded-lg hover:bg-rose-200">Reject</button>
             </div>
           `;
           incomingRefunds.appendChild(div);
@@ -1142,7 +1142,7 @@ function payNow(amount, currency) {
 
     async function handleDepositSuccess(response, amount, token) {
       try {
-        const res = await fetch('/api/wallet/deposit', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/wallet/deposit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ amount, reference: response.reference })
@@ -1169,7 +1169,7 @@ function payNow(amount, currency) {
       if (email.toLowerCase() === currentUserEmail.toLowerCase()) return alert("You cannot send money to yourself.");
 
       try {
-        const res = await fetch(`/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
+        const res = await fetch(`https://iyonicpay.onrender.com/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -1193,7 +1193,7 @@ function payNow(amount, currency) {
       const token = localStorage.getItem('token');
 
       try {
-        const res = await fetch('/api/wallet/send', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/wallet/send', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ toEmail: pendingSendDetails.email, amount: pendingSendDetails.amount })
@@ -1268,7 +1268,7 @@ function payNow(amount, currency) {
       }
 
       try {
-        const res = await fetch('/api/wallet/withdraw', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/wallet/withdraw', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount, method, currency, payoutDetails })
@@ -1303,7 +1303,7 @@ function payNow(amount, currency) {
       }
 
       try {
-        const res = await fetch('/api/wallet/save-payout-details', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/wallet/save-payout-details', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ method, currency, payoutDetails })
@@ -1497,7 +1497,7 @@ function payNow(amount, currency) {
       const endpoint = currentSavingsAction === 'deposit' ? 'deposit' : 'withdraw';
       
       try {
-        const res = await fetch(`/api/wallet/savings/${endpoint}`, {
+        const res = await fetch(`https://iyonicpay.onrender.com/api/wallet/savings/${endpoint}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount })
@@ -1625,22 +1625,22 @@ function payNow(amount, currency) {
       document.getElementById('txDetailsModal').classList.remove('hidden');
     }
 
-    async function approveRefundByIndex(index) {
+    async function approveRefund(txId) {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`/api/wallet/approve-refund-by-index/${index}`, {
+        const res = await fetch(`https://iyonicpay.onrender.com/api/wallet/approve-refund/${txId}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) { alert('✅ Refund approved.'); fetchUserData(); }
       } catch (err) { alert('Error approving refund.'); }
     }
 
-    async function rejectRefundByIndex(index) {
+    async function rejectRefund(txId) {
       const reason = prompt('Reason for rejection:');
       if (!reason) return;
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`/api/wallet/reject-refund-by-index/${index}`, {
+        const res = await fetch(`https://iyonicpay.onrender.com/api/wallet/reject-refund/${txId}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
@@ -1648,16 +1648,16 @@ function payNow(amount, currency) {
       } catch (err) { alert('Error rejecting refund.'); }
     }
 
-    function askRefundReason(txIndex) {
+    function askRefundReason(txId) {
       const reason = prompt("📝 Enter refund reason:");
       if (!reason || reason.trim().length < 5) return alert("⚠️ Reason too short.");
-      requestRefundByIndex(txIndex, reason.trim());
+      requestRefund(txId, reason.trim());
     }
 
-    async function requestRefundByIndex(index, reason) {
+    async function requestRefund(txId, reason) {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`/api/wallet/refund-request-by-index/${index}`, {
+        const res = await fetch(`https://iyonicpay.onrender.com/api/wallet/refund-request/${txId}`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
@@ -1669,7 +1669,7 @@ function payNow(amount, currency) {
       const paystackPublicKey = document.getElementById('paystackKeyInput').value.trim();
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('/api/auth/update-paystack-key', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/auth/update-paystack-key', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ paystackPublicKey })
@@ -1688,7 +1688,7 @@ function payNow(amount, currency) {
       if (newPassword !== confirm) return alert("Passwords don't match.");
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch('/api/auth/change-password', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/auth/change-password', {
           method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentPassword, newPassword })
         });

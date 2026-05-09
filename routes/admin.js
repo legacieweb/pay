@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { User, Transaction } = require('../models/User');
+const DefaultAmount = require('../models/DefaultAmount');
 const jwt = require('jsonwebtoken');
 
 // ✅ Middleware to verify admin token
@@ -136,6 +137,30 @@ router.patch('/withdraw-status', verifyAdmin, async (req, res) => {
     res.json({ msg: 'Withdrawal status updated' });
   } catch (err) {
     console.error('Admin withdraw-status error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// ✅ Delete user and all associated data
+router.delete('/user/:userId', verifyAdmin, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Delete associated data
+    await Transaction.destroy({ where: { userId } });
+    await DefaultAmount.destroy({ where: { userId } });
+    
+    // Delete the user
+    await user.destroy();
+
+    res.json({ msg: 'User account and all associated data deleted successfully' });
+  } catch (err) {
+    console.error('Admin delete-user error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });

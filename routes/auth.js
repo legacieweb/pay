@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User, Transaction } = require('../models/User');
+const { Op } = require('sequelize');
 const authMiddleware = require('../middleware/authMiddleware');
 const sendEmail = require('../utils/sendEmail');
 
@@ -60,33 +61,34 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ msg: 'Verification code expired' });
     }
 
-    const hash = await bcrypt.hash(password, 10);
-    
-    // Generate a simple referral code if needed, but we'll use _id as the primary identifier
+    // Generate a simple referral code if needed, but we'll use ID as the primary identifier
     const newUserReferralCode = Math.random().toString(36).substring(2, 10).toUpperCase();
 
     const user = new User({ 
       name, 
       email, 
-      password: hash,
+      password,
       referralCode: newUserReferralCode
     });
 
     // Handle referral
     if (referralCode) {
       const referrer = await User.findOne({ 
-        $or: [
-          { referralCode: referralCode },
-          { _id: mongoose.Types.ObjectId.isValid(referralCode) ? referralCode : null }
-        ]
+        where: {
+          [Op.or]: [
+            { referralCode: referralCode },
+            { id: isNaN(referralCode) ? null : parseInt(referralCode) }
+          ]
+        }
       });
 
       if (referrer) {
-        user.referredBy = referrer._id;
+        user.referredBy = referrer.id;
         user.credits += 10;
-        referrer.credits += 10;
+        referrer.credits = parseFloat(referrer.credits) + 10;
         
-        referrer.transactions.push({
+        await Transaction.create({
+          userId: referrer.id,
           type: 'receive',
           amount: 10,
           status: 'completed',
@@ -95,22 +97,26 @@ router.post('/signup', async (req, res) => {
         });
         
         await referrer.save();
-
-        user.transactions.push({
-          type: 'receive',
-          amount: 10,
-          status: 'completed',
-          description: `Referral signup bonus`,
-          date: new Date()
-        });
       }
     }
 
     await user.save();
 
+    // If there was a referrer, create the signup bonus transaction now that user.id exists
+    if (referralCode && user.referredBy) {
+      await Transaction.create({
+        userId: user.id,
+        type: 'receive',
+        amount: 10,
+        status: 'completed',
+        description: `Referral signup bonus`,
+        date: new Date()
+      });
+    }
+
     delete verificationCodes[email]; // Clean up after success
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     await sendEmail({
       to: email,
@@ -149,7 +155,7 @@ html: `
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: { id: user.id, name: user.name, email: user.email }
     });
 
   } catch (err) {
@@ -162,7 +168,11 @@ router.get('/check-name', async (req, res) => {
   const name = req.query.name;
   if (!name) return res.status(400).json({ msg: 'Name is required' });
 
-  const exists = await User.findOne({ name: new RegExp(`^${name}$`, 'i') });
+  const exists = await User.findOne({ 
+    where: { 
+      name: { [Op.iLike]: name } 
+    } 
+  });
   return res.json({ exists: !!exists });
 });
 
@@ -184,9 +194,9 @@ router.post('/login', async (req, res) => {
     console.log('Login - Password match:', isMatch);
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
-    const userId = user._id ? user._id.toString() : (user.id ? user.id.toString() : null);
+    const userId = user.id.toString();
     if (!userId) {
-      console.error('ERROR: No user ID found! user._id:', user._id, 'user.id:', user.id);
+      console.error('ERROR: No user ID found! user.id:', user.id);
       return res.status(500).json({ msg: 'User ID not found' });
     }
     
@@ -228,7 +238,7 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
 
     console.log('User found:', user.name);
     console.log('User keys:', Object.keys(user.toJSON()));
-    const foundUserId = user._id ? user._id.toString() : user.id.toString();
+    const foundUserId = user.id.toString();
     const txs = user.Transactions || user.transactions || [];
     console.log('Transactions count:', txs.length);
     
@@ -240,7 +250,7 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
         balance: user.balance || 0,
         credits: user.credits || 0,
         savingsBalance: user.savingsBalance || 0,
-        referralCode: user.referralCode || user._id,
+        referralCode: user.referralCode || foundUserId,
         transactions: txs,
         spendToday: 0,
         weeklyTransactions: txs.length,
@@ -284,8 +294,7 @@ router.post('/confirm-reset', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid or expired code' });
     }
   
-    const hash = await bcrypt.hash(newPassword, 10);
-    user.password = hash;
+    user.password = newPassword;
     user.resetCode = undefined;
     user.resetCodeExpires = undefined;
     await user.save();
@@ -311,7 +320,10 @@ router.post('/confirm-reset', async (req, res) => {
     if (!email) return res.status(400).json({ msg: 'Email required' });
   
     try {
-      const user = await User.findOne({ email }).select('email name');
+      const user = await User.findOne({ 
+        where: { email },
+        attributes: ['email', 'name']
+      });
       if (!user) return res.status(404).json({ msg: 'User not found' });
   
       res.json({ user });
@@ -329,12 +341,11 @@ router.post('/change-password', authMiddleware, async (req, res) => {
     return res.status(400).json({ msg: 'All fields required' });
 
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) return res.status(401).json({ msg: 'Current password incorrect' });
 
-    const hashed = await bcrypt.hash(newPassword, 10);
-    user.password = hashed;
+    user.password = newPassword;
     await user.save();
 
     await sendEmail({
@@ -355,7 +366,7 @@ router.post('/change-password', authMiddleware, async (req, res) => {
 router.post('/update-paystack-key', authMiddleware, async (req, res) => {
   const { paystackPublicKey } = req.body;
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
     user.paystackPublicKey = paystackPublicKey;
     await user.save();
     res.json({ msg: 'Paystack key updated successfully' });

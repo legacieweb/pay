@@ -125,8 +125,10 @@ router.post('/send', authMiddleware, async (req, res) => {
     await sender.save();
 
     // Update receiver
-    receiver.balance += amount;
-    receiver.transactions.push({
+    receiver.balance = parseFloat(receiver.balance) + parseFloat(amount);
+    
+    await Transaction.create({
+      userId: receiver.id,
       type: 'receive',
       amount,
       status: 'completed',
@@ -210,7 +212,7 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
     const feeRate = 0.05;
@@ -267,10 +269,11 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
       user.withdrawalAccountDetails = structuredDetails || { details: formattedAccountDetails };
     }
 
-    user.balance -= totalDeducted;
-    user.credits -= creditsUsed;
+    user.balance = parseFloat(user.balance) - parseFloat(totalDeducted);
+    user.credits = parseFloat(user.credits) - parseFloat(creditsUsed);
 
-    user.transactions.push({
+    await Transaction.create({
+      userId: user.id,
       type: 'withdraw',
       amount: amountToReceive,
       fee: totalFee,
@@ -282,7 +285,6 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
       country: currencyCode,
       to: formattedAccountDetails,
       description: `Withdrawal via ${normalizedMethod} (${currencyInfo.name || currencyCode}) - Fee: $${parseFloat(totalFee || 0).toFixed(2)} (Used $${parseFloat(creditsUsed || 0).toFixed(2)} credits)`,
-      expectedPayoutEtaHours: 12,
       date: new Date()
     });
 
@@ -386,7 +388,7 @@ router.post('/withdrawal-details', authMiddleware, async (req, res) => {
       return res.status(400).json({ msg: 'Please provide all payout details.' });
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
     user.withdrawalDetails = { method: normalizedMethod, country: normalizedCurrency, accountDetails: sanitizedDetails };
@@ -407,7 +409,7 @@ router.post('/save-payout-details', authMiddleware, async (req, res) => {
       return res.status(400).json({ msg: 'Please provide all payout details.' });
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
     user.payoutMethod = method;
@@ -438,21 +440,23 @@ router.get('/payout-details', authMiddleware, async (req, res) => {
 });
 
 // === REFUND REQUEST ===
-router.post('/refund-request-by-index/:index', authMiddleware, async (req, res) => {
+router.post('/refund-request/:txId', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    const index = parseInt(req.params.index);
+    const { txId } = req.params;
     const { reason } = req.body;
 
-    if (!user || isNaN(index) || !user.transactions[index]) {
-      return res.status(400).json({ msg: 'Invalid transaction index' });
+    const tx = await Transaction.findOne({
+      where: { id: txId, userId: req.user.id }
+    });
+
+    if (!tx) {
+      return res.status(404).json({ msg: 'Transaction not found' });
     }
 
     if (!reason || reason.trim().length < 5) {
       return res.status(400).json({ msg: 'Please provide a valid reason (at least 5 characters).' });
     }
 
-    const tx = user.transactions[index];
     const now = Date.now();
     const txTime = new Date(tx.date).getTime();
     const hoursSinceTx = (now - txTime) / (1000 * 60 * 60);
@@ -463,31 +467,33 @@ router.post('/refund-request-by-index/:index', authMiddleware, async (req, res) 
 
     tx.status = 'refund_requested';
     tx.refundReason = reason;
-    await user.save();
+    await tx.save();
 
-    const receiver = await User.findOne({ email: tx.to });
+    const receiver = await User.findOne({ where: { email: tx.to } });
     if (receiver) {
-      const matchTx = receiver.transactions.find(t =>
-        t.type === 'receive' &&
-        t.amount === tx.amount &&
-        t.from === user.email &&
-        t.status === 'completed' &&
-        Math.abs(new Date(t.date) - new Date(tx.date)) < 1000
-      );
+      const matchTx = await Transaction.findOne({
+        where: {
+          userId: receiver.id,
+          type: 'receive',
+          amount: tx.amount,
+          from: req.user.email,
+          status: 'completed'
+        }
+      });
 
       if (matchTx) {
         matchTx.status = 'refund_requested';
         matchTx.refundReason = reason;
-        await receiver.save();
+        await matchTx.save();
       }
     }
 
     // === EMAIL NOTIFICATIONS ===
     await sendEmail({
-      to: user.email,
+      to: req.user.email,
       subject: '📨 Refund Requested',
       html: `
-        <p>You requested a refund of <strong>$${tx.amount.toFixed(2)}</strong> to <strong>${tx.to}</strong>.</p>
+        <p>You requested a refund of <strong>$${parseFloat(tx.amount).toFixed(2)}</strong> to <strong>${tx.to}</strong>.</p>
         <p><strong>Reason:</strong> ${reason}</p>
         <p>Date: ${new Date(tx.date).toLocaleString()}</p>
       `
@@ -498,25 +504,12 @@ router.post('/refund-request-by-index/:index', authMiddleware, async (req, res) 
         to: receiver.email,
         subject: '⚠️ Refund Request Received',
         html: `
-          <p><strong>${user.name}</strong> (${user.email}) has requested a refund of <strong>$${tx.amount.toFixed(2)}</strong>.</p>
+          <p><strong>${req.user.name}</strong> (${req.user.email}) has requested a refund of <strong>$${parseFloat(tx.amount).toFixed(2)}</strong>.</p>
           <p><strong>Reason:</strong> ${reason}</p>
           <p>Please log in to approve or reject the refund.</p>
         `
       });
     }
-
-    await sendEmail({
-      to: process.env.ADMIN_EMAIL,
-      subject: '⚠️ Refund Request Submitted',
-      html: `
-        <h3>Refund Request Alert</h3>
-        <p><strong>From:</strong> ${user.name} (${user.email})</p>
-        <p><strong>To:</strong> ${receiver ? `${receiver.name} (${receiver.email})` : 'Unknown'}</p>
-        <p><strong>Amount:</strong> $${tx.amount.toFixed(2)}</p>
-        <p><strong>Reason:</strong> ${reason}</p>
-        <p><strong>Date:</strong> ${new Date(tx.date).toLocaleString()}</p>
-      `
-    });
 
     res.json({ msg: '✅ Refund request submitted successfully.' });
 
@@ -527,41 +520,49 @@ router.post('/refund-request-by-index/:index', authMiddleware, async (req, res) 
 });
 
 // === APPROVE REFUND ===
-router.post('/approve-refund-by-index/:index', authMiddleware, async (req, res) => {
+router.post('/approve-refund/:txId', authMiddleware, async (req, res) => {
   try {
-    const receiver = await User.findById(req.user.id);
-    const index = parseInt(req.params.index);
-    if (!receiver || isNaN(index) || !receiver.transactions[index]) {
-      return res.status(400).json({ msg: 'Invalid transaction index' });
-    }
+    const { txId } = req.params;
+    const receiver = await User.findByPk(req.user.id);
 
-    const recvTx = receiver.transactions[index];
-    if (recvTx.type !== 'receive' || recvTx.status !== 'refund_requested') {
+    const recvTx = await Transaction.findOne({
+      where: { id: txId, userId: req.user.id }
+    });
+
+    if (!recvTx || recvTx.type !== 'receive' || recvTx.status !== 'refund_requested') {
       return res.status(400).json({ msg: 'Not a valid refund request' });
     }
 
-    const sender = await User.findOne({ email: recvTx.from });
+    const sender = await User.findOne({ where: { email: recvTx.from } });
     if (!sender) return res.status(404).json({ msg: 'Sender not found' });
 
-    const sendTx = sender.transactions.find(t =>
-      t.type === 'send' &&
-      t.amount === recvTx.amount &&
-      t.to === receiver.email &&
-      t.status === 'refund_requested'
-    );
+    const sendTx = await Transaction.findOne({
+      where: {
+        userId: sender.id,
+        type: 'send',
+        amount: recvTx.amount,
+        to: receiver.email,
+        status: 'refund_requested'
+      }
+    });
 
-    if (receiver.balance < recvTx.amount) {
+    if (parseFloat(receiver.balance) < parseFloat(recvTx.amount)) {
       return res.status(400).json({ msg: 'Insufficient balance to issue refund' });
     }
 
     // Process refund
-    receiver.balance -= recvTx.amount;
-    sender.balance += recvTx.amount;
+    receiver.balance = parseFloat(receiver.balance) - parseFloat(recvTx.amount);
+    sender.balance = parseFloat(sender.balance) + parseFloat(recvTx.amount);
+    
     recvTx.status = 'refunded';
     if (sendTx) sendTx.status = 'refunded';
 
+    await recvTx.save();
+    if (sendTx) await sendTx.save();
+
     // Log new transactions
-    sender.transactions.push({
+    await Transaction.create({
+      userId: sender.id,
       type: 'receive',
       amount: recvTx.amount,
       status: 'completed',
@@ -570,7 +571,8 @@ router.post('/approve-refund-by-index/:index', authMiddleware, async (req, res) 
       date: new Date()
     });
 
-    receiver.transactions.push({
+    await Transaction.create({
+      userId: receiver.id,
       type: 'send',
       amount: recvTx.amount,
       status: 'completed',
@@ -582,20 +584,8 @@ router.post('/approve-refund-by-index/:index', authMiddleware, async (req, res) 
     await receiver.save();
     await sender.save();
 
-    await sendEmail({ to: sender.email, subject: '✅ Refund Approved', html: `Refund of $${recvTx.amount} has been approved.` });
-    await sendEmail({ to: receiver.email, subject: 'You Refunded a Payment', html: `You refunded $${recvTx.amount} to ${sender.email}` });
-    await sendEmail({
-      to: process.env.ADMIN_EMAIL,
-      subject: '✅ Refund Approved',
-      html: `
-        <h3>Refund Approved</h3>
-        <p><strong>From:</strong> ${receiver.name} (${receiver.email})</p>
-        <p><strong>To:</strong> ${sender.name} (${sender.email})</p>
-        <p><strong>Amount:</strong> $${recvTx.amount.toFixed(2)}</p>
-        <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
-        <p><strong>Action:</strong> Refund Approved</p>
-      `
-    });
+    await sendEmail({ to: sender.email, subject: '✅ Refund Approved', html: `Refund of $${parseFloat(recvTx.amount).toFixed(2)} has been approved.` });
+    await sendEmail({ to: receiver.email, subject: 'You Refunded a Payment', html: `You refunded $${parseFloat(recvTx.amount).toFixed(2)} to ${sender.email}` });
     
     res.json({ msg: 'Refund approved.' });
   } catch (err) {
@@ -604,62 +594,51 @@ router.post('/approve-refund-by-index/:index', authMiddleware, async (req, res) 
   }
 });
 
-router.post('/reject-refund-by-index/:index', authMiddleware, async (req, res) => {
+router.post('/reject-refund/:txId', authMiddleware, async (req, res) => {
   try {
-    const receiver = await User.findById(req.user.id);
-    const index = parseInt(req.params.index);
+    const { txId } = req.params;
     const { reason } = req.body;
 
     if (!reason || reason.trim().length < 3) {
       return res.status(400).json({ msg: 'Reason for rejection is required.' });
     }
 
-    const recvTx = receiver.transactions[index];
+    const recvTx = await Transaction.findOne({
+      where: { id: txId, userId: req.user.id }
+    });
+
     if (!recvTx || recvTx.type !== 'receive' || recvTx.status !== 'refund_requested') {
       return res.status(404).json({ msg: 'Refund request not found or invalid' });
     }
 
-    const sender = await User.findOne({ email: recvTx.from });
+    const sender = await User.findOne({ where: { email: recvTx.from } });
     if (!sender) return res.status(404).json({ msg: 'Sender not found' });
 
-    const sendTx = sender.transactions.find(tx =>
-      tx.to === receiver.email &&
-      tx.amount === recvTx.amount &&
-      tx.status === 'refund_requested'
-    );
+    const sendTx = await Transaction.findOne({
+      where: {
+        userId: sender.id,
+        to: req.user.email,
+        amount: recvTx.amount,
+        status: 'refund_requested'
+      }
+    });
 
     recvTx.status = 'completed';
     if (sendTx) sendTx.status = 'completed';
 
-    await receiver.save();
-    await sender.save();
+    await recvTx.save();
+    if (sendTx) await sendTx.save();
 
-    // 📧 Emails with reason
     await sendEmail({
       to: sender.email,
-      subject: '❌ Refund Rejected',
-      html: `<p>Your refund request for <strong>$${recvTx.amount}</strong> was rejected by ${receiver.email}.</p>
-             <p><strong>Reason:</strong> ${reason}</p>`
-    });
-
-    await sendEmail({
-      to: receiver.email,
-      subject: 'Refund Rejection Sent',
-      html: `<p>You rejected the refund to ${sender.email} for <strong>$${recvTx.amount}</strong>.</p>
-             <p><strong>Your reason:</strong> ${reason}</p>`
-    });
-
-    await sendEmail({
-      to: process.env.ADMIN_EMAIL,
-      subject: 'Refund Rejection Notice',
-      html: `<p><strong>${receiver.email}</strong> rejected the refund request from <strong>${sender.email}</strong>.</p>
-             <p>Amount: $${recvTx.amount}</p>
+      subject: '🚫 Refund Request Rejected',
+      html: `<p>Your refund request for <strong>$${parseFloat(recvTx.amount).toFixed(2)}</strong> to <strong>${req.user.name}</strong> was rejected.</p>
              <p><strong>Reason:</strong> ${reason}</p>`
     });
 
     res.json({ msg: 'Refund rejected.' });
   } catch (err) {
-    console.error(err);
+    console.error('Reject Refund Error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
@@ -670,13 +649,14 @@ router.post('/savings/deposit', authMiddleware, async (req, res) => {
   if (!amount || amount <= 0) return res.status(400).json({ msg: 'Invalid amount' });
 
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
     if (user.balance < amount) return res.status(400).json({ msg: 'Insufficient balance' });
 
-    user.balance -= amount;
-    user.savingsBalance += amount;
+    user.balance = parseFloat(user.balance) - parseFloat(amount);
+    user.savingsBalance = parseFloat(user.savingsBalance) + parseFloat(amount);
 
-    user.transactions.push({
+    await Transaction.create({
+      userId: user.id,
       type: 'send',
       amount,
       status: 'completed',
@@ -697,13 +677,14 @@ router.post('/savings/withdraw', authMiddleware, async (req, res) => {
   if (!amount || amount <= 0) return res.status(400).json({ msg: 'Invalid amount' });
 
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
     if (user.savingsBalance < amount) return res.status(400).json({ msg: 'Insufficient savings balance' });
 
-    user.savingsBalance -= amount;
-    user.balance += amount;
+    user.savingsBalance = parseFloat(user.savingsBalance) - parseFloat(amount);
+    user.balance = parseFloat(user.balance) + parseFloat(amount);
 
-    user.transactions.push({
+    await Transaction.create({
+      userId: user.id,
       type: 'receive',
       amount,
       status: 'completed',

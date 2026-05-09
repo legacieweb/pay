@@ -67,6 +67,9 @@ const Transaction = sequelize.define('Transaction', {
   },
   creditsEarned: {
     type: DataTypes.DECIMAL(15, 2)
+  },
+  refundReason: {
+    type: DataTypes.STRING
   }
 }, {
   tableName: 'transactions',
@@ -158,9 +161,10 @@ const User = sequelize.define('User', {
   tableName: 'users',
   timestamps: true,
   hooks: {
-    beforeCreate: async (user) => {
-      if (user.password) {
-        user.password = await bcrypt.hash(user.password, 10);
+    beforeSave: async (user) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
       }
     }
   }

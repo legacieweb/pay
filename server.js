@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-const nodemailer = require('nodemailer');
+const sendEmail = require('./utils/sendEmail');
 
 dotenv.config();
 
@@ -66,33 +66,9 @@ app.post('/api/send-email', async (req, res) => {
   const { name, email, message } = req.body;
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: "mail.privateemail.com", // Correct host for Namecheap Private Email
-      port: 465,                     // SSL port
-      secure: true,                  // true for 465, false for 587
-      auth: {
-        user: "hello@iyonicorp.com", // Your full email address
-        pass: "@7Switched"        // Your email account password
-      },
-      tls: {
-        // Helps avoid connection issues on some servers
-        rejectUnauthorized: false
-      }
-    });
-
-    // Verify connection configuration
-    transporter.verify(function (error, success) {
-      if (error) {
-        console.log("Email service error:", error);
-      } else {
-        console.log("Email service is ready to send messages");
-      }
-    });
-
-    // Email to site admin
-    const adminMail = {
-      from: email,
-      to: "hello@iyonicorp.com",
+    // Send email to admin
+    await sendEmail({
+      to: "iyonicpay@gmail.com",
       subject: `New Message from ${name}`,
       html: `
         <h2>Contact Form Submission</h2>
@@ -100,12 +76,12 @@ app.post('/api/send-email', async (req, res) => {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong></p>
         <p>${message}</p>
-      `
-    };
+      `,
+      text: `New Message from ${name}\nName: ${name}\nEmail: ${email}\nMessage: ${message}`
+    });
 
-    // Confirmation email to sender
-    const userMail = {
-      from: "hello@iyonicorp.com",
+    // Send confirmation email to user
+    await sendEmail({
       to: email,
       subject: 'We received your message — IyonicPay',
       html: `
@@ -117,20 +93,16 @@ app.post('/api/send-email', async (req, res) => {
         <p>${message}</p>
         <br/>
         <p>Best regards,<br/>IyonicPay Support Team</p>
-      `
-    };
-
-    await transporter.sendMail(adminMail);
-    await transporter.sendMail(userMail);
+      `,
+      text: `Hello ${name},\nThank you for reaching out to IyonicPay. We've received your message and will respond shortly.\n\nYour Message: ${message}`
+    });
 
     res.status(200).json({ message: 'Message sent successfully! Confirmation sent to your email.' });
   } catch (err) {
-    console.error('Email sending error:', err);
+    console.error('Email sending error:', err.message);
     res.status(500).json({ error: 'Failed to send message.' });
   }
 });
-
-
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

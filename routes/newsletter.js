@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const nodemailer = require('nodemailer');
+const sendEmail = require('../utils/sendEmail');
 
 router.post('/newsletter', async (req, res) => {
   const { email } = req.body;
@@ -9,38 +9,16 @@ router.post('/newsletter', async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: "mail.privateemail.com", // Correct host for Namecheap Private Email
-      port: 465,                     // SSL port
-      secure: true,                  // true for 465, false for 587
-      auth: {
-        user: "hello@iyonicorp.com", // Your full email address
-        pass: "@7Switched"        // Your email account password
-      },
-      tls: {
-        // Helps avoid connection issues on some servers
-        rejectUnauthorized: false
-      }
-    });
-
-    // Verify connection configuration
-    transporter.verify(function (error, success) {
-      if (error) {
-        console.log("Email service error:", error);
-      } else {
-        console.log("Email service is ready to send messages");
-      }
-    });
-
-    const adminMail = {
-      from: email,
-      to: "hello@iyonicorp.com",
+    // Send email to admin
+    await sendEmail({
+      to: "iyonicpay@gmail.com",
       subject: 'New Newsletter Subscriber',
-      html: `<p><strong>Email:</strong> ${email}</p>`
-    };
+      html: `<p><strong>Email:</strong> ${email}</p>`,
+      text: `New Newsletter Subscriber: ${email}`
+    });
 
-    const userMail = {
-      from: "hello@iyonicorp.com",
+    // Send confirmation email to user
+    await sendEmail({
       to: email,
       subject: 'Welcome to IyonicPay Updates!',
       html: `
@@ -48,15 +26,13 @@ router.post('/newsletter', async (req, res) => {
         <p>We’re excited to have you on board. You’ll now receive exclusive updates, feature announcements, and payment tips.</p>
         <br>
         <p>– The IyonicPay Team </p>
-      `
-    };
-
-    await transporter.sendMail(adminMail);
-    await transporter.sendMail(userMail);
+      `,
+      text: `Thank you for subscribing! We're excited to have you on board. You'll now receive exclusive updates, feature announcements, and payment tips. – The IyonicPay Team`
+    });
 
     res.status(200).json({ message: 'Newsletter subscription received' });
   } catch (err) {
-    console.error('Newsletter error:', err);
+    console.error('Newsletter error:', err.message);
     res.status(500).json({ error: 'Failed to send emails' });
   }
 });

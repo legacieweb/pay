@@ -70,8 +70,8 @@ router.post('/request-payment', async (req, res) => {
       feeEarned = amount * (parseFloat(user.feePercentage) / 100);
     }
 
-    user.balance = parseFloat(user.balance || 0) + amount;
-    user.credits = parseFloat(user.credits || 0) + feeEarned;
+    user.balance = parseFloat(user.balance || 0) + parseFloat(amount);
+    user.credits = parseFloat(user.credits || 0) + parseFloat(feeEarned);
 
     await Transaction.create({
       userId: user.id,
@@ -168,7 +168,7 @@ router.post('/user/default-amount', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: '❌ Invalid input: amount must be a number ≥ 0 or null' });
   }
 
-  if (String(req.user?.id) !== String(userId)) {
+  if (parseInt(req.user?.id) !== parseInt(userId)) {
     console.log('Unauthorized mismatch:', String(req.user?.id), 'vs', String(userId));
     return res.status(403).json({ error: '❌ Unauthorized: Cannot modify another user' });
   }
@@ -212,7 +212,7 @@ router.post('/user/default-currency', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: '❌ userId and currency required' });
   }
 
-  if (req.user?.id !== parseInt(userId)) {
+  if (parseInt(req.user?.id) !== parseInt(userId)) {
     return res.status(403).json({ error: '❌ Unauthorized' });
   }
 
@@ -239,7 +239,7 @@ router.post('/user/fee-settings', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: '❌ Missing required fields' });
   }
 
-  if (req.user?.id !== parseInt(userId)) {
+  if (parseInt(req.user?.id) !== parseInt(userId)) {
     return res.status(403).json({ error: '❌ Unauthorized' });
   }
 

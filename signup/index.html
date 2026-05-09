@@ -353,7 +353,7 @@
 
       <!-- Footer -->
       <div class="text-center mt-8">
-        <p class="text-slate-500 text-sm">© 2024 IyonicPay. All rights reserved.</p>
+        <p class="text-slate-500 text-sm">© 2026 IyonicPay. All rights reserved.</p>
       </div>
     </div>
   </div>
@@ -380,7 +380,7 @@
 
     async function isNameTaken(name) {
       try {
-        const res = await fetch('http://localhost:4000/api/auth/check-name?name=' + encodeURIComponent(name));
+        const res = await fetch('https://iyonicpay.onrender.com/api/auth/check-name?name=' + encodeURIComponent(name));
         if (!res.ok) return false;
         const data = await res.json();
         return data.exists;
@@ -403,7 +403,7 @@
       sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending code...';
 
       try {
-        const res = await fetch('http://localhost:4000/api/auth/signup/send-code', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/auth/signup/send-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email })
@@ -448,7 +448,7 @@
       loadingModal.classList.remove('hidden');
 
       try {
-        const res = await fetch('http://localhost:4000/api/auth/signup', {
+        const res = await fetch('https://iyonicpay.onrender.com/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, password, code })

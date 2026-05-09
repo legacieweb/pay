@@ -149,7 +149,7 @@
         pay: function(config) {
             const { username, amount, description, currency, onSuccess, onCancel } = config;
             
-            const baseUrl = window.location.origin.includes('localhost') ? 'http://localhost:5000' : 'https://pay.iyonicorp.com';
+            const baseUrl = window.location.origin.includes('localhost') ? 'http://localhost:4000' : 'https://pay.iyonicorp.com';
             const detectedCurrency = currency || detectCurrency() || 'USD';
 
             let url = `${baseUrl}/request?user=${username}&embed=true`;
