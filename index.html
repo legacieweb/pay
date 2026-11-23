@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Required Meta Tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paylang | Secure & Seamless Online Payments</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Paylang enables secure, fast, and seamless online payments for businesses and individuals. Accept multiple payment methods with confidence.">
+  <meta name="keywords" content="Paylang, online payments, payment gateway, secure payments, digital wallet, e-commerce payments, API payments, recurring billing, mobile payments, contactless payments, merchant services, payment processor, invoicing solutions, payment integrations, card payments, online transactions, credit card processing, SaaS billing, subscription payments, multi-currency support, fast checkout, digital transactions, instant payments, fintech platform, online POS, UPI integration, bank transfers, PCI compliant, secure checkout, white-label payment solutions, payment APIs, financial services, payment links, checkout integration, fraud detection, seamless payments, fintech SaaS, low-fee payments, online payment solutions, digital payment gateway, e-wallet, peer-to-peer payments, cross-border payments, payment security, transaction monitoring, payment reconciliation, business payments, online invoicing, payment links, mobile wallet integration">
+  <meta name="author" content="Paylang Corporation">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph Meta Tags for Social Sharing -->
+  <meta property="og:title" content="Paylang | Secure & Seamless Online Payments">
+  <meta property="og:description" content="Streamline your online transactions with Paylang. Simple integration, powerful features.">
+  <meta property="og:url" content="https://paylang2.com">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="pexels-andre-furtado-43594-1263986.jpg">
+
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Paylang | Secure & Seamless Online Payments">
+  <meta name="twitter:description" content="Experience smooth and secure payments with Paylang. Perfect for e-commerce and platforms.">
+  <meta name="twitter:image" content="pexels-andre-furtado-43594-1263986.jpg">
+
+  <!-- Canonical Tag -->
+  <link rel="canonical" href="https://paylang2.com">
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" type="image/x-icon">
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      transform: translateY(-5px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(245, 158, 11, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .glow {
+      background: radial-gradient(circle at center, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+    }
+    .floating {
+      animation: floating 6s ease-in-out infinite;
+    }
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    .float-delayed {
+      animation: floating 6s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+    .float-slow {
+      animation: floating 8s ease-in-out infinite;
+      animation-delay: -1.5s;
+    }
+    @keyframes slideFadeIn {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slideFadeIn {
+      animation: slideFadeIn 1s ease-out forwards;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.6); }
+    }
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    /* Mobile menu animation */
+    #menu-btn.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    #menu-btn.open span:nth-child(2) { opacity: 0; }
+    #menu-btn.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+    #menu-btn span { transition: all 0.3s; }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-white">
+  
+<!-- Navigation -->
+<header class="fixed top-0 left-0 right-0 z-50 glass-panel">
+  <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-4 md:px-6">
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <img src="https://i.imgur.com/YAPRefp.png" alt="Paylang Logo" class="w-10 h-10 rounded-full shadow-md border-2 border-amber-400">
+      <span class="text-xl font-extrabold tracking-wide text-white">Pay<span class="text-amber-400">lang</span></span>
+    </div>
+
+    <!-- Hamburger Button (Mobile) -->
+    <button id="menu-btn" class="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded focus:outline-none" aria-label="Open Menu">
+      <span class="block w-6 h-0.5 bg-white mb-1.5 rounded transition-all"></span>
+      <span class="block w-6 h-0.5 bg-white mb-1.5 rounded transition-all"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-all"></span>
+    </button>
+
+    <!-- Desktop Nav + Auth Buttons -->
+    <nav id="desktop-nav" class="hidden md:flex items-center gap-2">
+      <a href="./terms" class="px-4 py-2 rounded-lg transition duration-200 text-slate-300 hover:text-white hover:bg-white/10 font-medium">Terms</a>
+      <a href="./privacy" class="px-4 py-2 rounded-lg transition duration-200 text-slate-300 hover:text-white hover:bg-white/10 font-medium">Privacy</a>
+      <a href="./contact" class="px-4 py-2 rounded-lg transition duration-200 text-slate-300 hover:text-white hover:bg-white/10 font-medium">Contact us</a>
+      <!-- Auth Buttons -->
+      <a href="./login" class="px-5 py-2 bg-white/10 text-white font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition ml-2">Login</a>
+      <a href="./signup" class="px-5 py-2 btn-primary text-slate-900 font-bold rounded-lg shadow">Sign Up</a>
+    </nav>
+  </div>
+
+  <!-- Mobile Nav -->
+  <nav id="mobile-nav" class="md:hidden hidden px-4 pb-4">
+    <div class="glass-card rounded-xl p-4 mt-2">
+      <a href="./terms" class="block px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 font-medium">Terms</a>
+      <a href="./privacy" class="block px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 font-medium">Privacy</a>
+      <a href="./contact" class="block px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 font-medium">Contact us</a>
+      <div class="flex gap-2 mt-3">
+        <a href="./login" class="flex-1 px-4 py-2 bg-white/10 text-white text-center rounded-lg border border-white/20 hover:bg-white/20 transition">Login</a>
+        <a href="./signup" class="flex-1 px-4 py-2 btn-primary text-slate-900 text-center font-bold rounded-lg">Sign Up</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- Script for Mobile Menu Toggle -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const menuBtn = document.getElementById("menu-btn");
+    const mobileNav = document.getElementById("mobile-nav");
+    menuBtn.addEventListener("click", function () {
+      mobileNav.classList.toggle("hidden");
+      menuBtn.classList.toggle("open");
+    });
+    document.addEventListener("click", function (e) {
+      if (!menuBtn.contains(e.target) && !mobileNav.contains(e.target)) {
+        mobileNav.classList.add("hidden");
+        menuBtn.classList.remove("open");
+      }
+    });
+  });
+</script>
+
+<!-- Hero Section -->
+<header class="relative min-h-screen flex items-center justify-center overflow-hidden">
+  <!-- Background Image -->
+  <div class="absolute inset-0 z-0">
+    <img src="pexels-andre-furtado-43594-1263986.jpg" alt="Hero Background" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-slate-900/90"></div>
+    <div class="absolute inset-0 glow"></div>
+  </div>
+
+  <!-- Floating Elements -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-1/4 left-[10%] w-64 h-64 bg-amber-500/10 rounded-full blur-3xl floating"></div>
+    <div class="absolute bottom-1/4 right-[10%] w-80 h-80 bg-amber-400/10 rounded-full blur-3xl float-delayed"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Floating Cards -->
+  <div class="absolute top-32 left-8 glass-card p-4 rounded-2xl hidden lg:block floating" style="animation-delay: -1s;">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+        <i class="fas fa-bolt text-emerald-400"></i>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-sm">Instant Transfers</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute top-48 right-8 glass-card p-4 rounded-2xl hidden lg:block float-delayed">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+        <i class="fas fa-globe text-indigo-400"></i>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-sm">150+ Countries</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute bottom-32 left-12 glass-card p-4 rounded-2xl hidden lg:block float-slow">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+        <i class="fas fa-shield-alt text-amber-400"></i>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-sm">256-bit Encryption</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Content -->
+  <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+    <div class="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-full mb-8 animate-slideFadeIn">
+      <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+      <span class="text-slate-300 text-sm font-medium">Trusted by 50,000+ users worldwide</span>
+    </div>
+    
+    <h1 class="text-5xl md:text-7xl font-black mb-6 animate-slideFadeIn" style="animation-delay: 0.1s;">
+      <span class="text-white">Seamless, Secure</span><br>
+      <span class="gradient-text">Payments with Paylang</span>
+    </h1>
+    
+    <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 animate-slideFadeIn" style="animation-delay: 0.2s;">
+      Send, receive, and manage money with confidence — wherever you are in the world. Experience the future of digital payments.
+    </p>
+    
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slideFadeIn" style="animation-delay: 0.3s;">
+      <a href="./signup" class="btn-primary text-slate-900 font-bold px-8 py-4 rounded-xl shadow-lg text-lg w-full sm:w-auto">
+        <i class="fas fa-rocket mr-2"></i> Get Started Now
+      </a>
+      <a href="./login" class="btn-secondary text-white font-semibold px-8 py-4 rounded-xl text-lg w-full sm:w-auto">
+        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="flex items-center justify-center gap-8 md:gap-16 mt-16 animate-slideFadeIn" style="animation-delay: 0.4s;">
+      <div class="text-center">
+        <p class="text-3xl md:text-4xl font-bold text-white">50M+</p>
+        <p class="text-slate-400 text-sm">Transactions</p>
+      </div>
+      <div class="w-px h-12 bg-slate-700"></div>
+      <div class="text-center">
+        <p class="text-3xl md:text-4xl font-bold text-white">99.9%</p>
+        <p class="text-slate-400 text-sm">Uptime</p>
+      </div>
+      <div class="w-px h-12 bg-slate-700"></div>
+      <div class="text-center">
+        <p class="text-3xl md:text-4xl font-bold text-white">150+</p>
+        <p class="text-slate-400 text-sm">Countries</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+    <i class="fas fa-chevron-down text-slate-400 text-2xl"></i>
+  </div>
+</header>
+
+<!-- Brand Showcase Section -->
+<section class="py-20 px-6">
+  <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+    <!-- Text Content -->
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+        <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+        <span class="text-amber-400 text-sm font-medium">Why Choose Us</span>
+      </div>
+      <h3 class="text-3xl md:text-4xl font-bold mb-6 text-white">Built for Speed.<br><span class="gradient-text">Trusted for Security.</span></h3>
+      <p class="text-slate-400 mb-6 text-base leading-relaxed">
+        Paylang is more than a wallet — it's your trusted partner for sending and receiving money globally.
+        Whether you're an entrepreneur, freelancer, or everyday user, we bring you the power of instant, secure payments
+        with total control and transparency.
+      </p>
+      <ul class="space-y-4 text-slate-300">
+        <li class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+            <i class="fas fa-check text-emerald-400"></i>
+          </div>
+          <span>Transparent fees, no hidden charges</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+            <i class="fas fa-check text-emerald-400"></i>
+          </div>
+          <span>Advanced fraud detection and reporting</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+            <i class="fas fa-check text-emerald-400"></i>
+          </div>
+          <span>Supports local currencies and USD</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+            <i class="fas fa-check text-emerald-400"></i>
+          </div>
+          <span>Smart refunds and dispute resolution</span>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Radar Video with Circular Crop -->
+    <div class="flex justify-center">
+      <div class="relative">
+        <div class="absolute inset-0 bg-amber-500/20 rounded-full blur-2xl"></div>
+        <div class="w-72 h-72 overflow-hidden rounded-full shadow-2xl glass-card border-4 border-amber-500/30 relative z-10">
+          <video class="w-full h-full object-cover" autoplay muted loop playsinline>
+            <source src="WhatsApp Video 2025-06-16 at 10.15.47_8e5a559c.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Payment Methods Section -->
+<section id="payment-methods" class="py-20 px-6 glass-panel">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">Payment Methods</span>
+    </div>
+    <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Accepted Payment Methods</h2>
+    <p class="text-lg text-slate-400 mb-12 max-w-2xl mx-auto">
+      Paylang supports a wide range of trusted and secure payment options for both local and international users.
+    </p>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      <!-- Card 1 -->
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-credit-card text-2xl text-amber-400"></i>
+        </div>
+        <h3 class="text-base font-semibold text-white mb-1">Visa & MasterCard</h3>
+        <p class="text-xs text-slate-400">Pay securely with any global credit or debit card.</p>
+      </div>
+      <!-- Card 2 -->
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-mobile-alt text-2xl text-amber-400"></i>
+        </div>
+        <h3 class="text-base font-semibold text-white mb-1">Mobile Wallets</h3>
+        <p class="text-xs text-slate-400">M-Pesa, Airtel Money, and more in supported regions.</p>
+      </div>
+      <!-- Card 3 -->
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-university text-2xl text-amber-400"></i>
+        </div>
+        <h3 class="text-base font-semibold text-white mb-1">Bank Transfers</h3>
+        <p class="text-xs text-slate-400">Fund your account from major banks in select countries.</p>
+      </div>
+      <!-- Card 4 -->
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="fab fa-apple text-2xl text-amber-400"></i>
+        </div>
+        <h3 class="text-base font-semibold text-white mb-1">Apple Pay</h3>
+        <p class="text-xs text-slate-400">One-tap payments for Apple device users.</p>
+      </div>
+      <!-- Card 5 -->
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="fab fa-google-pay text-2xl text-amber-400"></i>
+        </div>
+        <h3 class="text-base font-semibold text-white mb-1">Google Pay</h3>
+        <p class="text-xs text-slate-400">Fast, secure payments with Google Pay.</p>
+      </div>
+    </div>
+    
+    <p class="mt-12 text-sm text-slate-500">
+      Whether you're receiving money from Nairobi, Lagos, London, or New York — Paylang makes it simple and secure.
+    </p>
+  </div>
+</section>
+
+<!-- How to Receive Payments -->
+<section id="receive-payments" class="py-20 px-6">
+  <div class="max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">How It Works</span>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">How to Receive Payments</h2>
+    <p class="text-slate-400 mb-10 text-lg">Accept payments globally with ease — just share your Paylang link.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Step 1 -->
+      <div class="glass-card p-6 rounded-2xl text-left">
+        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-link text-amber-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">Share Your Payment Link</h3>
+        <p class="text-slate-400 text-sm">
+          Each Paylang user gets a unique link. Share it on your website, social media, WhatsApp, or anywhere your customers are.
+        </p>
+        <p class="mt-3 text-xs text-slate-500">Example: <code class="bg-white/10 px-2 py-1 rounded">https://paylang2.com/request?user=YourBusinessName</code></p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="glass-card p-6 rounded-2xl text-left">
+        <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-money-bill-wave text-emerald-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">Customer Pays You</h3>
+        <p class="text-slate-400 text-sm">
+          The customer fills in their name, email, and payment amount. They cover the 5% processing fee during checkout.
+        </p>
+        <p class="mt-3 text-sm text-emerald-400">You receive 100% of the amount credited to your wallet.</p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="glass-card p-6 rounded-2xl text-left">
+        <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-bell text-indigo-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">Instant Notification</h3>
+        <p class="text-slate-400 text-sm">
+          You'll receive real-time alerts as soon as the customer pays. Funds reflect immediately in your balance.
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="glass-card p-6 rounded-2xl text-left">
+        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-wallet text-amber-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">Manage Your Funds</h3>
+        <p class="text-slate-400 text-sm">
+          Withdraw to bank/mobile wallet anytime. Or use your balance to send payments to others — it's all in one place.
+        </p>
+      </div>
+    </div>
+
+    <p class="mt-10 text-sm text-slate-500">
+      Note: Customers pay the 5% processing fee so your business always receives the full amount.
+    </p>
+  </div>
+</section>
+
+<!-- Smart Pricing Section -->
+<section id="smart-pricing" class="py-20 px-6 glass-panel">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">Smart Integration</span>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Dynamic Pricing That Reads Your Product Page</h2>
+    <p class="text-base text-slate-400 max-w-2xl mx-auto mb-10">
+      No manual calculations. Paylang automatically picks up the price from your product — ensuring accurate, seamless checkouts.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-8 text-left">
+      <!-- How It Works -->
+      <div class="glass-card p-6 rounded-2xl">
+        <h3 class="text-lg font-semibold mb-3 text-amber-400"><i class="fas fa-bullseye mr-2"></i>How It Works</h3>
+        <p class="text-slate-300 mb-3 text-sm">Just assign a <code class="bg-white/10 px-2 py-1 rounded text-amber-400">data-amount</code> to your product price element:</p>
+        <pre class="bg-slate-900 p-4 rounded-xl text-xs overflow-x-auto text-slate-300">
+<p class="text-lg font-bold" id="productPrice" data-amount="45">
+  $45.00 USD
+</p></pre>
+        <p class="text-xs text-slate-500 mt-4">
+          The Paylang button reads this value and sends it to the secure payment popup — <strong class="text-white">automatically</strong>.
+        </p>
+      </div>
+
+      <!-- Sample Button Logic -->
+      <div class="glass-card p-6 rounded-2xl">
+        <h3 class="text-lg font-semibold mb-3 text-amber-400"><i class="fas fa-bolt mr-2"></i>One Button to Start</h3>
+        <p class="text-slate-300 mb-3 text-sm">Use this simple button on your product or checkout page:</p>
+        <pre class="bg-slate-900 p-4 rounded-xl text-xs overflow-x-auto text-slate-300">
+<button onclick="openPaymentPopup()">
+  Pay Now
+</button>
+
+<script>
+function openPaymentPopup() {
+  const user = "YourUsername";
+  const amount = document
+    .getElementById("productPrice")
+    .getAttribute("data-amount");
+
+  window.open(
+    `https://paylang2.com/request/?user=${user}&amount=${amount}`,
+    "_blank",
+    "width=480,height=620"
+  );
+}
+</script></pre>
+        <p class="text-xs text-slate-500 mt-3">No extra setup needed — it works on any HTML site or ecommerce builder.</p>
+      </div>
+    </div>
+
+    <div class="mt-10">
+      <a href="./signup" class="inline-block btn-primary text-slate-900 font-bold px-8 py-4 rounded-xl shadow-lg text-lg">
+        <i class="fas fa-store mr-2"></i> Add Smart Checkout to My Store
+      </a>
+    </div>
+
+    <div class="mt-12 max-w-3xl mx-auto">
+      <h3 class="text-xl font-bold text-white mb-2">No API Keys. No Headaches. Just Integration.</h3>
+      <p class="text-slate-400 text-base">
+        Forget about complicated API docs, secret keys, or backend coding. With Paylang, you simply drop a button on your site and you're ready to accept payments. No developer account, no server setup, no maintenance — just a direct, secure integration that works everywhere.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Why Paylang Is Different -->
+<section class="py-20 px-6">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">Why We Stand Out</span>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Why Paylang Is Different <span class="gradient-text">(and Better)</span></h2>
+    <p class="text-lg text-slate-400 mb-12 max-w-3xl mx-auto">
+      While PayPal and Stripe suspend your account without warning, <span class="text-amber-400 font-semibold">Paylang</span> was built differently — for creators, hustlers, and real businesses who need freedom and trust.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-6 text-left">
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-ban text-emerald-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">No Account Suspensions</h3>
+        <p class="text-slate-400 text-sm">We don't play games with your money. Unlike traditional platforms, your account stays live — no freezes unless there's real fraud.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-bolt text-amber-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">Minimal Verification</h3>
+        <p class="text-slate-400 text-sm">Skip the endless paperwork. Paylang gets you live in minutes with simple, fast onboarding and no invasive checks.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-globe text-indigo-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">Frictionless Payments</h3>
+        <p class="text-slate-400 text-sm">Accept global payments with zero hassle. Perfect for digital products, subscriptions, and service-based businesses.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-heart text-rose-400 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-white">Built for You, Not Banks</h3>
+        <p class="text-slate-400 text-sm">We're not a corporation. Paylang gives you transparency, control, and no surprise fees. Built for modern businesses like yours.</p>
+      </div>
+    </div>
+
+    <div class="mt-14">
+      <p class="text-xl text-white font-medium mb-6">With Paylang, you're in charge — no frozen accounts, no gatekeeping, no drama.</p>
+      <a href="./signup" class="inline-block btn-primary text-slate-900 font-bold px-8 py-4 rounded-xl shadow-lg text-lg">
+        <i class="fas fa-rocket mr-2"></i> Join the Payment Revolution
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20 px-6 glass-panel">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">Features</span>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Why Choose Paylang?</h2>
+    <p class="text-slate-400 max-w-2xl mx-auto mb-12">
+      Paylang isn't just another payment processor. It's built for flexibility, transparency, and user empowerment — making it stand out in a space filled with limitations and hidden fees.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-8 text-left">
+      <!-- Benefits -->
+      <div class="space-y-6">
+        <div class="glass-card p-6 rounded-2xl">
+          <div class="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mb-3">
+            <i class="fas fa-bolt text-amber-400"></i>
+          </div>
+          <h4 class="text-lg font-semibold mb-2 text-white">Instant Peer-to-Peer Transactions</h4>
+          <p class="text-sm text-slate-400">No waiting. No holds. Transfers reflect instantly, unlike some providers who delay disbursement for hours or days.</p>
+        </div>
+        <div class="glass-card p-6 rounded-2xl">
+          <div class="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-3">
+            <i class="fas fa-shield-alt text-emerald-400"></i>
+          </div>
+          <h4 class="text-lg font-semibold mb-2 text-white">End-to-End Encrypted Security</h4>
+          <p class="text-sm text-slate-400">With 256-bit SSL and real-time fraud monitoring, your data and money are always safe.</p>
+        </div>
+        <div class="glass-card p-6 rounded-2xl">
+          <div class="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center mb-3">
+            <i class="fas fa-globe text-indigo-400"></i>
+          </div>
+          <h4 class="text-lg font-semibold mb-2 text-white">Seamless Global Coverage</h4>
+          <p class="text-sm text-slate-400">Send and receive payments in and out of your country with lower fees and no hidden charges.</p>
+        </div>
+      </div>
+
+      <!-- Comparison -->
+      <div class="glass-card p-8 rounded-2xl">
+        <h4 class="text-xl font-bold text-amber-400 mb-6">What Makes Us The Best</h4>
+        <ul class="space-y-4 text-sm text-slate-300">
+          <li class="flex items-start gap-3">
+            <i class="fas fa-check-circle text-emerald-400 mt-1"></i>
+            <span><strong class="text-white">No Hidden Fees:</strong> Unlike most competitors, we clearly show what you're paying for.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fas fa-check-circle text-emerald-400 mt-1"></i>
+            <span><strong class="text-white">User-first Refund System:</strong> Easy peer-to-peer refund process with admin dispute resolution.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fas fa-check-circle text-emerald-400 mt-1"></i>
+            <span><strong class="text-white">Real-Time Alerts:</strong> Get notified the second a transaction hits — not minutes later.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fas fa-check-circle text-emerald-400 mt-1"></i>
+            <span><strong class="text-white">Low-Cost Transfers:</strong> We keep our rates low so you can do more with your money.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fas fa-check-circle text-emerald-400 mt-1"></i>
+            <span><strong class="text-white">Built for Africa and Beyond:</strong> Tailored features for both local and global users.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trusted Safety Section -->
+<section class="py-20 px-6">
+  <div class="max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">Security</span>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Trusted & Protected for Both Sender and Receiver</h2>
+    <p class="text-slate-400 max-w-2xl mx-auto text-md mb-10">
+      At Paylang, your safety is our priority. Whether you're sending or receiving money, every transaction is secured, monitored, and built on a foundation of mutual trust.
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-6 text-left">
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-bell text-amber-400 text-xl"></i>
+        </div>
+        <h4 class="font-semibold text-white text-lg mb-2">Real-Time Alerts</h4>
+        <p class="text-sm text-slate-400">Both sender and receiver get instant notifications for every transaction. No waiting, no guessing.</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-user-check text-emerald-400 text-xl"></i>
+        </div>
+        <h4 class="font-semibold text-white text-lg mb-2">Verified Users</h4>
+        <p class="text-sm text-slate-400">Only verified users can send or receive payments, eliminating impersonation and anonymous fraud attempts.</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-file-contract text-indigo-400 text-xl"></i>
+        </div>
+        <h4 class="font-semibold text-white text-lg mb-2">Transparent Records</h4>
+        <p class="text-sm text-slate-400">Every transaction is logged and encrypted, providing a full audit trail to ensure clarity and accountability.</p>
+      </div>
+    </div>
+
+    <div class="mt-12 glass-card p-6 rounded-2xl max-w-3xl mx-auto border border-red-500/20">
+      <div class="flex items-center gap-3 mb-2">
+        <i class="fas fa-shield-virus text-red-400 text-xl"></i>
+        <h4 class="text-red-400 text-lg font-bold">Zero Tolerance for Scammers</h4>
+      </div>
+      <p class="text-sm text-slate-400">
+        Attempting to defraud users, issue false refunds, or manipulate transactions will result in permanent bans and possible legal action. We take scam prevention seriously — and so should you.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Fees Section -->
+<section id="fees" class="py-20 px-6 glass-panel">
+  <div class="max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">Pricing</span>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Paylang Charges</h2>
+    <p class="text-slate-400 mb-10">Clear, honest, and built for growth. Here's what you need to know about using Paylang:</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-paper-plane text-emerald-400 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-white">Send Money</h3>
+        <p class="text-slate-400 text-sm"><strong class="text-emerald-400">Free</strong> for all Paylang user-to-user transfers. Instant, secure, and costless.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-money-bill-alt text-amber-400 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-white">Withdrawals</h3>
+        <p class="text-slate-400 text-sm"><strong class="text-amber-400">3%</strong> fee on withdrawals to local or international bank accounts and mobile wallets.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-plus-circle text-indigo-400 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-white">Deposits</h3>
+        <p class="text-slate-400 text-sm"><strong class="text-amber-400">3%</strong> fee on local and international card or mobile payments. Funds are instantly added to your wallet.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center mb-4">
+          <i class="fas fa-undo text-rose-400 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-white">Refunds</h3>
+        <p class="text-slate-400 text-sm"><strong class="text-emerald-400">Free</strong> within 24 hours of a transaction. Approved instantly to sender's wallet.</p>
+      </div>
+    </div>
+
+    <p class="text-sm text-slate-500 mt-10">No hidden fees. What you see is what you pay.</p>
+  </div>
+</section>
+
+<!-- Did You Know Section -->
+<section class="py-20 px-6">
+  <div class="max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass-card rounded-full mb-4">
+      <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
+      <span class="text-amber-400 text-sm font-medium">Features</span>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+      <i class="fas fa-lightbulb text-amber-400"></i> Did You Know?
+    </h2>
+    <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">
+      Paylang is designed for global reach, but did you know you can <span class="text-amber-400 font-semibold">customize your payment links</span> with your brand name? Stand out and build trust with every transaction!
+    </p>
+    <div class="grid md:grid-cols-3 gap-6 text-left">
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center mb-3">
+          <i class="fas fa-coins text-indigo-400"></i>
+        </div>
+        <h4 class="font-semibold text-white text-lg mb-2">Multi-Currency Support</h4>
+        <p class="text-sm text-slate-400">Accept and hold balances in multiple currencies. Perfect for freelancers and businesses with international clients.</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-3">
+          <i class="fas fa-bolt text-emerald-400"></i>
+        </div>
+        <h4 class="font-semibold text-white text-lg mb-2">Instant Refunds</h4>
+        <p class="text-sm text-slate-400">Refunds are processed instantly to your wallet—no waiting, no hassle, and no extra fees within 24 hours.</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mb-3">
+          <i class="fas fa-code text-amber-400"></i>
+        </div>
+        <h4 class="font-semibold text-white text-lg mb-2">API Integrations</h4>
+        <p class="text-sm text-slate-400">Developers can connect Paylang to websites, apps, or SaaS platforms with our easy-to-use APIs and webhooks.</p>
+      </div>
+    </div>
+    <div class="mt-10">
+      <a href="./signup" class="inline-block btn-primary text-slate-900 font-bold px-8 py-4 rounded-xl shadow-lg text-lg">
+        <i class="fas fa-rocket mr-2"></i> Try These Features Now
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-slate-950 text-white mt-20 pt-16 pb-8 px-6 border-t border-slate-800">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    <!-- Logo & About -->
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <img src="https://i.imgur.com/YAPRefp.png" alt="Paylang Logo" class="w-10 h-10 rounded-full border-2 border-amber-400" />
+        <span class="text-xl font-extrabold">Pay<span class="text-amber-400">lang</span></span>
+      </div>
+      <p class="text-sm text-slate-400 leading-relaxed">
+        Empowering secure payments for individuals and businesses worldwide. Effortless transactions, instant refunds, and seamless withdrawals—your money, your way.
+      </p>
+    </div>
+
+    <!-- Links -->
+    <div>
+      <h4 class="font-semibold text-lg mb-4 tracking-wide text-white">Explore</h4>
+      <ul class="space-y-3 text-sm">
+        <li><a href="/" class="text-slate-400 hover:text-amber-400 transition">Home</a></li>
+        <li><a href="./login" class="text-slate-400 hover:text-amber-400 transition">Login</a></li>
+        <li><a href="./signup" class="text-slate-400 hover:text-amber-400 transition">Sign Up</a></li>
+        <li><a href="#fees" class="text-slate-400 hover:text-amber-400 transition">Fees & Charges</a></li>
+        <li><a href="#payment-methods" class="text-slate-400 hover:text-amber-400 transition">Payment Methods</a></li>
+      </ul>
+    </div>
+
+    <!-- Support -->
+    <div>
+      <h4 class="font-semibold text-lg mb-4 tracking-wide text-white">Support</h4>
+      <ul class="space-y-3 text-sm">
+        <li><a href="./contact" class="text-slate-400 hover:text-amber-400 transition">Contact Us</a></li>
+        <li><a href="./terms" class="text-slate-400 hover:text-amber-400 transition">Terms of Service</a></li>
+        <li><a href="./refunds" class="text-slate-400 hover:text-amber-400 transition">Refund Policy</a></li>
+        <li><a href="./privacy" class="text-slate-400 hover:text-amber-400 transition">Privacy Policy</a></li>
+      </ul>
+    </div>
+
+    <!-- Newsletter -->
+    <div>
+      <h4 class="font-semibold text-lg mb-4 tracking-wide text-white">Stay Updated</h4>
+      <p class="text-sm text-slate-400 mb-4">Get the latest news and updates from Paylang.</p>
+
+      <form id="newsletterForm" class="flex flex-col gap-3">
+        <input type="email" id="newsletterEmail" required placeholder="Your email"
+               class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400 transition" />
+        <button type="submit" id="newsletterBtn"
+                class="btn-primary text-slate-900 font-bold px-5 py-3 rounded-xl transition">
+          Subscribe
+        </button>
+      </form>
+      <div id="newsletter-success" class="hidden text-emerald-400 mt-3 text-xs">Thanks! We'll keep you posted 📩</div>
+      <div id="newsletter-error" class="hidden text-red-400 mt-3 text-xs">Oops! Something went wrong.</div>
+    </div>
+  </div>
+
+  <div class="mt-12 border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-slate-500">
+    <div>&copy; <span id="year"></span> Paylang. All rights reserved.</div>
+    <div class="mt-3 md:mt-0 flex items-center gap-2">
+      <i class="fas fa-heart text-amber-400"></i>
+      <span>Made with <span class="text-amber-400 font-bold">passion</span> for global payments</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Footer Scripts -->
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  document.getElementById('newsletterForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const emailInput = document.getElementById('newsletterEmail');
+    const button = document.getElementById('newsletterBtn');
+    const email = emailInput.value.trim();
+
+    button.disabled = true;
+    button.innerText = 'Subscribing...';
+
+    try {
+      const res = await fetch('https://paylang.onrender.com/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('newsletter-success').classList.remove('hidden');
+        document.getElementById('newsletter-error').classList.add('hidden');
+        emailInput.value = '';
+      } else {
+        throw new Error(data.error || 'Failed');
+      }
+    } catch (err) {
+      document.getElementById('newsletter-success').classList.add('hidden');
+      document.getElementById('newsletter-error').classList.remove('hidden');
+    } finally {
+      button.disabled = false;
+      button.innerText = 'Subscribe';
+    }
+  });
+</script>
+
+</body>
+</html>

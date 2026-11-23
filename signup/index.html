@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up | Paylang</title>
+  <meta name="description" content="Create your Paylang account for secure, seamless, and instant online payments. Join Paylang to experience next-generation fintech solutions for your business or personal needs.">
+  <meta name="keywords" content="Paylang, signup, registration, payment platform, secure payments, fintech, online payments, business payments, instant payments, seamless onboarding">
+  <meta name="author" content="Paylang">
+  <meta property="og:title" content="Sign Up | Paylang">
+  <meta property="og:description" content="Create your Paylang account for secure, seamless, and instant online payments.">
+  <meta property="og:image" content="https://i.imgur.com/YAPRefp.png">
+  <meta property="og:url" content="https://paylang2.com/signup">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sign Up | Paylang">
+  <meta name="twitter:description" content="Create your Paylang account for secure, seamless, and instant online payments.">
+  <meta name="twitter:image" content="https://i.imgur.com/YAPRefp.png">
+  <link rel="canonical" href="https://paylang2.com/signup" />
+  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow-x: hidden; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0a0a0f;
+    }
+    /* Animated mesh gradient background */
+    .mesh-bg {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(217, 119, 6, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 10%, rgba(251, 191, 36, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 10% 90%, rgba(245, 158, 11, 0.1) 0%, transparent 40%),
+        linear-gradient(180deg, #0a0a0f 0%, #111827 50%, #0a0a0f 100%);
+      z-index: -2;
+    }
+    /* Animated orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: float-orb 20s ease-in-out infinite;
+      z-index: -1;
+    }
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+      top: -200px;
+      left: -200px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.25) 0%, transparent 70%);
+      bottom: -150px;
+      right: -150px;
+      animation-delay: -7s;
+    }
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -14s;
+    }
+    @keyframes float-orb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    /* Grid pattern overlay */
+    .grid-pattern {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: -1;
+    }
+    /* Glass card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .glass-card-inner {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    /* Input styling */
+    .input-modern {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .input-modern:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15), 0 0 30px rgba(245, 158, 11, 0.1);
+    }
+    .input-modern::placeholder { color: rgba(255, 255, 255, 0.3); }
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover::before { opacity: 1; }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(245, 158, 11, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    /* Floating elements */
+    .float {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+    .float-delay-1 { animation-delay: -2s; }
+    .float-delay-2 { animation-delay: -4s; }
+    /* Glow effects */
+    .glow-sm { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+    .glow-text { text-shadow: 0 0 30px rgba(245, 158, 11, 0.5); }
+    /* Loader */
+    .loader-wrapper {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(245, 158, 11, 0.2);
+      border-bottom-color: #f59e0b;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Noise overlay */
+    .noise {
+      position: fixed;
+      inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Logo pulse */
+    .logo-pulse {
+      position: relative;
+    }
+    .logo-pulse::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen relative">
+  <!-- Background elements -->
+  <div class="mesh-bg"></div>
+  <div class="grid-pattern"></div>
+  <div class="noise"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Main Container -->
+  <div class="min-h-screen flex items-center justify-center p-4 md:p-8 relative z-10">
+    <div class="w-full max-w-6xl">
+      
+      <!-- Header Logo -->
+      <div class="flex justify-center mb-8">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="logo-pulse">
+            <img src="https://i.imgur.com/YAPRefp.png" alt="Paylang" class="w-14 h-14 rounded-2xl" />
+          </div>
+          <span class="text-3xl font-extrabold text-white">Pay<span class="text-amber-500">lang</span></span>
+        </a>
+      </div>
+
+      <!-- Main Glass Card -->
+      <div class="glass-card rounded-3xl overflow-hidden">
+        <div class="grid lg:grid-cols-5 gap-0">
+          
+          <!-- Left Side - Visual -->
+          <div class="lg:col-span-2 bg-gradient-to-br from-amber-500/10 to-transparent p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
+            <!-- Decorative elements -->
+            <div class="absolute top-10 left-10 w-20 h-20 border border-amber-500/20 rounded-full float"></div>
+            <div class="absolute bottom-20 right-10 w-16 h-16 border border-amber-400/20 rounded-full float float-delay-1"></div>
+            <div class="absolute top-1/2 right-1/4 w-12 h-12 bg-amber-500/10 rounded-lg rotate-45 float float-delay-2"></div>
+            
+            <div class="relative z-10">
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 glass-card-inner rounded-full mb-6">
+                <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                <span class="text-amber-400 text-sm font-medium">Join 50,000+ Users</span>
+              </div>
+              
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Start Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Financial Journey</span>
+              </h2>
+              
+              <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+                Experience the future of seamless digital payments. Instant transfers, global reach, and enterprise-grade security.
+              </p>
+
+              <!-- Feature pills -->
+              <div class="space-y-3">
+                <div class="flex items-center gap-3 glass-card-inner p-3 rounded-xl">
+                  <div class="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-bolt text-emerald-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-white font-semibold text-sm">Instant Transfers</p>
+                    <p class="text-slate-500 text-xs">Real-time processing</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 glass-card-inner p-3 rounded-xl">
+                  <div class="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-amber-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-white font-semibold text-sm">Bank-Grade Security</p>
+                    <p class="text-slate-500 text-xs">256-bit encryption</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 glass-card-inner p-3 rounded-xl">
+                  <div class="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-globe text-indigo-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-white font-semibold text-sm">Global Reach</p>
+                    <p class="text-slate-500 text-xs">150+ countries</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side - Form -->
+          <div class="lg:col-span-3 p-8 lg:p-12">
+            <div class="max-w-md mx-auto">
+              <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Create Account</h1>
+                <p class="text-slate-400">Enter your details to get started</p>
+              </div>
+
+              <form id="signupForm" class="space-y-5">
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Account Name</label>
+                  <input id="name" type="text" placeholder="e.g. Acme Corp" 
+                    class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium" required>
+                </div>
+                
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
+                  <input id="email" type="email" placeholder="you@example.com" 
+                    class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium" required>
+                </div>
+
+                <button id="sendCodeBtn" type="button" class="w-full btn-primary text-slate-900 font-bold py-4 rounded-xl shadow-lg">
+                  <i class="fas fa-paper-plane mr-2"></i> Send Verification Code
+                </button>
+
+                <div id="extendedFields" class="space-y-5 hidden animate-in fade-in slide-in-from-top duration-500">
+                  <div class="space-y-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Verification Code</label>
+                    <input id="verifyCode" type="text" placeholder="Enter 6-digit code" 
+                      class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium text-center uppercase tracking-[0.2em]">
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                      <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Password</label>
+                      <input id="password" type="password" placeholder="••••••••" 
+                        class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium">
+                    </div>
+                    <div class="space-y-2">
+                      <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Confirm</label>
+                      <input id="confirm" type="password" placeholder="••••••••" 
+                        class="w-full input-modern rounded-xl px-5 py-4 outline-none text-white font-medium">
+                    </div>
+                  </div>
+
+                  <button id="signupBtn" type="submit" class="w-full btn-secondary text-white font-bold py-4 rounded-xl">
+                    <i class="fas fa-user-plus mr-2"></i> Complete Registration
+                  </button>
+                </div>
+              </form>
+
+              <div class="text-center pt-6">
+                <p class="text-slate-400">
+                  Already have an account? <a href="../login" class="text-amber-400 font-semibold hover:text-amber-300 transition-colors">Sign In</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-8">
+        <p class="text-slate-500 text-sm">© 2026 Paylang. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Modal -->
+  <div id="loadingModal" class="loader-wrapper hidden">
+    <div class="relative">
+      <span class="loader"></span>
+      <img src="https://i.imgur.com/YAPRefp.png" class="absolute inset-0 m-auto w-8 h-8 opacity-50 animate-pulse" />
+    </div>
+    <p class="mt-8 text-white font-bold tracking-tight text-xl">Creating your account...</p>
+    <p class="text-slate-400 font-medium mt-2">Setting up secure vault</p>
+  </div>
+
+  <script>
+    const signupForm = document.getElementById('signupForm');
+    const signupBtn = document.getElementById('signupBtn');
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+    const extendedFields = document.getElementById('extendedFields');
+    const verifyCodeInput = document.getElementById('verifyCode');
+    const loadingModal = document.getElementById('loadingModal');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm');
+
+    async function isNameTaken(name) {
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/auth/check-name?name=' + encodeURIComponent(name));
+        if (!res.ok) return false;
+        const data = await res.json();
+        return data.exists;
+      } catch (err) {
+        console.error("Error checking name:", err);
+        return false;
+      }
+    }
+
+    sendCodeBtn.addEventListener('click', async () => {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!name || !email) return alert("Please enter both name and email.");
+
+      const nameTaken = await isNameTaken(name);
+      if (nameTaken) return alert("🚫 This name is already taken.");
+
+      sendCodeBtn.disabled = true;
+      sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending code...';
+
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/auth/signup/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("✅ Verification code has been sent to your email.");
+          sendCodeBtn.classList.add('hidden');
+          extendedFields.classList.remove('hidden');
+        } else {
+          alert(data.msg || "Failed to send code.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Server error while sending code.");
+      }
+
+      sendCodeBtn.disabled = false;
+      sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Send Verification Code';
+    });
+
+    signupForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = passwordInput.value;
+      const confirm = confirmInput.value;
+      const code = verifyCodeInput.value.trim();
+
+      if (!name || !email || !password || !confirm || !code) {
+        return alert('Please complete all fields.');
+      }
+
+      if (password !== confirm) {
+        return alert('Passwords do not match.');
+      }
+
+      signupBtn.disabled = true;
+      signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
+      loadingModal.classList.remove('hidden');
+
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, code })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.user && data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = '../dashboard';
+        } else {
+          alert(data.msg || 'Signup failed. Try again.');
+        }
+      } catch (err) {
+        console.error('Signup error:', err);
+        alert('❌ Server error. Try again later.');
+      }
+
+      signupBtn.disabled = false;
+      signupBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Complete Registration';
+      loadingModal.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

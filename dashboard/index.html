@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Required Meta Tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paylang Dashboard | Manage Your Online Payments</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Access your Paylang dashboard to manage balances, transactions, send and receive money, withdraw funds, and control your account settings securely.">
+  <meta name="author" content="Paylang Corporation">
+  <meta name="robots" content="index, follow">
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://i.imgur.com/YAPRefp.png" type="image/x-icon">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .active-tab {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 4px solid #6366f1;
+      color: #fff !important;
+    }
+    .nav-btn {
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      color: #94a3b8;
+    }
+    .nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dashboard-section {
+      display: none;
+    }
+    .dashboard-section.active {
+      display: block;
+    }
+    @keyframes show {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-show {
+      animation: show 0.4s ease-out forwards;
+    }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+</head>
+<body class="bg-slate-50 h-screen flex overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 p-6 z-40 transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
+    <div class="flex items-center gap-3 mb-10 px-2">
+      <div class="bg-indigo-600 p-2 rounded-lg">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <h1 class="text-xl font-bold text-white tracking-tight">Paylang</h1>
+    </div>
+
+    <nav class="space-y-1 flex-1">
+      <button onclick="showSection('overview', this)" class="w-full nav-btn active-tab group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        <span class="font-medium">Overview</span>
+      </button>
+      <button onclick="showSection('transactions', this)" class="w-full nav-btn group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+        <span class="font-medium">Transactions</span>
+      </button>
+      <button onclick="showSection('receive', this)" class="w-full nav-btn group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+        </svg>
+        <span class="font-medium">Receive</span>
+      </button>
+      <button onclick="showSection('withdraw', this)" class="w-full nav-btn group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v10m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+        <span class="font-medium">Withdraw</span>
+      </button>
+      <button onclick="showSection('earning-rewards', this)" class="w-full nav-btn group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-medium">Earning</span>
+      </button>
+      <button onclick="showSection('embed-code', this)" class="w-full nav-btn group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+        </svg>
+        <span class="font-medium">Embed Code</span>
+      </button>
+      <button onclick="showSection('refunds', this)" class="w-full nav-btn group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3" />
+        </svg>
+        <span class="font-medium">Refunds</span>
+      </button>
+      <button onclick="showSection('settings', this)" class="w-full nav-btn group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="font-medium">Settings</span>
+      </button>
+    </nav>
+
+    <div class="pt-6 border-t border-slate-800">
+      <button onclick="logout()" class="flex items-center gap-3 w-full p-3 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-colors group">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        <span class="font-medium">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col h-screen overflow-hidden">
+    <!-- Top Header -->
+    <header class="glass sticky top-0 z-30 px-8 py-4 flex items-center justify-between border-b border-gray-200">
+      <div class="flex items-center gap-4">
+        <button id="menuToggle" class="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <h2 class="text-xl font-semibold text-gray-800" id="currentSectionTitle">Overview</h2>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="text-right hidden sm:block">
+          <p class="text-sm font-semibold text-gray-900" id="headerUserName">Loading...</p>
+          <p class="text-xs text-gray-500" id="headerUserEmail">...</p>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm border-2 border-white">
+          <span id="userInitials">?</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto p-8">
+      <div class="max-w-7xl mx-auto space-y-10">
+        
+        <!-- Overview Section -->
+        <section id="overview" class="dashboard-section active animate-show">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Welcome back, <span id="userName">User</span> 👋</h1>
+            <p class="text-gray-500 mt-1">Here's a summary of your account activity.</p>
+          </div>
+        
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Balance Card -->
+            <div class="bg-indigo-600 p-6 rounded-2xl shadow-xl shadow-indigo-200 text-white relative overflow-hidden">
+              <div class="absolute -right-4 -bottom-4 opacity-10">
+                <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+              </div>
+              <p class="text-indigo-100 text-sm font-medium uppercase tracking-wider mb-1">Available Balance</p>
+              <h3 class="text-4xl font-bold" id="balanceAmount">$0.00</h3>
+              <div class="mt-6 flex items-center gap-2 text-xs bg-white/20 w-fit px-2 py-1 rounded-full backdrop-blur-sm">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>Account Verified</span>
+              </div>
+            </div>
+
+            <!-- Spend Card -->
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+              <p class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Today's Spend</p>
+              <h3 class="text-3xl font-bold text-rose-500" id="todaysSpend">-$0.00</h3>
+              <p class="text-xs text-gray-400 mt-4">Updated in real-time</p>
+            </div>
+
+            <!-- Activity Card -->
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+              <p class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Weekly Activity</p>
+              <h3 class="text-3xl font-bold text-slate-800" id="weeklyTx">0</h3>
+              <p class="text-xs text-gray-400 mt-4">Total transactions this week</p>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                </span>
+                Deposit Funds
+              </h3>
+              <div class="space-y-4">
+                <select id="depositCurrency" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                  <option value="USD">🇺🇸 USD - US Dollar</option>
+                  <option value="KES">🇰🇪 KES - Kenya Shilling</option>
+                </select>
+                <input type="number" id="depositAmount" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Enter amount">
+                <p id="depositFeeNote" class="text-sm text-indigo-600 font-medium hidden"></p>
+                <button onclick="startDeposit()" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">Deposit Now</button>
+              </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                </span>
+                Send Money
+              </h3>
+              <div class="space-y-4">
+                <input type="email" id="recipientEmail" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Recipient's Email">
+                <input type="number" id="sendAmount" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Amount (USD)">
+                <button onclick="sendMoney()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">Send Transfer</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Latest Transactions Table -->
+          <div class="mt-10 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-50 flex justify-between items-center">
+              <h3 class="font-bold text-gray-800">Recent Transactions</h3>
+              <button onclick="showSection('transactions')" class="text-sm text-indigo-600 font-medium hover:underline">View All</button>
+            </div>
+            <div id="latestTxList" class="divide-y divide-gray-50">
+              <!-- JS Injected -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Transactions Section -->
+        <section id="transactions" class="dashboard-section animate-show">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Transaction History</h1>
+            <p class="text-gray-500 mt-1">Detailed list of all your account movements.</p>
+          </div>
+          <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Details</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="transactionTableBody" class="divide-y divide-gray-100">
+                  <!-- JS Injected -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Receive Money Section -->
+        <section id="receive" class="dashboard-section animate-show">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Receive Money</h1>
+            <p class="text-gray-500 mt-1">Share your details to get paid instantly.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <div class="space-y-4">
+                <div class="p-4 bg-slate-50 rounded-xl">
+                  <p class="text-xs text-gray-500 uppercase font-bold mb-1">Your Email Address</p>
+                  <p class="text-lg font-semibold text-slate-800" id="userEmail">...</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl">
+                  <p class="text-xs text-gray-500 uppercase font-bold mb-1">Your Unique User ID</p>
+                  <p class="text-lg font-semibold text-slate-800" id="userId">...</p>
+                </div>
+              </div>
+              <button onclick="openRequestPage()" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+                Create Payment Request
+              </button>
+            </div>
+            <div class="bg-indigo-50 p-8 rounded-2xl border border-indigo-100 flex flex-col items-center justify-center text-center">
+              <div class="w-20 h-20 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 text-indigo-600">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+              </div>
+              <h4 class="font-bold text-slate-800 mb-2">Instant Transfers</h4>
+              <p class="text-sm text-slate-600">Give your email or ID to any Paylang user to receive funds immediately in your wallet.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Withdraw Section -->
+        <section id="withdraw" class="dashboard-section animate-show">
+          <div class="mb-8 flex justify-between items-end">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900">Withdraw Funds</h1>
+              <p class="text-gray-500 mt-1">Transfer your wallet balance to your bank or mobile money.</p>
+            </div>
+            <div class="bg-indigo-600 text-white p-4 rounded-2xl shadow-lg text-right">
+              <p class="text-[10px] uppercase font-bold opacity-80">Available Credits</p>
+              <h4 class="text-2xl font-black" id="creditBalance">$0.00</h4>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <form id="withdrawForm" onsubmit="submitWithdrawal(event)" class="lg:col-span-2 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-700">Select Currency</label>
+                  <select id="withdrawCurrency" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none" required></select>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-700">Withdrawal Method</label>
+                  <select id="withdrawMethod" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none" required></select>
+                </div>
+              </div>
+              
+              <div id="payoutDetailFields" class="space-y-4">
+                <!-- JS Injected -->
+              </div>
+
+              <div class="space-y-2 pt-4 border-t border-gray-50">
+                <label class="text-sm font-semibold text-gray-700">Amount to Withdraw (USD)</label>
+                <input type="number" id="withdrawAmount" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0.00" required>
+                <div id="feeBreakdownNew" class="p-4 bg-slate-50 rounded-xl space-y-2 text-sm">
+                  <div class="flex justify-between text-gray-500">
+                    <span>Platform Fee (5%)</span>
+                    <span id="calcFee">$0.00</span>
+                  </div>
+                  <div class="flex justify-between text-indigo-600 font-bold">
+                    <span>Credits Applied</span>
+                    <span id="calcCredits">-$0.00</span>
+                  </div>
+                  <div class="flex justify-between text-rose-500 font-bold border-t border-slate-200 pt-2">
+                    <span>Remaining Fee to Deduct</span>
+                    <span id="calcRemainingFee">$0.00</span>
+                  </div>
+                  <div class="flex justify-between text-slate-800 font-black text-base pt-1">
+                    <span>You will receive approx.</span>
+                    <span id="calcFinalAmount">$0.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                <button id="withdrawBtn" type="submit" class="flex-1 bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">Confirm & Withdraw</button>
+                <button id="savePayoutBtn" type="button" onclick="savePayoutDetails()" class="px-6 bg-slate-100 text-slate-700 font-semibold py-3.5 rounded-xl hover:bg-slate-200 transition-all">Save Details</button>
+              </div>
+              <p id="savedDetailsNote" class="text-center text-xs text-emerald-600 font-medium hidden"></p>
+            </form>
+
+            <div class="space-y-6">
+              <!-- Credits Summary Card -->
+              <div class="bg-indigo-600 p-6 rounded-2xl shadow-xl shadow-indigo-100 text-white space-y-4">
+                <div class="flex justify-between items-center">
+                  <p class="text-[10px] uppercase font-black tracking-widest opacity-80">Total Available Credits</p>
+                  <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  </div>
+                </div>
+                <h4 class="text-4xl font-black" id="withdrawCreditBalance">$0.00</h4>
+                <p class="text-[10px] bg-white/10 px-3 py-1.5 rounded-full w-fit">Redeem credits to cover 5% withdrawal fee</p>
+              </div>
+
+              <!-- Currency Rates Table -->
+              <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-bold text-gray-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    Live Rates
+                  </h4>
+                  <span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">via Wise</span>
+                </div>
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🇰🇪</span>
+                      <span class="text-sm font-bold text-slate-700">1 USD</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-indigo-600">129.00 KES</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🇪🇺</span>
+                      <span class="text-sm font-bold text-slate-700">1 USD</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-indigo-600">0.8471 EUR</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🇬🇧</span>
+                      <span class="text-sm font-bold text-slate-700">1 USD</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-indigo-600">0.7378 GBP</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🇦🇺</span>
+                      <span class="text-sm font-bold text-slate-700">1 USD</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-indigo-600">1.52 AUD</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🇨🇦</span>
+                      <span class="text-sm font-bold text-slate-700">1 USD</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-indigo-600">1.36 CAD</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🇳🇬</span>
+                      <span class="text-sm font-bold text-slate-700">1 USD</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-indigo-600">1400.00 NGN</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🇿🇦</span>
+                      <span class="text-sm font-bold text-slate-700">1 USD</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-indigo-600">18.50 ZAR</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-[10px] text-gray-400 text-center italic">Rates are updated every 24 hours.</p>
+              </div>
+
+              <!-- Credit History (Optional but good) -->
+              <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                  <h4 class="font-bold text-gray-800">Recent Credits</h4>
+                  <div id="creditHistoryList" class="space-y-3 max-h-40 overflow-y-auto no-scrollbar">
+                      <!-- JS Injected -->
+                  </div>
+              </div>
+
+              <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+                <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                  How Credits Work
+                </h4>
+                <ul class="text-xs text-indigo-700 space-y-3 leading-relaxed">
+                  <li>✨ <strong>Credits</strong> are earned from referrals and transaction fees paid by your customers.</li>
+                  <li>📉 Credits are <strong>automatically applied</strong> to cover your 5% withdrawal fee.</li>
+                  <li>💰 If credits don't cover the full fee, the remainder is deducted from your withdrawal amount.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Earning & Rewards Section -->
+        <section id="earning-rewards" class="dashboard-section animate-show">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Earning & Rewards</h1>
+            <p class="text-gray-500 mt-1">Grow your wealth and get rewarded for sharing Paylang.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <!-- Savings / Earning -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                  </span>
+                  Savings Account
+                </h3>
+                <div class="text-right">
+                  <p class="text-[10px] text-gray-400 uppercase font-bold">Savings Balance</p>
+                  <h4 class="text-xl font-bold text-emerald-600" id="savingsBalance">$0.00</h4>
+                </div>
+              </div>
+              
+              <div class="p-4 bg-emerald-50 rounded-xl text-emerald-700 text-sm">
+                <p>🚀 Earn <strong>5% annual interest</strong> on your savings. Interests are credited monthly.</p>
+              </div>
+
+              <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <button onclick="openSavingsModal('deposit')" class="bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition-all">Deposit</button>
+                  <button onclick="openSavingsModal('withdraw')" class="bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all">Withdraw</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Referrals / Rewards -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </span>
+                Referral Program
+              </h3>
+              
+              <p class="text-sm text-gray-600">Invite your friends to Paylang. Once they sign up, <strong>both of you get $10.00 in Credits</strong> to use for withdrawal fees!</p>
+
+              <div class="space-y-3">
+                <p class="text-xs font-bold text-gray-400 uppercase">Your Referral Link</p>
+                <div class="flex gap-2">
+                  <input type="text" id="referralLink" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none" readonly value="Loading...">
+                  <button onclick="copyReferralLink()" class="px-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Embed Code Section -->
+        <section id="embed-code" class="dashboard-section animate-show">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Embed Payment Button</h1>
+            <p class="text-gray-500 mt-1">Accept payments directly on your website using our secure SDK.</p>
+          </div>
+
+          <div class="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl">
+            <div class="p-8 space-y-8">
+              <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                        <span class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-sm">1</span>
+                        Quick Integration
+                    </h3>
+                    <div class="flex bg-slate-800 rounded-xl p-1 gap-1">
+                        <button onclick="switchEmbedTab('usd')" id="tab-usd" class="embed-tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all bg-indigo-600 text-white">USD Only</button>
+                        <button onclick="switchEmbedTab('kes')" id="tab-kes" class="embed-tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all text-slate-400 hover:text-white">KES Only</button>
+                        <button onclick="switchEmbedTab('unified')" id="tab-unified" class="embed-tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all text-slate-400 hover:text-white">Unified (USD/KES)</button>
+                    </div>
+                </div>
+                
+                <p class="text-slate-400 text-sm">Copy and paste the code snippet below into your website's HTML where you want the payment button to appear.</p>
+                
+                <!-- USD Code -->
+                <div id="embed-usd" class="embed-content relative group animate-show">
+                  <pre class="bg-slate-800 p-6 rounded-2xl text-indigo-300 text-xs overflow-x-auto border border-slate-700 leading-relaxed"><code>&lt;!-- Paylang USD Integration --&gt;
+&lt;script src="https://paylang2.com/sdk.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+function payWithUSD(amount) {
+  Paylang.pay({
+    username: '<span class="userIdDisplay text-white font-bold">...</span>',
+    amount: amount,
+    currency: 'USD',
+    description: 'Product Purchase',
+    onSuccess: (ref) => alert('Payment successful! Ref: ' + ref)
+  });
+}
+&lt;/script&gt;
+
+&lt;button onclick="payWithUSD(10.00)" style="background:#4f46e5; color:white; border:none; padding:12px 24px; border-radius:12px; cursor:pointer; font-weight:bold;"&gt;
+  Pay $10.00 with Paylang
+&lt;/button&gt;</code></pre>
+                  <button onclick="copyEmbedCode('embed-usd')" class="absolute top-4 right-4 p-2 bg-slate-700 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                    Copy USD Code
+                  </button>
+                  <button onclick="testEmbedPopup('USD', 10.00)" class="mt-4 w-full py-4 rounded-2xl bg-indigo-600/10 text-indigo-400 font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-2 border border-indigo-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    Preview USD Popup
+                  </button>
+                </div>
+
+                <!-- KES Code -->
+                <div id="embed-kes" class="embed-content relative group hidden animate-show">
+                    <pre class="bg-slate-800 p-6 rounded-2xl text-indigo-300 text-xs overflow-x-auto border border-slate-700 leading-relaxed"><code>&lt;!-- Paylang KES Integration --&gt;
+&lt;script src="https://paylang2.com/sdk.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+function payWithKES(amount) {
+  Paylang.pay({
+    username: '<span class="userIdDisplay text-white font-bold">...</span>',
+    amount: amount,
+    currency: 'KES',
+    description: 'Product Purchase',
+    onSuccess: (ref) => alert('Payment successful! Ref: ' + ref)
+  });
+}
+&lt;/script&gt;
+
+&lt;button onclick="payWithKES(1500)" style="background:#10b981; color:white; border:none; padding:12px 24px; border-radius:12px; cursor:pointer; font-weight:bold;"&gt;
+  Pay KSh 1,500 with Paylang
+&lt;/button&gt;</code></pre>
+                    <button onclick="copyEmbedCode('embed-kes')" class="absolute top-4 right-4 p-2 bg-slate-700 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs font-bold">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                      Copy KES Code
+                    </button>
+                    <button onclick="testEmbedPopup('KES', 1500)" class="mt-4 w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200/20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        Preview KES Popup
+                    </button>
+                </div>
+
+                <!-- Unified Code -->
+                <div id="embed-unified" class="embed-content relative group hidden animate-show">
+                    <pre class="bg-slate-800 p-6 rounded-2xl text-indigo-300 text-xs overflow-x-auto border border-slate-700 leading-relaxed"><code>&lt;!-- Paylang Unified Integration --&gt;
+&lt;script src="https://paylang2.com/sdk.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+function payNow(amount, currency) {
+  Paylang.pay({
+    username: '<span class="userIdDisplay text-white font-bold">...</span>',
+    amount: amount,
+    currency: currency, // 'USD' or 'KES'
+    description: 'Order Payment',
+    onSuccess: (ref) => alert('Payment successful! Ref: ' + ref)
+  });
+}
+&lt;/script&gt;
+
+&lt;div style="display: flex; gap: 10px;"&gt;
+  &lt;button onclick="payNow(10.00, 'USD')" style="background:#4f46e5; color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:bold; cursor:pointer;"&gt;
+    Pay in USD
+  &lt;/button&gt;
+  &lt;button onclick="payNow(1500, 'KES')" style="background:#10b981; color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:bold; cursor:pointer;"&gt;
+    Pay in KES
+  &lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                    <button onclick="copyEmbedCode('embed-unified')" class="absolute top-4 right-4 p-2 bg-slate-700 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs font-bold">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                      Copy Unified Code
+                    </button>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <button onclick="testEmbedPopup('USD', 10.00)" class="py-4 rounded-2xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-200/20">
+                            Preview USD
+                        </button>
+                        <button onclick="testEmbedPopup('KES', 1500)" class="py-4 rounded-2xl bg-emerald-600 text-white font-bold text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200/20">
+                            Preview KES
+                        </button>
+                    </div>
+                </div>
+              </div>
+
+              <div class="space-y-4 pt-8 border-t border-slate-800">
+                <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                  <span class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-sm">2</span>
+                  How it works
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div class="space-y-2 text-center md:text-left">
+                    <p class="text-indigo-400 font-bold text-xs uppercase tracking-widest">Initialization</p>
+                    <p class="text-slate-300 text-sm">The SDK loads securely from our servers and provides the <code>Paylang.pay()</code> method.</p>
+                  </div>
+                  <div class="space-y-2 text-center md:text-left">
+                    <p class="text-indigo-400 font-bold text-xs uppercase tracking-widest">Transaction</p>
+                    <p class="text-slate-300 text-sm">A secure overlay handles the payment process without navigating away from your site.</p>
+                  </div>
+                  <div class="space-y-2 text-center md:text-left">
+                    <p class="text-indigo-400 font-bold text-xs uppercase tracking-widest">Settlement</p>
+                    <p class="text-slate-300 text-sm">Once complete, funds hit your wallet instantly and your <code>onSuccess</code> callback triggers.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Refunds Section -->
+        <section id="refunds" class="dashboard-section animate-show">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Refund Center</h1>
+            <p class="text-gray-500 mt-1">Manage and track your refund requests.</p>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div>
+              <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                Sent Transactions (Request Refund)
+              </h3>
+              <div id="yourRefundables" class="space-y-4">
+                <!-- JS Injected -->
+              </div>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                Incoming Refund Requests
+              </h3>
+              <div id="incomingRefunds" class="space-y-4">
+                <!-- JS Injected -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="dashboard-section animate-show">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Account Settings</h1>
+            <p class="text-gray-500 mt-1">Update your profile and security settings.</p>
+          </div>
+          <div class="max-w-xl space-y-8">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <h3 class="text-lg font-bold text-gray-800">Profile Information</h3>
+              <div class="grid grid-cols-1 gap-4">
+                <div class="p-4 bg-slate-50 rounded-xl">
+                  <p class="text-xs text-gray-500 uppercase font-bold mb-1">Full Name</p>
+                  <p class="text-slate-800 font-medium" id="settingName">...</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl">
+                  <p class="text-xs text-gray-500 uppercase font-bold mb-1">Email Address</p>
+                  <p class="text-slate-800 font-medium" id="settingEmail">...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Merchant Settings -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <h3 class="text-lg font-bold text-gray-800">Merchant Settings</h3>
+              <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase">Paystack Public Key</label>
+                    <input type="text" id="paystackKeyInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="pk_live_xxxx">
+                    <p class="text-[10px] text-gray-400">Required to receive payments on your request page.</p>
+                </div>
+                <button onclick="updatePaystackKey()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-all">Save Merchant Settings</button>
+              </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              <h3 class="text-lg font-bold text-gray-800">Change Password</h3>
+              <div class="space-y-4">
+                <input type="password" id="currentPassword" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Current Password">
+                <input type="password" id="newPassword" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="New Password">
+                <input type="password" id="confirmNewPassword" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Confirm New Password">
+                <button onclick="changePassword()" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition-all">Update Security</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Confirm Send Modal -->
+  <div id="confirmSendModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md transform transition-all duration-300 animate-show">
+      <div class="flex flex-col items-center text-center space-y-4 mb-8">
+        <div class="bg-indigo-50 text-indigo-600 p-4 rounded-full">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a4 4 0 00-8 0v2m-2 4h12m-6 4h.01"/></svg>
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold text-slate-800">Confirm Transfer</h3>
+          <p class="text-slate-500">Please review the transaction details.</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 rounded-2xl p-6 space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 text-sm">Recipient</span>
+          <span class="font-bold text-slate-800" id="confirmName">...</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 text-sm">Email</span>
+          <span class="text-sm text-slate-700" id="confirmEmail">...</span>
+        </div>
+        <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
+          <span class="text-slate-500 font-bold">Total Amount</span>
+          <span class="text-2xl font-black text-indigo-600" id="confirmAmount">$0.00</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mt-8">
+        <button onclick="document.getElementById('confirmSendModal').classList.add('hidden')" class="px-4 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all">Cancel</button>
+        <button id="confirmTransferBtn" onclick="confirmSendTransaction()" class="px-4 py-3.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">Send Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Savings Modal -->
+  <div id="savingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md transform transition-all duration-300 animate-show">
+      <div class="flex flex-col items-center text-center space-y-4 mb-8">
+        <div class="bg-emerald-50 text-emerald-600 p-4 rounded-full">
+          <svg id="savingsIcon" class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold text-slate-800" id="savingsTitle">Savings Deposit</h3>
+          <p class="text-slate-500" id="savingsSubtitle">Move money to your savings account.</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="p-4 bg-slate-50 rounded-xl">
+          <p class="text-xs text-gray-500 uppercase font-bold mb-1">Available to Move</p>
+          <p class="text-lg font-bold text-slate-800" id="savingsAvailable">$0.00</p>
+        </div>
+        <input type="number" id="savingsAmount" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xl font-bold outline-none focus:ring-2 focus:ring-emerald-500" placeholder="0.00">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mt-8">
+        <button onclick="document.getElementById('savingsModal').classList.add('hidden')" class="px-4 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all">Cancel</button>
+        <button id="savingsActionBtn" onclick="submitSavingsAction()" class="px-4 py-3.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction Details Modal -->
+  <div id="txDetailsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-lg transform transition-all duration-300 animate-show">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-slate-800">Transaction Details</h3>
+        <button onclick="document.getElementById('txDetailsModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="txDetailsContent" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
+        <!-- JS Injected -->
+      </div>
+
+      <div class="mt-8">
+        <button onclick="document.getElementById('txDetailsModal').classList.add('hidden')" class="w-full py-3.5 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition-all">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script>
+    let paystackPublicKey = '';
+    let currentUserEmail = '';
+    let pendingSendDetails = null;
+    let globalTransactions = [];
+
+    async function loadPaystackKey() {
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/config/paystack');
+        if (!res.ok) throw new Error('Failed to load Paystack key');
+        const data = await res.json();
+        paystackPublicKey = data.publicKey || '';
+      } catch (err) {
+        console.error('Paystack key load error:', err);
+      }
+    }
+
+    async function fetchUserData() {
+      const token = localStorage.getItem('token');
+      console.log('=== FETCH USER DATA ===');
+      console.log('Token from localStorage:', token ? token.substring(0, 20) + '...' : 'NOT FOUND');
+      if (!token) {
+        console.log('No token found, redirecting to login');
+        return logout();
+      }
+
+      console.log('Fetching from https://paylang.onrender.com/api/auth/dashboard...');
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/auth/dashboard', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        console.log('Dashboard API response status:', res.status);
+        
+        if (!res.ok) {
+          console.log('Response not OK, checking status...');
+          if (res.status === 401 || res.status === 404) {
+            console.error('Auth error (' + res.status + '), logging out');
+            localStorage.removeItem('token');
+            window.location.href = '../login';
+            return;
+          }
+          const errorData = await res.json().catch(() => ({}));
+          console.error('Dashboard API error:', errorData);
+          alert('Failed to load dashboard data. Please refresh the page.');
+          return;
+        }
+        
+        const data = await res.json();
+        console.log('Dashboard response received:', data);
+        
+        if (!data || !data.user) {
+          console.error('No user data in response! Data:', data);
+          localStorage.removeItem('token');
+          window.location.href = '../login';
+          return;
+        }
+        
+        console.log('User data found:', data.user.name);
+        const user = data.user;
+        globalTransactions = user.transactions || user.Transactions || [];
+        console.log('Global transactions populated:', globalTransactions.length);
+
+        // Set User Info
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('headerUserName').textContent = user.name;
+        document.getElementById('headerUserEmail').textContent = user.email;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('settingName').textContent = user.name;
+        document.getElementById('settingEmail').textContent = user.email;
+        document.getElementById('paystackKeyInput').value = user.paystackPublicKey || '';
+        document.getElementById('userId').textContent = user.id || 'UX-' + Math.floor(Math.random() * 10000);
+        
+        // Initials
+        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('userInitials').textContent = initials.substring(0, 2);
+
+        document.getElementById('balanceAmount').textContent = `$${parseFloat(user.balance || 0).toFixed(2)}`;
+        const credits = parseFloat(user.credits || 0).toFixed(2);
+        document.getElementById('creditBalance').textContent = `$${credits}`;
+        if (document.getElementById('withdrawCreditBalance')) {
+            document.getElementById('withdrawCreditBalance').textContent = `$${credits}`;
+        }
+        document.getElementById('savingsBalance').textContent = `$${parseFloat(user.savingsBalance || 0).toFixed(2)}`;
+        document.getElementById('referralLink').value = `https://paylang2.com/signup?ref=${user.referralCode || user.id}`;
+        const username = user.name.replace(/\s+/g, '').toLowerCase();
+        document.querySelectorAll('.userIdDisplay').forEach(el => el.textContent = username);
+        
+        document.getElementById('weeklyTx').textContent = user.transactions.length;
+
+        // Credit History List
+        const creditHistoryList = document.getElementById('creditHistoryList');
+        if (creditHistoryList) {
+            creditHistoryList.innerHTML = '';
+            const creditTxs = user.transactions
+                .filter(tx => tx.creditsEarned > 0 || tx.type === 'receive' && tx.amount === 10 && tx.description.includes('Referral'))
+                .reverse()
+                .slice(0, 10);
+            
+            if (creditTxs.length === 0) {
+                creditHistoryList.innerHTML = '<p class="text-[10px] text-gray-400 text-center italic">No credits earned yet</p>';
+            } else {
+                creditTxs.forEach(tx => {
+                    const amount = parseFloat(tx.creditsEarned || tx.amount || 0);
+                    const div = document.createElement('div');
+                    div.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg text-[10px]';
+                    div.innerHTML = `
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-700">${tx.description || 'Credit Awarded'}</span>
+                            <span class="text-slate-400">${new Date(tx.date).toLocaleDateString()}</span>
+                        </div>
+                        <span class="font-black text-emerald-600">+$${amount.toFixed(2)}</span>
+                    `;
+                    creditHistoryList.appendChild(div);
+                });
+            }
+        }
+
+        // Today's Spend
+        const today = new Date().toISOString().split('T')[0];
+        const spendToday = user.transactions
+          .filter(tx => ['send', 'withdraw'].includes(tx.type))
+          .filter(tx => new Date(tx.date).toISOString().split('T')[0] === today)
+          .reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
+        document.getElementById('todaysSpend').textContent = `-$${spendToday.toFixed(2)}`;
+
+        // Latest Transactions (for Overview)
+        const latestTx = [...user.transactions].reverse().slice(0, 5);
+        const txList = document.getElementById('latestTxList');
+        txList.innerHTML = '';
+        
+        if (latestTx.length === 0) {
+          txList.innerHTML = '<div class="p-6 text-center text-gray-400 text-sm">No recent activity</div>';
+        } else {
+          latestTx.forEach(tx => {
+            const isPositive = ['receive', 'deposit', 'requested'].includes(tx.type);
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between p-4 hover:bg-slate-50 transition-colors';
+            div.innerHTML = `
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center ${isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+                  ${isPositive ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 13l-5 5m0 0l-5-5m5 5V6"/></svg>'}
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-gray-800 uppercase tracking-tight">${tx.type}</p>
+                  <p class="text-xs text-gray-400">${new Date(tx.date).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <span class="font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${parseFloat(tx.amount || 0).toFixed(2)}</span>
+            `;
+            txList.appendChild(div);
+          });
+        }
+
+        // Transactions Table
+        const txBody = document.getElementById('transactionTableBody');
+        txBody.innerHTML = '';
+        [...globalTransactions].reverse().forEach((tx, idx) => {
+          const originalIdx = globalTransactions.length - 1 - idx;
+          const isPositive = ['receive', 'deposit', 'requested'].includes(tx.type);
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50 transition-colors cursor-pointer';
+          tr.onclick = () => showTxDetails(originalIdx);
+          tr.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tx.date).toLocaleDateString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${tx.type}</span></td>
+            <td class="px-6 py-4 whitespace-nowrap font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${parseFloat(tx.amount || 0).toFixed(2)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${tx.from || tx.to || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <button onclick="event.stopPropagation(); showTxDetails(${originalIdx})" class="text-indigo-600 hover:text-indigo-900 font-bold text-xs uppercase tracking-wider">Details</button>
+            </td>
+          `;
+          txBody.appendChild(tr);
+        });
+
+        // Refunds Logic
+        updateRefundsSection(user.transactions);
+
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+        // Logout only on authentication errors
+        if (err.message === 'Invalid session') {
+          logout();
+        }
+      }
+    }
+
+    function updateRefundsSection(transactions) {
+      const yourRefundables = document.getElementById('yourRefundables');
+      const incomingRefunds = document.getElementById('incomingRefunds');
+      yourRefundables.innerHTML = '';
+      incomingRefunds.innerHTML = '';
+
+      let refundablesFound = false;
+      transactions.forEach((tx) => {
+        const txDate = new Date(tx.date);
+        const hoursPassed = (new Date() - txDate) / (1000 * 60 * 60);
+
+        if (tx.type === 'send' && hoursPassed <= 24 && tx.status !== 'refund_requested' && tx.status !== 'refunded') {
+          refundablesFound = true;
+          const div = document.createElement('div');
+          div.className = 'bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3';
+          div.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-bold text-gray-800">Sent $${parseFloat(tx.amount || 0).toFixed(2)}</p>
+                <p class="text-xs text-gray-400">To: ${tx.to}</p>
+              </div>
+              <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${Math.max(0, (24 - hoursPassed)).toFixed(1)}h left</span>
+            </div>
+            <button onclick="askRefundReason(${tx.id})" class="w-full bg-slate-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-slate-800">Request Refund</button>
+          `;
+          yourRefundables.appendChild(div);
+        }
+
+        if (tx.type === 'receive' && tx.status === 'refund_requested') {
+          const div = document.createElement('div');
+          div.className = 'bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4';
+          div.innerHTML = `
+            <p class="text-sm text-gray-600"><strong>${tx.from}</strong> requested a refund of <span class="font-bold text-rose-500">$${parseFloat(tx.amount || 0).toFixed(2)}</span></p>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="approveRefund(${tx.id})" class="bg-emerald-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-emerald-700">Approve</button>
+              <button onclick="rejectRefund(${tx.id})" class="bg-rose-100 text-rose-600 text-xs font-bold py-2 rounded-lg hover:bg-rose-200">Reject</button>
+            </div>
+          `;
+          incomingRefunds.appendChild(div);
+        }
+      });
+
+      if (!refundablesFound) {
+        yourRefundables.innerHTML = '<div class="p-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center text-xs text-slate-400">No refundable transactions found</div>';
+      }
+      if (incomingRefunds.innerHTML === '') {
+        incomingRefunds.innerHTML = '<div class="p-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center text-xs text-slate-400">No pending refund requests</div>';
+      }
+    }
+
+    const currencyRates = { KES: 126, USD: 1 };
+
+    document.getElementById('depositAmount').addEventListener('input', updateDepositFeeNote);
+    document.getElementById('depositCurrency').addEventListener('change', updateDepositFeeNote);
+
+    function updateDepositFeeNote() {
+      const amount = parseFloat(document.getElementById('depositAmount').value);
+      const currency = document.getElementById('depositCurrency').value;
+      const rate = currencyRates[currency];
+      const note = document.getElementById('depositFeeNote');
+
+      if (amount && rate) {
+        const usdBeforeFee = amount / rate;
+        const fee = usdBeforeFee * 0.05;
+        const usdFinal = usdBeforeFee - fee;
+        note.textContent = `You'll receive ~$${usdFinal.toFixed(2)} after 5% fee`;
+        note.classList.remove('hidden');
+      } else {
+        note.classList.add('hidden');
+      }
+    }
+
+    async function startDeposit() {
+      const rawAmount = parseFloat(document.getElementById('depositAmount').value);
+      const currency = document.getElementById('depositCurrency').value;
+      const rate = currencyRates[currency];
+      const token = localStorage.getItem('token');
+      const userEmail = document.getElementById('userEmail').textContent;
+      const reference = 'IYPAY_' + Math.floor(Math.random() * 1000000000);
+
+      if (!rawAmount || rawAmount < 1 || !rate) return alert('Enter a valid amount');
+      if (!paystackPublicKey) await loadPaystackKey();
+      if (!paystackPublicKey) return alert('Unable to initialize payment gateway.');
+
+      const usdAmount = rawAmount / rate;
+      const fee = usdAmount * 0.05;
+      const finalUsdAmount = usdAmount - fee;
+
+      const handler = PaystackPop.setup({
+        key: paystackPublicKey,
+        email: userEmail,
+        amount: Math.round(rawAmount * 100),
+        currency: currency,
+        ref: reference,
+        callback: (response) => handleDepositSuccess(response, finalUsdAmount, token),
+        onClose: () => alert('Deposit cancelled.')
+      });
+      handler.openIframe();
+    }
+
+    async function handleDepositSuccess(response, amount, token) {
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/wallet/deposit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ amount, reference: response.reference })
+        });
+        if (res.ok) {
+          alert('✅ Deposit successful!');
+          fetchUserData();
+        } else {
+          const data = await res.json();
+          alert(data.msg || 'Deposit failed');
+        }
+      } catch (err) {
+        console.error('Deposit error:', err);
+        alert('Error updating wallet');
+      }
+    }
+
+    async function sendMoney() {
+      const email = document.getElementById('recipientEmail').value.trim();
+      const amount = parseFloat(document.getElementById('sendAmount').value);
+      const token = localStorage.getItem('token');
+
+      if (!email || !amount || amount < 1) return alert('Enter valid recipient and amount.');
+      if (email.toLowerCase() === currentUserEmail.toLowerCase()) return alert("You cannot send money to yourself.");
+
+      try {
+        const res = await fetch(`https://paylang.onrender.com/api/auth/user-by-email?email=${encodeURIComponent(email)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.user) return alert(data.msg || 'Recipient not found.');
+
+        pendingSendDetails = { email, amount };
+        document.getElementById('confirmEmail').textContent = data.user.email;
+        document.getElementById('confirmName').textContent = data.user.name;
+        document.getElementById('confirmAmount').textContent = `$${amount.toFixed(2)}`;
+        document.getElementById('confirmSendModal').classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert('Error verifying recipient.');
+      }
+    }
+
+    async function confirmSendTransaction() {
+      if (!pendingSendDetails) return;
+      const btn = document.getElementById('confirmTransferBtn');
+      disableButton(btn, 'Sending...');
+      const token = localStorage.getItem('token');
+
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/wallet/send', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ toEmail: pendingSendDetails.email, amount: pendingSendDetails.amount })
+        });
+        if (res.ok) {
+          alert('✅ Transfer successful!');
+          document.getElementById('confirmSendModal').classList.add('hidden');
+          pendingSendDetails = null;
+          fetchUserData();
+        } else {
+          const data = await res.json();
+          alert(data.msg || 'Transfer failed');
+        }
+      } catch (err) {
+        console.error('Send error:', err);
+        alert('Error processing transaction');
+      } finally {
+        enableButton(btn);
+      }
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '../login';
+    }
+
+    function showSection(id, btn) {
+      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+      const activeSection = document.getElementById(id);
+      if (activeSection) activeSection.classList.add('active');
+      
+      document.getElementById('currentSectionTitle').textContent = id.charAt(0).toUpperCase() + id.slice(1);
+      
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
+      if (btn) btn.classList.add('active-tab');
+      else {
+        const matchingBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.toLowerCase().includes(id.toLowerCase()));
+        if (matchingBtn) matchingBtn.classList.add('active-tab');
+      }
+
+      const sidebar = document.getElementById('sidebar');
+      if (window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
+    }
+
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
+
+    async function submitWithdrawal(event) {
+      event.preventDefault();
+      const btn = document.getElementById('withdrawBtn');
+      disableButton(btn, 'Processing...');
+      const token = localStorage.getItem('token');
+      const amount = parseFloat(document.getElementById('withdrawAmount').value);
+      const method = document.getElementById('withdrawMethod').value;
+      const currency = document.getElementById('withdrawCurrency').value;
+
+      if (!amount || !method || !currency) {
+        alert('Please fill all fields.');
+        return enableButton(btn);
+      }
+
+      const payoutDetails = {};
+      const fields = methodFields[method] || [];
+      for (const field of fields) {
+        const input = document.getElementById(field.name);
+        if (!input || (field.required && !input.value.trim())) {
+          alert(`${field.label} is required.`);
+          return enableButton(btn);
+        }
+        payoutDetails[field.name] = input.value.trim();
+      }
+
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/wallet/withdraw', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, method, currency, payoutDetails })
+        });
+        if (res.ok) {
+          alert('✅ Withdrawal request sent!');
+          document.getElementById('withdrawForm').reset();
+          fetchUserData();
+        } else {
+          const data = await res.json();
+          alert(data.msg || 'Withdrawal failed');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Server error during withdrawal.');
+      } finally {
+        enableButton(btn);
+      }
+    }
+
+    async function savePayoutDetails() {
+      const token = localStorage.getItem('token');
+      const method = document.getElementById('withdrawMethod').value;
+      const currency = document.getElementById('withdrawCurrency').value;
+      if (!method || !currency) return alert('Select currency and method first.');
+
+      const payoutDetails = {};
+      const fields = methodFields[method] || [];
+      for (const field of fields) {
+        const input = document.getElementById(field.name);
+        if (input) payoutDetails[field.name] = input.value.trim();
+      }
+
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/wallet/save-payout-details', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ method, currency, payoutDetails })
+        });
+        if (res.ok) {
+          alert('✅ Details saved!');
+          document.getElementById('savedDetailsNote').textContent = `✓ Details saved for ${method}`;
+          document.getElementById('savedDetailsNote').classList.remove('hidden');
+        }
+      } catch (err) {
+        alert('Error saving details.');
+      }
+    }
+
+    // Logic from the script section in the original file
+    const wiseCurrencies = {
+      AED: { name: 'UAE Dirham', rate: 3.67 },
+      AUD: { name: 'Australian Dollar', rate: 1.52 },
+      CAD: { name: 'Canadian Dollar', rate: 1.36 },
+      EUR: { name: 'Euro', rate: 0.8471 },
+      GBP: { name: 'British Pound', rate: 0.7378 },
+      INR: { name: 'Indian Rupee', rate: 84 },
+      JPY: { name: 'Japanese Yen', rate: 151 },
+      KES: { name: 'Kenyan Shilling', rate: 129.00, methods: ['Wise Transfer', 'Local Bank Transfer', 'Mobile Money'] },
+      NGN: { name: 'Nigerian Naira', rate: 1400 },
+      USD: { name: 'US Dollar', rate: 1, methods: ['Wise Transfer', 'Local Bank Transfer', 'SWIFT Transfer'] },
+      ZAR: { name: 'South African Rand', rate: 18.5 }
+    };
+
+    const methodFields = {
+      'Wise Transfer': [
+        { name: 'recipientEmail', label: 'Recipient Email', type: 'email', required: true },
+        { name: 'accountHolderName', label: 'Account Holder Name', type: 'text', required: true }
+      ],
+      'Local Bank Transfer': [
+        { name: 'bankName', label: 'Bank Name', type: 'text', required: true },
+        { name: 'accountNumber', label: 'Account Number', type: 'text', required: true },
+        { name: 'accountHolderName', label: 'Account Holder Name', type: 'text', required: true }
+      ],
+      'SWIFT Transfer': [
+        { name: 'swiftCode', label: 'SWIFT Code', type: 'text', required: true },
+        { name: 'bankName', label: 'Bank Name', type: 'text', required: true },
+        { name: 'accountNumber', label: 'Account Number', type: 'text', required: true },
+        { name: 'accountHolderName', label: 'Account Holder Name', type: 'text', required: true }
+      ],
+      'Mobile Money': [
+        { name: 'phoneNumber', label: 'Phone Number', type: 'tel', required: true },
+        { name: 'accountHolderName', label: 'Account Holder Name', type: 'text', required: true }
+      ]
+    };
+
+    function initWithdrawalUI() {
+      const cSelect = document.getElementById('withdrawCurrency');
+      if (!cSelect) return;
+      Object.keys(wiseCurrencies).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = `${c} - ${wiseCurrencies[c].name}`;
+        cSelect.appendChild(opt);
+      });
+      cSelect.addEventListener('change', updateMethods);
+      document.getElementById('withdrawMethod').addEventListener('change', renderPayoutFields);
+      document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawalSummary);
+      updateMethods();
+    }
+
+    function updateMethods() {
+      const c = document.getElementById('withdrawCurrency').value;
+      const mSelect = document.getElementById('withdrawMethod');
+      mSelect.innerHTML = '';
+      const methods = wiseCurrencies[c]?.methods || ['Wise Transfer', 'Local Bank Transfer'];
+      methods.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m; opt.textContent = m;
+        mSelect.appendChild(opt);
+      });
+      renderPayoutFields();
+      updateWithdrawalSummary();
+    }
+
+    function renderPayoutFields() {
+      const m = document.getElementById('withdrawMethod').value;
+      const container = document.getElementById('payoutDetailFields');
+      container.innerHTML = '';
+      (methodFields[m] || []).forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'space-y-1';
+        div.innerHTML = `<label class="text-xs font-bold text-slate-500 uppercase">${f.label}</label>
+          <input type="${f.type}" id="${f.name}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="${f.label}">`;
+        container.appendChild(div);
+      });
+      updateWithdrawalSummary();
+    }
+
+    function updateWithdrawalSummary() {
+      const amount = parseFloat(document.getElementById('withdrawAmount').value);
+      const credits = parseFloat(document.getElementById('creditBalance').textContent.replace('$', '')) || 0;
+      const c = document.getElementById('withdrawCurrency').value;
+      const cData = wiseCurrencies[c];
+      
+      if (!amount || !cData) return;
+
+      const platformFee = amount * 0.05;
+      // Add Wise transaction fee (approx 0.5%) for currencies other than KES
+      const wiseFee = (c !== 'KES' && c !== 'USD') ? (amount * 0.005) : 0;
+      const totalFee = platformFee + wiseFee;
+
+      let creditsUsed = 0;
+      let remainingFee = totalFee;
+
+      if (credits > 0) {
+        if (credits >= totalFee) {
+          creditsUsed = totalFee;
+          remainingFee = 0;
+        } else {
+          creditsUsed = credits;
+          remainingFee = totalFee - credits;
+        }
+      }
+
+      const finalAmount = amount - remainingFee;
+      const local = finalAmount * cData.rate;
+
+      document.getElementById('calcFee').innerHTML = `Platform (5%): $${platformFee.toFixed(2)}${wiseFee > 0 ? `<br/>Wise Fee (0.5%): $${wiseFee.toFixed(2)}` : ''}`;
+      document.getElementById('calcCredits').textContent = `-$${creditsUsed.toFixed(2)}`;
+      document.getElementById('calcRemainingFee').textContent = `$${remainingFee.toFixed(2)}`;
+      document.getElementById('calcFinalAmount').textContent = `${local.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${c}`;
+    }
+
+    function copyReferralLink() {
+      const el = document.getElementById('referralLink');
+      el.select();
+      document.execCommand('copy');
+      alert('Referral link copied to clipboard!');
+    }
+
+    function switchEmbedTab(tab) {
+        document.querySelectorAll('.embed-tab-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white');
+            btn.classList.add('text-slate-400', 'hover:text-white');
+        });
+        document.getElementById(`tab-${tab}`).classList.add('bg-indigo-600', 'text-white');
+        document.getElementById(`tab-${tab}`).classList.remove('text-slate-400', 'hover:text-white');
+
+        document.querySelectorAll('.embed-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        document.getElementById(`embed-${tab}`).classList.remove('hidden');
+    }
+
+    function copyEmbedCode(id) {
+      const code = document.querySelector(`#${id} pre code`).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        alert('Code copied to clipboard!');
+      });
+    }
+
+    function testEmbedPopup(currency, amount) {
+        const name = document.getElementById('userName').textContent.trim();
+        const username = name.replace(/\s+/g, '').toLowerCase();
+        
+        if (typeof Paylang === 'undefined') {
+            return alert('Paylang SDK is still loading. Please try again in a moment.');
+        }
+
+        Paylang.pay({
+            username: username,
+            amount: amount,
+            currency: currency,
+            description: 'Preview Payment'
+        });
+    }
+
+    let currentSavingsAction = 'deposit';
+    function openSavingsModal(action) {
+      currentSavingsAction = action;
+      const balance = parseFloat(document.getElementById('balanceAmount').textContent.replace('$', '')) || 0;
+      const savings = parseFloat(document.getElementById('savingsBalance').textContent.replace('$', '')) || 0;
+      
+      document.getElementById('savingsTitle').textContent = action === 'deposit' ? 'Savings Deposit' : 'Savings Withdrawal';
+      document.getElementById('savingsSubtitle').textContent = action === 'deposit' ? 'Move money to your savings account.' : 'Move money back to your main balance.';
+      document.getElementById('savingsAvailable').textContent = action === 'deposit' ? `$${balance.toFixed(2)}` : `$${savings.toFixed(2)}`;
+      
+      document.getElementById('savingsModal').classList.remove('hidden');
+    }
+
+    async function submitSavingsAction() {
+      const amount = parseFloat(document.getElementById('savingsAmount').value);
+      if (!amount || amount <= 0) return alert('Enter a valid amount');
+      
+      const token = localStorage.getItem('token');
+      const endpoint = currentSavingsAction === 'deposit' ? 'deposit' : 'withdraw';
+      
+      try {
+        const res = await fetch(`https://paylang.onrender.com/api/wallet/savings/${endpoint}`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(`✅ Successfully ${currentSavingsAction}ed!`);
+          document.getElementById('savingsModal').classList.add('hidden');
+          fetchUserData();
+        } else {
+          alert(data.msg || 'Action failed');
+        }
+      } catch (err) {
+        alert('Server error');
+      }
+    }
+
+    function showTxDetails(index) {
+      const tx = globalTransactions[index];
+      if (!tx) return;
+
+      const content = document.getElementById('txDetailsContent');
+      const isPositive = ['receive', 'deposit', 'requested'].includes(tx.type);
+      
+      let detailsHtml = `
+        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase">Amount</p>
+            <p class="text-2xl font-black ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : '-'}$${parseFloat(tx.amount || 0).toFixed(2)}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs font-bold text-slate-400 uppercase">Status</p>
+            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-white border border-slate-200">${tx.status || 'Completed'}</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 border border-slate-100 rounded-2xl">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Type</p>
+            <p class="text-sm font-bold text-slate-700 uppercase">${tx.type}</p>
+          </div>
+          <div class="p-4 border border-slate-100 rounded-2xl">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Date</p>
+            <p class="text-sm font-bold text-slate-700">${new Date(tx.date).toLocaleString()}</p>
+          </div>
+        </div>
+      `;
+
+      if (tx.from) {
+        detailsHtml += `
+          <div class="p-4 border border-slate-100 rounded-2xl">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">From</p>
+            <p class="text-sm font-bold text-slate-700">${tx.from}</p>
+          </div>
+        `;
+      }
+
+      if (tx.to) {
+        detailsHtml += `
+          <div class="p-4 border border-slate-100 rounded-2xl">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">To</p>
+            <p class="text-sm font-bold text-slate-700">${tx.to}</p>
+          </div>
+        `;
+      }
+
+      if (tx.description) {
+        detailsHtml += `
+          <div class="p-4 border border-slate-100 rounded-2xl">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Description</p>
+            <p class="text-sm text-slate-600">${tx.description}</p>
+          </div>
+        `;
+      }
+
+      if (tx.reference) {
+        detailsHtml += `
+          <div class="p-4 border border-slate-100 rounded-2xl">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Reference</p>
+            <p class="text-sm font-mono text-slate-500">${tx.reference}</p>
+          </div>
+        `;
+      }
+
+      if (tx.method) {
+        detailsHtml += `
+          <div class="p-4 border border-slate-100 rounded-2xl">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Method</p>
+            <p class="text-sm font-bold text-slate-700">${tx.method} ${tx.country ? `(${tx.country})` : ''}</p>
+          </div>
+        `;
+      }
+
+      if (tx.fee !== undefined || tx.creditsEarned) {
+        detailsHtml += `
+          <div class="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
+            ${tx.fee !== undefined ? `
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-500 font-bold uppercase">Transaction Fee</span>
+              <span class="font-bold text-indigo-600">$${parseFloat(tx.fee || 0).toFixed(2)}</span>
+            </div>
+            ` : ''}
+            ${tx.creditsUsed ? `
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-500 font-bold uppercase">Credits Used</span>
+              <span class="font-bold text-emerald-600">-$${parseFloat(tx.creditsUsed || 0).toFixed(2)}</span>
+            </div>
+            ` : ''}
+            ${tx.remainingFee ? `
+            <div class="flex justify-between text-xs font-bold pt-1 border-t border-indigo-100 mt-1">
+              <span class="text-slate-700 uppercase">Net Deducted</span>
+              <span class="text-slate-900">$${parseFloat(tx.remainingFee || 0).toFixed(2)}</span>
+            </div>
+            ` : ''}
+            ${tx.creditsEarned ? `
+            <div class="flex justify-between text-xs font-bold">
+              <span class="text-emerald-600 uppercase">Credits Earned</span>
+              <span class="text-emerald-700">+$${parseFloat(tx.creditsEarned || 0).toFixed(2)}</span>
+            </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      content.innerHTML = detailsHtml;
+      document.getElementById('txDetailsModal').classList.remove('hidden');
+    }
+
+    async function approveRefund(txId) {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`https://paylang.onrender.com/api/wallet/approve-refund/${txId}`, {
+          method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) { alert('✅ Refund approved.'); fetchUserData(); }
+      } catch (err) { alert('Error approving refund.'); }
+    }
+
+    async function rejectRefund(txId) {
+      const reason = prompt('Reason for rejection:');
+      if (!reason) return;
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`https://paylang.onrender.com/api/wallet/reject-refund/${txId}`, {
+          method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        if (res.ok) { alert('🚫 Refund rejected.'); fetchUserData(); }
+      } catch (err) { alert('Error rejecting refund.'); }
+    }
+
+    function askRefundReason(txId) {
+      const reason = prompt("📝 Enter refund reason:");
+      if (!reason || reason.trim().length < 5) return alert("⚠️ Reason too short.");
+      requestRefund(txId, reason.trim());
+    }
+
+    async function requestRefund(txId, reason) {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`https://paylang.onrender.com/api/wallet/refund-request/${txId}`, {
+          method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        if (res.ok) { alert('✅ Refund request submitted.'); fetchUserData(); }
+      } catch (err) { alert('Server error during refund.'); }
+    }
+
+    async function updatePaystackKey() {
+      const paystackPublicKey = document.getElementById('paystackKeyInput').value.trim();
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/auth/update-paystack-key', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paystackPublicKey })
+        });
+        if (res.ok) alert('✅ Merchant settings updated!');
+        else alert('Update failed.');
+      } catch (err) {
+        alert("Something went wrong.");
+      }
+    }
+
+    async function changePassword() {
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmNewPassword').value;
+      if (newPassword !== confirm) return alert("Passwords don't match.");
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('https://paylang.onrender.com/api/auth/change-password', {
+          method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        if (res.ok) alert('✅ Password updated!');
+        else alert('Update failed.');
+      } catch (err) { alert("Something went wrong."); }
+    }
+
+    function disableButton(button, text = 'Processing...') {
+      button.disabled = true;
+      button.dataset.originalText = button.textContent;
+      button.textContent = text;
+    }
+
+    function enableButton(button) {
+      button.disabled = false;
+      button.textContent = button.dataset.originalText || 'Submit';
+    }
+
+    function openRequestPage() {
+      const name = document.getElementById('userName').textContent.trim();
+      const username = name.replace(/\s+/g, '').toLowerCase();
+      window.location.href = `../request?user=${username}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPaystackKey();
+      fetchUserData();
+      initWithdrawalUI();
+    });
+  </script>
+</body>
+</html>
